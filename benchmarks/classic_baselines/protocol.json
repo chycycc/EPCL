@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "protocol_id": "classic_baselines_preparation_v1",
+  "scope_status": "approved_four_models",
+  "training_recipe_status": "draft_pending_data_and_runtime_adapter_checks",
+  "cloud_ready": false,
+  "models_in_queue_order": ["case_original", "multi_trs", "cem_original", "kemp"],
+  "seed": 13,
+  "precision": "fp32",
+  "training_policy": "Preserve each native model architecture and objective; freeze effective native training recipes before cloud smoke. Do not inherit CASE-EPCL optimizers, PCGrad, losses, clipping, ramps, or step budgets.",
+  "data": {
+    "identity_reference": "Current CASE ED cache, exported without importing src",
+    "expected_counts": {"train": 40250, "valid": 5734, "test": 5255},
+    "identity_fields": ["context", "target", "emotion"],
+    "valid_shuffle": false,
+    "test_shuffle": false,
+    "test_batch_size": 1,
+    "tokenization_and_output_vocabulary_alignment": "required_before_cross_model_ppl_ranking",
+    "old_local_cem_cache_reusable_as_is": false,
+    "kemp_dataset_verified": false
+  },
+  "evaluation": {
+    "nll_definition": "target_nll_sum_exclude_pad_include_eos_no_auxiliary_no_smoothing",
+    "ppl": ["sample_macro_ppl", "token_micro_ppl"],
+    "classification": ["emotion_acc_sample_micro", "emotion_ce_sample_mean"],
+    "generation_modes": ["greedy", "beam"],
+    "beam_size": 5,
+    "max_dec_step": 40,
+    "generation_counts": [500, 5255],
+    "generation_order": "canonical_test_order",
+    "report_500_and_full_separately": true,
+    "generation_metrics": ["dist_1", "dist_2", "unique", "avg_len", "empty_n"],
+    "normalization_status": "must freeze the common exported-text tokenizer before cloud generation",
+    "missing_classifier_value": null,
+    "test_data_may_select_checkpoints": false
+  },
+  "checkpoint_policy": {
+    "baseline_primary": "native Valid PPL best with deterministic validation; exact aggregation, validation batch and effective stopping recipe must be frozen per model before cloud launch",
+    "case_epcl": "retain existing composite_best primary and ppl_best supplementary roles; no baseline tool changes their selection",
+    "claim_scope": "cross_model_system_comparison_not_single_component_causal_ablation"
+  },
+  "remaining_before_training": [
+    "Align CEM and Multi-TRS inputs/targets to canonical sample tokens without mutating historical caches",
+    "Audit KEMP knowledge cache against canonical identities",
+    "Resolve target vocabulary, OOV mapping, EOS and pointer probability support; separate native PPL groups until then",
+    "Implement model-specific native-process artifact exporters and common text normalization",
+    "Freeze effective per-model training recipes and seed handling including KEMP module-level seed resets",
+    "Validate compatibility and checkpoint round trips on the actual confirmed cloud runtime",
+    "Record a CASE-EPCL reference environment fingerprint and compare every baseline environment"
+  ]
+}

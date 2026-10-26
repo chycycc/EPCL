@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-26",
+  "models": {
+    "case_original": {
+      "source": "case",
+      "native_model": "case"
+    },
+    "cem_original": {
+      "source": "cem",
+      "native_model": "cem"
+    },
+    "multi_trs": {
+      "source": "cem",
+      "native_model": "multi-trs"
+    },
+    "kemp": {
+      "source": "kemp",
+      "native_model": "KEMP"
+    }
+  },
+  "sources": {
+    "case": {
+      "url": "https://github.com/jfzhouyoo/CASE.git",
+      "commit": "ca1dd9a668cc8295a3525ec75f63be194134fdc6",
+      "sparse_paths": [
+        "src",
+        "utils"
+      ],
+      "config_path": "src/utils/config.py",
+      "files_sha256": {
+        "README.md": "383ae5223006e7df55c3cb5c52464a8017bf1f1fe51bee960d467a6ed2d6170e",
+        "main.py": "0c442ffe30f43f90e17102e31b33df070c3d67f2c9a8804f5361b56d56e70a25",
+        "main.sh": "b1e770283036b8b3de2b7cca96128d55c54ee06970433d99a02ce4e0aec3590b",
+        "src/models/CASE/model.py": "603dbfae545004d716773e68e706caaa0bcbeea03587827379908c47b47812de",
+        "src/models/common.py": "7e958b0c79dd3bfff3750d1f2031da184aa5da227ae98622a5f073d518872bf3",
+        "src/scripts/evaluate.py": "4f2220174d0d24417d62debaf973f25b39f5f83c9a3cf62cbb31e467d76e425f",
+        "src/utils/comet.py": "40c9fbc9c79a960ad803a427ca140abf255baa66b8741b6475968988ce1aa226",
+        "src/utils/common.py": "78d8dfc57edf284a3fa3c7d4b7b6f62f02fedff1b97a675b975c35cf4b1846e3",
+        "src/utils/config.py": "1201be721fd288773b1cfb43253b80d674158aecf31e31e68fb81fff54397b48",
+        "src/utils/constants.py": "2ddd4fe817464b5eb2bdfce49fbfcd6c43bd05a571d910930e4eda4f183e6b19",
+        "src/utils/data/loader.py": "01e5260b4c53d1d0be6429021a1ef65461aacb3c5b60c3d51fc48d65144aa455",
+        "src/utils/data/preprocess.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "src/utils/decode/beam.py": "07518a8021ef3517dcf09320f6cc460eb0b086fdcb05e7f35fd5910f6be7cf28",
+        "src/utils/decode/case.py": "1021ca551b2127900787616f49008ae752eba6f490fd8b7bdb8cdcdbc16ae70b",
+        "utils/utils.py": "a961c542c5d80274cb08957cc71c2e140d412d0739fe9a8ad80e1e95ce5f6bcf"
+      }
+    },
+    "cem": {
+      "url": "https://github.com/Sahandfer/CEM.git",
+      "commit": "f45d00a3cb17f48d8ff8bf39923b694c61d4695e",
+      "sparse_paths": [
+        "src",
+        "utils"
+      ],
+      "config_path": "src/utils/config.py",
+      "files_sha256": {
+        "README.md": "91497254cc6d57abb3fe00e8b45d56470434f711d2269f1f44642c69bf61af50",
+        "main.py": "81c66014c11e3ae696b41e625a776d12b21fb0fd9c3b6de1286b7a339d21591a",
+        "requirements.txt": "0d6d0d8cc37e191772da8adfe225fa6795aa5d8fc2001e66057cb6c4317d87fa",
+        "src/models/CEM/model.py": "0e12dea7c918fb868e2515713d4f76f34d68bfe215f7785e381d0018c855ac6a",
+        "src/models/EMPDG/model.py": "27d8abbde717b82e2cc2c7ebdc7a97c4ecf8427c21dd24d18d9c0b8427cec759",
+        "src/models/MIME/VAE_noEmo_posterior.py": "06a6188d427b7d79c049a8b044241b5edaaa70f246d2c119af420c019101cc1d",
+        "src/models/MIME/complex_res_attention.py": "67f17fd15caf5479077e08741612394f5a87fe1b66b7072756e4912dc1c70dfe",
+        "src/models/MIME/complex_res_gate.py": "8eb668b85a3534d4e381fd6aa092393ab7331e04d718d506d9531bd0db84dcc4",
+        "src/models/MIME/decoder_context_v.py": "be56c2ad9e0b557fdb0b5c5fb15e2c17344fca4f89a07fb25eb44999dace223e",
+        "src/models/MIME/emotion_input_attention.py": "2164ec7e94ebf52edc09447cb5af5251e5df2b86f034209782011b43ff159ee6",
+        "src/models/MIME/model.py": "d117b9d8cbaf3ca8411e80acdad1fc60d075e50e38ed43c7150a8eff5d729cc5",
+        "src/models/MOEL/model.py": "f410351d99a67863d6dfa68dd91211aa0a4d1fa4ec13889b169439564114ba10",
+        "src/models/Transformer/model.py": "05c466f8a562db852eb8638e62a06c528f9778e737ae0ec552ca2b17fc47cc25",
+        "src/models/common.py": "fd7751b988a95f87691af17737f376260f758e4edb2c2ac3cd913c454b25d7e1",
+        "src/scripts/evaluate.py": "35a26003dd7d863eae2d4055db689207e83e31aa1b0d8065a8866c0be8e3adfe",
+        "src/utils/comet.py": "40c9fbc9c79a960ad803a427ca140abf255baa66b8741b6475968988ce1aa226",
+        "src/utils/common.py": "81dce0d6fa838f87b36324fe7feb64fb44b1063fef93da602dea8c8723479efe",
+        "src/utils/config.py": "72b76ea838d3297a574d53a49e535794c004572ab4ade793dbd00e4dd54e5be7",
+        "src/utils/constants.py": "a604cb451c44a6cca1c40b57007d006e00accc383fad3cd0698f31bf0877b986",
+        "src/utils/data/loader.py": "8594b228a6b5fe18cfeb530b42faf8e57971abb5be67ba6c4f4f53832481b4ad",
+        "src/utils/data/preprocess.py": "b72688d56216bfb5cbb4a0e62a006282a07aba8599137440fd775efebeba0644",
+        "src/utils/decode/beam.py": "07518a8021ef3517dcf09320f6cc460eb0b086fdcb05e7f35fd5910f6be7cf28",
+        "src/utils/decode/cem.py": "01c1eb689d0df5b03c48a60f5a78bd7fd0eec881e973725442e89d941adca120",
+        "src/utils/decode/mime.py": "7ff82d242efbe3af29ae3e262e84be5da9a889258c8907f27fe0106a1839e2b4",
+        "src/utils/decode/moel.py": "361f03ed6f36e901f19844f6bd09d43fdea6842f5673d032c77ac58ee39c733b",
+        "src/utils/decode/transformer.py": "97ea1fdb06c7dc1314702bd4fd7da980aff0e8049709de4592f40cc775e7ca2b",
+        "utils/utils.py": "a961c542c5d80274cb08957cc71c2e140d412d0739fe9a8ad80e1e95ce5f6bcf"
+      }
+    },
+    "kemp": {
+      "url": "https://github.com/qtli/KEMP.git",
+      "commit": "b9a4fd58fa48556856c83d3d04125422d15e0b36",
+      "sparse_paths": [
+        "code",
+        "others"
+      ],
+      "config_path": "main.py",
+      "files_sha256": {
+        "README.md": "20ee23db351a6ff588bde6e6f1c1bdeca13498a72cee9cd91a6594dca716e30f",
+        "code/KEMP.py": "6ee93d25eada1262d168ab0556a503530c5cda5e583f487610f83a48baf01a3b",
+        "code/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "code/common.py": "35f38b95c5a8ad9582f872f33a61c56e204619bd6c4552128848d2dce8732428",
+        "code/common_layer.py": "3104d0b6536545e0371ea9968110ac3141fc9ba6cfef8bf1b911859853f6884c",
+        "code/dataloader.py": "f7b5ffc77165d6125ab3f9d8a61416276268b9ae0f51e0ed03c0d3cf8ab25b51",
+        "code/utils.py": "6a0e4a11819a116968bd719dce06d972480d91f22923365331956d35cd95b2bf",
+        "main.py": "8d63501bdddfeadbf62ce2b50354da9c0e66692bc2a9dc44895bbc7c9b9d6cb8",
+        "requirements.txt": "1f0bee92981adfa5f4712fa5d74ebc37eb3951dd50c6aa3acbdf222130a043e1"
+      }
+    }
+  }
+}

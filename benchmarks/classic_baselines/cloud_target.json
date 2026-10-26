@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "confirmed_by_user": "2026-10-26",
+  "os": "Ubuntu 22.04",
+  "python_major_minor": "3.10",
+  "torch_base_version": "2.1.0",
+  "torch_cuda_runtime": "12.1",
+  "gpu_model": "RTX 4090D",
+  "gpu_memory_gib_nominal": 24,
+  "gpu_count": 1,
+  "allocated_vcpu": 18,
+  "cpu_model": "AMD EPYC 9754 128-Core Processor",
+  "actual_cloud_runtime_measured": false,
+  "additional_package_versions": "Must match the actual CASE-EPCL environment snapshot before training; not inferred from old requirements.txt"
+}

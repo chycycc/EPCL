@@ -1,0 +1,567 @@
+{
+  "schema_version": 1,
+  "case": {
+    "cache_sha256": "94851e73f3fd9efcf9c32f15d3aaa2274a22196bbf309b1e4d862330cd744ea2",
+    "vocabulary_size": 24647,
+    "word_to_index_sha256": "844ae4bcc50531f630e131b0a0ae432c4b3d8a4ef4bd0db7e1be6d5ad8f4af43",
+    "lexical_support_sha256": "3d85b79939abc875cd00edb23a5c4fd77be3e796d5888d0ae2b382fc19eafcbe",
+    "splits": {
+      "train": {
+        "n": 40250,
+        "ordered_samples_sha256": "0b2cd41b5ee51624ef6f6fc0bfdce04839b47481f554e34704918f7d0d53ba6d",
+        "emotion_counts": {
+          "afraid": 1309,
+          "angry": 1428,
+          "annoyed": 1373,
+          "anticipating": 1255,
+          "anxious": 1265,
+          "apprehensive": 963,
+          "ashamed": 1040,
+          "caring": 1090,
+          "confident": 1275,
+          "content": 1193,
+          "devastated": 1166,
+          "disappointed": 1224,
+          "disgusted": 1270,
+          "embarrassed": 1147,
+          "excited": 1543,
+          "faithful": 782,
+          "furious": 1278,
+          "grateful": 1321,
+          "guilty": 1274,
+          "hopeful": 1268,
+          "impressed": 1266,
+          "jealous": 1218,
+          "joyful": 1236,
+          "lonely": 1318,
+          "nostalgic": 1236,
+          "prepared": 1211,
+          "proud": 1405,
+          "sad": 1376,
+          "sentimental": 1086,
+          "surprised": 2055,
+          "terrified": 1295,
+          "trusting": 1084
+        },
+        "target_lexical_tokens": 544561,
+        "native_target_oov_tokens": 0,
+        "jsonl_sha256": "0b2cd41b5ee51624ef6f6fc0bfdce04839b47481f554e34704918f7d0d53ba6d"
+      },
+      "valid": {
+        "n": 5734,
+        "ordered_samples_sha256": "73ee7d44d9407bc3faf9e3067a091037eb632d7706e44cc6a2f45c78ed2f5f12",
+        "emotion_counts": {
+          "afraid": 189,
+          "angry": 170,
+          "annoyed": 244,
+          "anticipating": 157,
+          "anxious": 170,
+          "apprehensive": 160,
+          "ashamed": 148,
+          "caring": 156,
+          "confident": 198,
+          "content": 179,
+          "devastated": 158,
+          "disappointed": 189,
+          "disgusted": 171,
+          "embarrassed": 197,
+          "excited": 203,
+          "faithful": 107,
+          "furious": 156,
+          "grateful": 157,
+          "guilty": 146,
+          "hopeful": 168,
+          "impressed": 211,
+          "jealous": 186,
+          "joyful": 177,
+          "lonely": 197,
+          "nostalgic": 168,
+          "prepared": 195,
+          "proud": 173,
+          "sad": 212,
+          "sentimental": 166,
+          "surprised": 303,
+          "terrified": 171,
+          "trusting": 152
+        },
+        "target_lexical_tokens": 81248,
+        "native_target_oov_tokens": 0,
+        "jsonl_sha256": "73ee7d44d9407bc3faf9e3067a091037eb632d7706e44cc6a2f45c78ed2f5f12"
+      },
+      "test": {
+        "n": 5255,
+        "ordered_samples_sha256": "fa159313aee62af25c10081fbabde5b04c32b9ccbb3752aeb79e0f5ea7e6d65a",
+        "emotion_counts": {
+          "afraid": 152,
+          "angry": 170,
+          "annoyed": 186,
+          "anticipating": 154,
+          "anxious": 157,
+          "apprehensive": 146,
+          "ashamed": 137,
+          "caring": 164,
+          "confident": 156,
+          "content": 162,
+          "devastated": 140,
+          "disappointed": 167,
+          "disgusted": 174,
+          "embarrassed": 164,
+          "excited": 186,
+          "faithful": 103,
+          "furious": 141,
+          "grateful": 203,
+          "guilty": 137,
+          "hopeful": 165,
+          "impressed": 165,
+          "jealous": 169,
+          "joyful": 169,
+          "lonely": 161,
+          "nostalgic": 159,
+          "prepared": 157,
+          "proud": 200,
+          "sad": 179,
+          "sentimental": 189,
+          "surprised": 266,
+          "terrified": 143,
+          "trusting": 134
+        },
+        "target_lexical_tokens": 75582,
+        "native_target_oov_tokens": 0,
+        "jsonl_sha256": "fa159313aee62af25c10081fbabde5b04c32b9ccbb3752aeb79e0f5ea7e6d65a"
+      }
+    }
+  },
+  "local_cem": {
+    "cache_sha256": "854335ca2b2099b57c5fa9afdeb4a2292d7a7329d158e704a549ad31fef09f01",
+    "vocabulary_size": 23712,
+    "word_to_index_sha256": "3ad69f0e3b8f883003535372305ae870d61c2052a353457713a5caadabb85b1b",
+    "lexical_support_sha256": "486572743bcedde1349e0e7ec3e8245d9f67b1618e78be04b5961e4115256088",
+    "splits": {
+      "train": {
+        "n": 40250,
+        "ordered_samples_sha256": "c16048e752556d1467d645e03c570b4ca3a602237d949efe7e2bb2102b6873d6",
+        "emotion_counts": {
+          "afraid": 1309,
+          "angry": 1428,
+          "annoyed": 1373,
+          "anticipating": 1255,
+          "anxious": 1265,
+          "apprehensive": 963,
+          "ashamed": 1040,
+          "caring": 1090,
+          "confident": 1275,
+          "content": 1193,
+          "devastated": 1166,
+          "disappointed": 1224,
+          "disgusted": 1270,
+          "embarrassed": 1147,
+          "excited": 1543,
+          "faithful": 782,
+          "furious": 1278,
+          "grateful": 1321,
+          "guilty": 1274,
+          "hopeful": 1268,
+          "impressed": 1266,
+          "jealous": 1218,
+          "joyful": 1236,
+          "lonely": 1318,
+          "nostalgic": 1236,
+          "prepared": 1211,
+          "proud": 1405,
+          "sad": 1376,
+          "sentimental": 1086,
+          "surprised": 2055,
+          "terrified": 1295,
+          "trusting": 1084
+        },
+        "target_lexical_tokens": 545118,
+        "native_target_oov_tokens": 0,
+        "canonical_differences": {
+          "context": 1058,
+          "target": 503,
+          "emotion": 0
+        },
+        "first_differing_indices": [
+          {
+            "index": 4,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 5,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 6,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 7,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 101,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 102,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 103,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 109,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 110,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 112,
+            "fields": [
+              "target"
+            ]
+          }
+        ]
+      },
+      "valid": {
+        "n": 5734,
+        "ordered_samples_sha256": "e1bc994e52e3c62617a6685107cd14b41c5f58a57b61ab4474b1e16e58c3ab4c",
+        "emotion_counts": {
+          "afraid": 189,
+          "angry": 170,
+          "annoyed": 244,
+          "anticipating": 157,
+          "anxious": 170,
+          "apprehensive": 160,
+          "ashamed": 148,
+          "caring": 156,
+          "confident": 198,
+          "content": 179,
+          "devastated": 158,
+          "disappointed": 189,
+          "disgusted": 171,
+          "embarrassed": 197,
+          "excited": 203,
+          "faithful": 107,
+          "furious": 156,
+          "grateful": 157,
+          "guilty": 146,
+          "hopeful": 168,
+          "impressed": 211,
+          "jealous": 186,
+          "joyful": 177,
+          "lonely": 197,
+          "nostalgic": 168,
+          "prepared": 195,
+          "proud": 173,
+          "sad": 212,
+          "sentimental": 166,
+          "surprised": 303,
+          "terrified": 171,
+          "trusting": 152
+        },
+        "target_lexical_tokens": 81341,
+        "native_target_oov_tokens": 0,
+        "canonical_differences": {
+          "context": 135,
+          "target": 92,
+          "emotion": 0
+        },
+        "first_differing_indices": [
+          {
+            "index": 4,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 5,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 15,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 58,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 59,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 91,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 100,
+            "fields": [
+              "target"
+            ]
+          },
+          {
+            "index": 101,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 102,
+            "fields": [
+              "context",
+              "target"
+            ]
+          },
+          {
+            "index": 103,
+            "fields": [
+              "context",
+              "target"
+            ]
+          }
+        ]
+      },
+      "test": {
+        "n": 5255,
+        "ordered_samples_sha256": "6eb83434a67d7c9e07da5ca00a0950454b3c7f030c58e66c629c7357b97e27f3",
+        "emotion_counts": {
+          "afraid": 152,
+          "angry": 170,
+          "annoyed": 186,
+          "anticipating": 154,
+          "anxious": 157,
+          "apprehensive": 146,
+          "ashamed": 137,
+          "caring": 164,
+          "confident": 156,
+          "content": 162,
+          "devastated": 140,
+          "disappointed": 167,
+          "disgusted": 174,
+          "embarrassed": 164,
+          "excited": 186,
+          "faithful": 103,
+          "furious": 141,
+          "grateful": 203,
+          "guilty": 137,
+          "hopeful": 165,
+          "impressed": 165,
+          "jealous": 169,
+          "joyful": 169,
+          "lonely": 161,
+          "nostalgic": 159,
+          "prepared": 157,
+          "proud": 200,
+          "sad": 179,
+          "sentimental": 189,
+          "surprised": 266,
+          "terrified": 143,
+          "trusting": 134
+        },
+        "target_lexical_tokens": 75687,
+        "native_target_oov_tokens": 0,
+        "canonical_differences": {
+          "context": 178,
+          "target": 88,
+          "emotion": 0
+        },
+        "first_differing_indices": [
+          {
+            "index": 35,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 36,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 46,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 52,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 54,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 55,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 56,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 57,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 58,
+            "fields": [
+              "context"
+            ]
+          },
+          {
+            "index": 60,
+            "fields": [
+              "target"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "raw_files": {
+    "sys_dialog_texts.train.npy": {
+      "case_sha256": "6c3d886857ca3497841a95ed3f832fca298573cda85ae6a66750938711c79861",
+      "cem_sha256": "6c3d886857ca3497841a95ed3f832fca298573cda85ae6a66750938711c79861",
+      "same_bytes": true
+    },
+    "sys_target_texts.train.npy": {
+      "case_sha256": "5c4519c68a270b4fa31cb0834341a46773cc2c0aef31f43383d0e2ff4c20c560",
+      "cem_sha256": "5c4519c68a270b4fa31cb0834341a46773cc2c0aef31f43383d0e2ff4c20c560",
+      "same_bytes": true
+    },
+    "sys_emotion_texts.train.npy": {
+      "case_sha256": "efe69deca7682f5aadd65def7c95e10b8f4ca5d0769d191723880a3b0d90c64c",
+      "cem_sha256": "efe69deca7682f5aadd65def7c95e10b8f4ca5d0769d191723880a3b0d90c64c",
+      "same_bytes": true
+    },
+    "sys_situation_texts.train.npy": {
+      "case_sha256": "4bf170be819eb56a68d0b1a2cb926c38b2ccc0637bd2d7200cd6c39c8de98f79",
+      "cem_sha256": "4bf170be819eb56a68d0b1a2cb926c38b2ccc0637bd2d7200cd6c39c8de98f79",
+      "same_bytes": true
+    },
+    "sys_dialog_texts.dev.npy": {
+      "case_sha256": "d6bcae4d57a735fc311fec352305a29842d9b91fd1fd18e80f38ca5755800473",
+      "cem_sha256": "d6bcae4d57a735fc311fec352305a29842d9b91fd1fd18e80f38ca5755800473",
+      "same_bytes": true
+    },
+    "sys_target_texts.dev.npy": {
+      "case_sha256": "f2864414420cc76034348b9ba9dab78cef910abb0b218613ec4108412040a482",
+      "cem_sha256": "f2864414420cc76034348b9ba9dab78cef910abb0b218613ec4108412040a482",
+      "same_bytes": true
+    },
+    "sys_emotion_texts.dev.npy": {
+      "case_sha256": "9685ae4dbcf414430f9bd5c4f00892aa0c9ddccebed7fdb2b82e7682f702021e",
+      "cem_sha256": "9685ae4dbcf414430f9bd5c4f00892aa0c9ddccebed7fdb2b82e7682f702021e",
+      "same_bytes": true
+    },
+    "sys_situation_texts.dev.npy": {
+      "case_sha256": "07208c8e3e67592d6ae3db821975a74bf95679843368887d58f5d806683b252e",
+      "cem_sha256": "07208c8e3e67592d6ae3db821975a74bf95679843368887d58f5d806683b252e",
+      "same_bytes": true
+    },
+    "sys_dialog_texts.test.npy": {
+      "case_sha256": "311cce8cf985d72934477661226c011cd9460eb2ed62667dcda2ce5fb36d3cb1",
+      "cem_sha256": "311cce8cf985d72934477661226c011cd9460eb2ed62667dcda2ce5fb36d3cb1",
+      "same_bytes": true
+    },
+    "sys_target_texts.test.npy": {
+      "case_sha256": "1cead1857b343e169187ca05592e83eeb8af7069f72dd30a06b9cff7b4be5d82",
+      "cem_sha256": "1cead1857b343e169187ca05592e83eeb8af7069f72dd30a06b9cff7b4be5d82",
+      "same_bytes": true
+    },
+    "sys_emotion_texts.test.npy": {
+      "case_sha256": "5da0bf44ad00d0e7e308fbd08fd615989511e4bcd5370ba66796cb168c67aa4e",
+      "cem_sha256": "5da0bf44ad00d0e7e308fbd08fd615989511e4bcd5370ba66796cb168c67aa4e",
+      "same_bytes": true
+    },
+    "sys_situation_texts.test.npy": {
+      "case_sha256": "6edeec06defc9f85da2dde070a304fa4327988155b5c39e076c8a9cc9b07f2b5",
+      "cem_sha256": "6edeec06defc9f85da2dde070a304fa4327988155b5c39e076c8a9cc9b07f2b5",
+      "same_bytes": true
+    }
+  },
+  "same_ordered_samples": false,
+  "same_emotion_mapping": true,
+  "emotion_mapping": {
+    "surprised": 0,
+    "excited": 1,
+    "annoyed": 2,
+    "proud": 3,
+    "angry": 4,
+    "sad": 5,
+    "grateful": 6,
+    "lonely": 7,
+    "impressed": 8,
+    "afraid": 9,
+    "disgusted": 10,
+    "confident": 11,
+    "terrified": 12,
+    "hopeful": 13,
+    "anxious": 14,
+    "disappointed": 15,
+    "joyful": 16,
+    "prepared": 17,
+    "guilty": 18,
+    "furious": 19,
+    "nostalgic": 20,
+    "jealous": 21,
+    "anticipating": 22,
+    "embarrassed": 23,
+    "content": 24,
+    "devastated": 25,
+    "sentimental": 26,
+    "caring": 27,
+    "trusting": 28,
+    "ashamed": 29,
+    "apprehensive": 30,
+    "faithful": 31
+  },
+  "same_native_vocabulary": false,
+  "native_ppl_directly_rankable": false,
+  "kemp_dataset_audited": false,
+  "training_started": false
+}

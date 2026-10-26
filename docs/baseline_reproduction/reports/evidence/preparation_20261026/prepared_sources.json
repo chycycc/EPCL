@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "training_started": false,
+  "cloud_ready": false,
+  "models": {
+    "case_original": {
+      "source": "case",
+      "source_commit": "ca1dd9a668cc8295a3525ec75f63be194134fdc6",
+      "native_model": "case",
+      "applied_fixes": [
+        {
+          "path": "main.py",
+          "upstream_sha256": "0c442ffe30f43f90e17102e31b33df070c3d67f2c9a8804f5361b56d56e70a25",
+          "prepared_sha256": "80e6e867c2276fed60c9fc2507e4e593aad11a922e925f460bb098a87a41a198",
+          "diff": "--- a/main.py\n+++ b/main.py\n@@ -21,10 +21,11 @@\n         )\n     model.to(config.device)\n     \n-    # Intialization\n-    for n, p in model.named_parameters():\n-        if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n-            xavier_uniform_(p)\n+    # Initialize fresh training only; constructors restore evaluation weights.\n+    if not is_eval:\n+        for n, p in model.named_parameters():\n+            if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n+                xavier_uniform_(p)\n \n     print(\"# PARAMETERS\", count_parameters(model))\n \n"
+        },
+        {
+          "path": "src/models/common.py",
+          "upstream_sha256": "7e958b0c79dd3bfff3750d1f2031da184aa5da227ae98622a5f073d518872bf3",
+          "prepared_sha256": "dc7676ed534f7f6acb7ec20be05ade6d114f9d6883e70e420b879caa92cfa011",
+          "diff": "--- a/src/models/common.py\n+++ b/src/models/common.py\n@@ -659,7 +659,7 @@\n         float(num_timescales) - 1\n     )\n     inv_timescales = min_timescale * np.exp(\n-        np.arange(num_timescales).astype(np.float) * -log_timescale_increment\n+        np.arange(num_timescales).astype(np.float64) * -log_timescale_increment\n     )\n     scaled_time = np.expand_dims(position, 1) * np.expand_dims(inv_timescales, 0)\n \n"
+        },
+        {
+          "path": "src/utils/data/loader.py",
+          "upstream_sha256": "01e5260b4c53d1d0be6429021a1ef65461aacb3c5b60c3d51fc48d65144aa455",
+          "prepared_sha256": "bf6fc317d2d6aea29ea22a5c49b062253fa756e6d67783e42338d59114d68929",
+          "diff": "--- a/src/utils/data/loader.py\n+++ b/src/utils/data/loader.py\n@@ -1398,7 +1398,7 @@\n     data_loader_val = torch.utils.data.DataLoader(\n         dataset=dataset_valid,\n         batch_size=config.batch_size,\n-        shuffle=True,\n+        shuffle=False,\n         collate_fn=dataset_valid.collate_fn,\n     )\n     dataset_test = Dataset(pairs_tst, vocab)\n"
+        }
+      ],
+      "prepared_files_sha256": {
+        "README.md": "383ae5223006e7df55c3cb5c52464a8017bf1f1fe51bee960d467a6ed2d6170e",
+        "main.py": "80e6e867c2276fed60c9fc2507e4e593aad11a922e925f460bb098a87a41a198",
+        "main.sh": "b1e770283036b8b3de2b7cca96128d55c54ee06970433d99a02ce4e0aec3590b",
+        "src/models/CASE/model.py": "17106eadc0195e55901ae7aa50dcb25c0ca7891468aea2f3b8104a1686d2292d",
+        "src/models/common.py": "dc7676ed534f7f6acb7ec20be05ade6d114f9d6883e70e420b879caa92cfa011",
+        "src/scripts/evaluate.py": "abb2a490069ada9164fc0eb61d0f2dc3fd4da886117fc83b56589ee4fdaee5b2",
+        "src/utils/comet.py": "2d7b0ba32b2d037af2821e0eb22cdb3ab21c507c775f7cd9e44c7cbe579ec3db",
+        "src/utils/common.py": "83fd4a74edf788d082dda8be2c8c4b04f1237ef3da142355a2cd5384d490e236",
+        "src/utils/config.py": "d7a1580e9c43f07d0c8c6043a7f8b3a28f94a4696d7bf0fd92c9803efb3ccda4",
+        "src/utils/constants.py": "640b2023a6c53c3d42c745212c73a155e1b352ef479a17f56558daeebfd6d2a5",
+        "src/utils/data/loader.py": "bf6fc317d2d6aea29ea22a5c49b062253fa756e6d67783e42338d59114d68929",
+        "src/utils/data/preprocess.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "src/utils/decode/beam.py": "1e1b55e1e6843f579e14d442f43f5b2b70ffad353b59ab0745d04161bc5fda95",
+        "src/utils/decode/case.py": "aa1bd34c2689585a9b81ceedd2499dece38ecd2a82f1a8c2e05e97678f440373",
+        "utils/utils.py": "41776722182627c2e2715b3116dd1557f808afdd8b72c74729e02f2349ae878e"
+      },
+      "data_installed": false,
+      "model_runtime_checked": false
+    },
+    "cem_original": {
+      "source": "cem",
+      "source_commit": "f45d00a3cb17f48d8ff8bf39923b694c61d4695e",
+      "native_model": "cem",
+      "applied_fixes": [
+        {
+          "path": "main.py",
+          "upstream_sha256": "81c66014c11e3ae696b41e625a776d12b21fb0fd9c3b6de1286b7a339d21591a",
+          "prepared_sha256": "ff9008165cfaf3df602151b3dbd1cc8a9622730518477f163136b3eae2a471f9",
+          "diff": "--- a/main.py\n+++ b/main.py\n@@ -62,10 +62,11 @@\n \n     model.to(config.device)\n \n-    # Intialization\n-    for n, p in model.named_parameters():\n-        if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n-            xavier_uniform_(p)\n+    # Initialize fresh training only; constructors restore evaluation weights.\n+    if not is_eval:\n+        for n, p in model.named_parameters():\n+            if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n+                xavier_uniform_(p)\n \n     print(\"# PARAMETERS\", count_parameters(model))\n \n"
+        },
+        {
+          "path": "src/utils/data/loader.py",
+          "upstream_sha256": "8594b228a6b5fe18cfeb530b42faf8e57971abb5be67ba6c4f4f53832481b4ad",
+          "prepared_sha256": "49be7c14690844fcb08f6399c58b239a2478ae9d2fed280135147eaf2e925713",
+          "diff": "--- a/src/utils/data/loader.py\n+++ b/src/utils/data/loader.py\n@@ -370,7 +370,7 @@\n     data_loader_val = torch.utils.data.DataLoader(\n         dataset=dataset_valid,\n         batch_size=batch_size,\n-        shuffle=True,\n+        shuffle=False,\n         collate_fn=collate_fn,\n     )\n     dataset_test = Dataset(pairs_tst, vocab)\n"
+        }
+      ],
+      "prepared_files_sha256": {
+        "README.md": "91497254cc6d57abb3fe00e8b45d56470434f711d2269f1f44642c69bf61af50",
+        "main.py": "ff9008165cfaf3df602151b3dbd1cc8a9622730518477f163136b3eae2a471f9",
+        "requirements.txt": "0d6d0d8cc37e191772da8adfe225fa6795aa5d8fc2001e66057cb6c4317d87fa",
+        "src/models/CEM/model.py": "5414ff974eab35d4674740fa03eaba8a6b812b573bf22c54e81803eb6ed4d078",
+        "src/models/EMPDG/model.py": "d23d100681c0678c0d2edd87d1985b9c26607387a2efe27d87ec7478b1cbd087",
+        "src/models/MIME/VAE_noEmo_posterior.py": "da23272804e411ae76529dd554c74d675ebb81743f32aa81d57884d71f199907",
+        "src/models/MIME/complex_res_attention.py": "701a67034e83a21e6d1ecb92d1dc2f875fd08376e9cd380a6ddee0ef1f4506d2",
+        "src/models/MIME/complex_res_gate.py": "50c3e2feef15b8c50eb3c37a0354b2973f60f7303f845ee691cdb64814670f3a",
+        "src/models/MIME/decoder_context_v.py": "58c0fb07606a99d79f9a8a06c8b015068b39159bb4484720e7d21911125d049b",
+        "src/models/MIME/emotion_input_attention.py": "82b164cf7c9298ece4cb9d7ba2ab627828d309d9abcd1de12010b87da37b0225",
+        "src/models/MIME/model.py": "60d89c3b855616a7d349c9895d31705ff1db77e93125f6f67be83067c96c0a14",
+        "src/models/MOEL/model.py": "c4b1c11732ad7b321f8b2e1ee9af3dfc53bb3ec8aebf20bbfc3b4f18ac8e18fd",
+        "src/models/Transformer/model.py": "64453b3faa519f50da9659a7528ba79a29c2c57c10b79f20f86151f8e620352c",
+        "src/models/common.py": "b6df1cb2a79ebb0c41b02ed8dbb4d46a21e878e43968f0a87a0ed98d91b081c3",
+        "src/scripts/evaluate.py": "6f294e84efa3098f359f366a70bc1777beeae1cdb2e0752ef9127011980f8f09",
+        "src/utils/comet.py": "2d7b0ba32b2d037af2821e0eb22cdb3ab21c507c775f7cd9e44c7cbe579ec3db",
+        "src/utils/common.py": "c349083b8b98e02a9df89b069fb5d8f972ab29c549975c5f282fdb41a6e54caa",
+        "src/utils/config.py": "f6a5a8cdeafcd28c8fc89a8637466550eaa91f66a452a14ef338e8cb3beb2453",
+        "src/utils/constants.py": "8e8561e70df9a44795553643784c84f80dd99737b357d360cca8268cc39694ab",
+        "src/utils/data/loader.py": "49be7c14690844fcb08f6399c58b239a2478ae9d2fed280135147eaf2e925713",
+        "src/utils/data/preprocess.py": "f3e241cdc64a5c8582ec34667e8dc00cd97136cab2e4b0ded54949c5edaadefa",
+        "src/utils/decode/beam.py": "1e1b55e1e6843f579e14d442f43f5b2b70ffad353b59ab0745d04161bc5fda95",
+        "src/utils/decode/cem.py": "d311d5b544a119c2962fd7e1f74b1ff61748d04580320b62c3d41fc89370298d",
+        "src/utils/decode/mime.py": "e0ac5b7b1aac8638fa5f843a7f8cfaa94becc2f887c2420ed88153aec9b50215",
+        "src/utils/decode/moel.py": "c35a6aec211eae45f4ad2f7d380a362b29a5b9c773b8145346fa6c244d0a8be8",
+        "src/utils/decode/transformer.py": "d48539865bfd9db6a454024b36086e5e4c3f5f333882d9543f084cf220586645",
+        "utils/utils.py": "41776722182627c2e2715b3116dd1557f808afdd8b72c74729e02f2349ae878e"
+      },
+      "data_installed": false,
+      "model_runtime_checked": false
+    },
+    "multi_trs": {
+      "source": "cem",
+      "source_commit": "f45d00a3cb17f48d8ff8bf39923b694c61d4695e",
+      "native_model": "multi-trs",
+      "applied_fixes": [
+        {
+          "path": "main.py",
+          "upstream_sha256": "81c66014c11e3ae696b41e625a776d12b21fb0fd9c3b6de1286b7a339d21591a",
+          "prepared_sha256": "ff9008165cfaf3df602151b3dbd1cc8a9622730518477f163136b3eae2a471f9",
+          "diff": "--- a/main.py\n+++ b/main.py\n@@ -62,10 +62,11 @@\n \n     model.to(config.device)\n \n-    # Intialization\n-    for n, p in model.named_parameters():\n-        if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n-            xavier_uniform_(p)\n+    # Initialize fresh training only; constructors restore evaluation weights.\n+    if not is_eval:\n+        for n, p in model.named_parameters():\n+            if p.dim() > 1 and (n != \"embedding.lut.weight\" and config.pretrain_emb):\n+                xavier_uniform_(p)\n \n     print(\"# PARAMETERS\", count_parameters(model))\n \n"
+        },
+        {
+          "path": "src/utils/data/loader.py",
+          "upstream_sha256": "8594b228a6b5fe18cfeb530b42faf8e57971abb5be67ba6c4f4f53832481b4ad",
+          "prepared_sha256": "49be7c14690844fcb08f6399c58b239a2478ae9d2fed280135147eaf2e925713",
+          "diff": "--- a/src/utils/data/loader.py\n+++ b/src/utils/data/loader.py\n@@ -370,7 +370,7 @@\n     data_loader_val = torch.utils.data.DataLoader(\n         dataset=dataset_valid,\n         batch_size=batch_size,\n-        shuffle=True,\n+        shuffle=False,\n         collate_fn=collate_fn,\n     )\n     dataset_test = Dataset(pairs_tst, vocab)\n"
+        }
+      ],
+      "prepared_files_sha256": {
+        "README.md": "91497254cc6d57abb3fe00e8b45d56470434f711d2269f1f44642c69bf61af50",
+        "main.py": "ff9008165cfaf3df602151b3dbd1cc8a9622730518477f163136b3eae2a471f9",
+        "requirements.txt": "0d6d0d8cc37e191772da8adfe225fa6795aa5d8fc2001e66057cb6c4317d87fa",
+        "src/models/CEM/model.py": "5414ff974eab35d4674740fa03eaba8a6b812b573bf22c54e81803eb6ed4d078",
+        "src/models/EMPDG/model.py": "d23d100681c0678c0d2edd87d1985b9c26607387a2efe27d87ec7478b1cbd087",
+        "src/models/MIME/VAE_noEmo_posterior.py": "da23272804e411ae76529dd554c74d675ebb81743f32aa81d57884d71f199907",
+        "src/models/MIME/complex_res_attention.py": "701a67034e83a21e6d1ecb92d1dc2f875fd08376e9cd380a6ddee0ef1f4506d2",
+        "src/models/MIME/complex_res_gate.py": "50c3e2feef15b8c50eb3c37a0354b2973f60f7303f845ee691cdb64814670f3a",
+        "src/models/MIME/decoder_context_v.py": "58c0fb07606a99d79f9a8a06c8b015068b39159bb4484720e7d21911125d049b",
+        "src/models/MIME/emotion_input_attention.py": "82b164cf7c9298ece4cb9d7ba2ab627828d309d9abcd1de12010b87da37b0225",
+        "src/models/MIME/model.py": "60d89c3b855616a7d349c9895d31705ff1db77e93125f6f67be83067c96c0a14",
+        "src/models/MOEL/model.py": "c4b1c11732ad7b321f8b2e1ee9af3dfc53bb3ec8aebf20bbfc3b4f18ac8e18fd",
+        "src/models/Transformer/model.py": "64453b3faa519f50da9659a7528ba79a29c2c57c10b79f20f86151f8e620352c",
+        "src/models/common.py": "b6df1cb2a79ebb0c41b02ed8dbb4d46a21e878e43968f0a87a0ed98d91b081c3",
+        "src/scripts/evaluate.py": "6f294e84efa3098f359f366a70bc1777beeae1cdb2e0752ef9127011980f8f09",
+        "src/utils/comet.py": "2d7b0ba32b2d037af2821e0eb22cdb3ab21c507c775f7cd9e44c7cbe579ec3db",
+        "src/utils/common.py": "c349083b8b98e02a9df89b069fb5d8f972ab29c549975c5f282fdb41a6e54caa",
+        "src/utils/config.py": "f6a5a8cdeafcd28c8fc89a8637466550eaa91f66a452a14ef338e8cb3beb2453",
+        "src/utils/constants.py": "8e8561e70df9a44795553643784c84f80dd99737b357d360cca8268cc39694ab",
+        "src/utils/data/loader.py": "49be7c14690844fcb08f6399c58b239a2478ae9d2fed280135147eaf2e925713",
+        "src/utils/data/preprocess.py": "f3e241cdc64a5c8582ec34667e8dc00cd97136cab2e4b0ded54949c5edaadefa",
+        "src/utils/decode/beam.py": "1e1b55e1e6843f579e14d442f43f5b2b70ffad353b59ab0745d04161bc5fda95",
+        "src/utils/decode/cem.py": "d311d5b544a119c2962fd7e1f74b1ff61748d04580320b62c3d41fc89370298d",
+        "src/utils/decode/mime.py": "e0ac5b7b1aac8638fa5f843a7f8cfaa94becc2f887c2420ed88153aec9b50215",
+        "src/utils/decode/moel.py": "c35a6aec211eae45f4ad2f7d380a362b29a5b9c773b8145346fa6c244d0a8be8",
+        "src/utils/decode/transformer.py": "d48539865bfd9db6a454024b36086e5e4c3f5f333882d9543f084cf220586645",
+        "utils/utils.py": "41776722182627c2e2715b3116dd1557f808afdd8b72c74729e02f2349ae878e"
+      },
+      "data_installed": false,
+      "model_runtime_checked": false
+    },
+    "kemp": {
+      "source": "kemp",
+      "source_commit": "b9a4fd58fa48556856c83d3d04125422d15e0b36",
+      "native_model": "KEMP",
+      "applied_fixes": [
+        {
+          "path": "code/dataloader.py",
+          "upstream_sha256": "f7b5ffc77165d6125ab3f9d8a61416276268b9ae0f51e0ed03c0d3cf8ab25b51",
+          "prepared_sha256": "9cab11ef18cb0f316643a53a7342612ff2d4392bac8c3a67d22aad1ef6d759aa",
+          "diff": "--- a/code/dataloader.py\n+++ b/code/dataloader.py\n@@ -453,7 +453,7 @@\n     dataset_valid = Dataset(pairs_val, word2index, args)\n     data_loader_val = torch.utils.data.DataLoader(dataset=dataset_valid,\n                                                  batch_size=batch_size,\n-                                                 shuffle=True, collate_fn=dataset_valid.collate_fn)\n+                                                 shuffle=False, collate_fn=dataset_valid.collate_fn)\n \n     dataset_test = Dataset(pairs_tst, word2index, args)\n     data_loader_tst = torch.utils.data.DataLoader(dataset=dataset_test,\n"
+        }
+      ],
+      "prepared_files_sha256": {
+        "README.md": "20ee23db351a6ff588bde6e6f1c1bdeca13498a72cee9cd91a6594dca716e30f",
+        "code/KEMP.py": "084a06a4bb613a7b237a64b61cd658025362bcd0700f719646974394b033c714",
+        "code/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "code/common.py": "7c7156c36a5920dddf564e26c9bafe60ee355f4a3356ac1a660e7f68a42f01ab",
+        "code/common_layer.py": "e81876da28e8eeb789d7013382b725638929c8195faa51117124b674cc9f5d61",
+        "code/dataloader.py": "9cab11ef18cb0f316643a53a7342612ff2d4392bac8c3a67d22aad1ef6d759aa",
+        "code/utils.py": "cee1d9eb982444c6e8b31c95bdc83ccc6e6ad9fc2379b15f9b2c6a69e8e9febc",
+        "main.py": "8d63501bdddfeadbf62ce2b50354da9c0e66692bc2a9dc44895bbc7c9b9d6cb8",
+        "requirements.txt": "1f0bee92981adfa5f4712fa5d74ebc37eb3951dd50c6aa3acbdf222130a043e1"
+      },
+      "data_installed": false,
+      "model_runtime_checked": false
+    }
+  }
+}

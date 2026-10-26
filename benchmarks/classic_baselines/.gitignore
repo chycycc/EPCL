@@ -1,0 +1,5 @@
+/vendor/
+/workspace/
+/artifacts/
+__pycache__/
+*.pyc

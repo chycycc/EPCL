@@ -1,0 +1,66 @@
+{
+  "likelihood": {
+    "n": 3,
+    "token_count": 6,
+    "sample_macro_ppl": 2.9495640564990793,
+    "token_micro_ppl": 2.718281828459045,
+    "emotion_correct": 3,
+    "emotion_acc_micro_pct": 100.0,
+    "emotion_ce_sample_mean": 1.0
+  },
+  "generation": {
+    "greedy": {
+      "full": {
+        "n": 3,
+        "dist_1_pct": 33.333333333333336,
+        "dist_2_pct": 33.333333333333336,
+        "unique_pct": 33.333333333333336,
+        "avg_len": 2.0,
+        "empty_n": 0
+      },
+      "first_500": {
+        "n": 3,
+        "dist_1_pct": 33.333333333333336,
+        "dist_2_pct": 33.333333333333336,
+        "unique_pct": 33.333333333333336,
+        "avg_len": 2.0,
+        "empty_n": 0
+      }
+    },
+    "beam": {
+      "full": {
+        "n": 3,
+        "dist_1_pct": 66.66666666666667,
+        "dist_2_pct": 100.0,
+        "unique_pct": 100.0,
+        "avg_len": 2.0,
+        "empty_n": 0
+      },
+      "first_500": {
+        "n": 3,
+        "dist_1_pct": 66.66666666666667,
+        "dist_2_pct": 100.0,
+        "unique_pct": 100.0,
+        "avg_len": 2.0,
+        "empty_n": 0
+      }
+    }
+  },
+  "metadata": {
+    "model": "synthetic_contract_fixture_not_a_trained_model",
+    "checkpoint_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "source_commit": "0000000000000000000000000000000000000000",
+    "environment_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "target_encoding_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "canonical_sha256": "87378fdd0164e4ca19a9cb07bdfe8841b68b7e476385b748e3986e6f3c633b33",
+    "nll_definition": "target_nll_sum_exclude_pad_include_eos_no_auxiliary_no_smoothing",
+    "text_normalization": "synthetic_whitespace_tokens",
+    "generation_protocol": {
+      "scope": "synthetic_fixture",
+      "beam_size": 5,
+      "max_dec_step": 40
+    }
+  },
+  "records_sha256": "08376343ba1d3802b66927b69292457c8610a4ec8549660cb2c7d699506f4393",
+  "comparison_scope": "PPL comparable only within a verified identical target encoding and probability support"
+}

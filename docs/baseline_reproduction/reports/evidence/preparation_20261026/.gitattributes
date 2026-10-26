@@ -1,0 +1,2 @@
+# Preserve captured evidence bytes and their recorded SHA256 across platforms.
+* -text -whitespace

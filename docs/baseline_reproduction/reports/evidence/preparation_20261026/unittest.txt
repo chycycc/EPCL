@@ -1,0 +1,17 @@
+test_corpus_bigrams_do_not_cross_sentence_boundaries (test_contracts.ArtifactTests) ... ok
+test_ids_and_gold_labels_cannot_be_reordered (test_contracts.ArtifactTests) ... ok
+test_invalid_loss_and_padding_counts_rejected (test_contracts.ArtifactTests) ... ok
+test_micro_accuracy_and_missing_classifier (test_contracts.ArtifactTests) ... ok
+test_partial_generation_fails (test_contracts.ArtifactTests) ... ok
+test_sample_macro_and_token_micro_are_distinct (test_contracts.ArtifactTests) ... ok
+test_cache_reader_rejects_executable_globals (test_contracts.PreparationTests) ... ok
+test_cloud_environment_check_rejects_local_runtime (test_contracts.PreparationTests) ... ok
+test_evaluation_weights_survive_initialization (test_contracts.PreparationTests) ... ok
+test_parser_audit_does_not_execute_source (test_contracts.PreparationTests) ... ok
+test_patch_count_guard_prevents_silent_wrong_source (test_contracts.PreparationTests) ... ok
+test_tokenization_difference_changes_sample_fingerprint (test_contracts.PreparationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.004s
+
+OK
