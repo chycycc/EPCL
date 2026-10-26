@@ -1,0 +1,347 @@
+{
+  "scope": "training_smoke_only",
+  "formal_training_started": false,
+  "all_passed": true,
+  "glove_sha256": "91125602f730fea7ca768736c6f442e668b49db095682bf2aad375db061c21ed",
+  "device": "cpu",
+  "batch_size": 2,
+  "models": {
+    "case_original": {
+      "passed": true,
+      "workers": {
+        "initial": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "case_original",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\case_original",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\case_original\\initial",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 62.85900000005495,
+          "passed": true,
+          "actual_optimizer_updates": 4,
+          "glove_matched_rows": 19481,
+          "pid": 111956,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb"
+        },
+        "resume": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "case_original",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\case_original",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\case_original\\resume",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2",
+            "--resume-checkpoint",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\case_original\\initial\\training_smoke_checkpoint.pt",
+            "--expected-continuation",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\case_original\\initial\\expected_continuation.pt"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 64.18799999996554,
+          "passed": true,
+          "actual_optimizer_updates": 1,
+          "glove_matched_rows": 19481,
+          "pid": 113020,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+          "checkpoint_restore_bitwise_equal": true,
+          "continuation_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "objective_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "valid_observation_state_unchanged": true
+        }
+      },
+      "actual_optimizer_updates": 5
+    },
+    "multi_trs": {
+      "passed": true,
+      "workers": {
+        "initial": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "multi_trs",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\multi_trs",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\multi_trs\\initial",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 55.25,
+          "passed": true,
+          "actual_optimizer_updates": 3,
+          "glove_matched_rows": 19481,
+          "pid": 85172,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb"
+        },
+        "resume": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "multi_trs",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\multi_trs",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\multi_trs\\resume",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2",
+            "--resume-checkpoint",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\multi_trs\\initial\\training_smoke_checkpoint.pt",
+            "--expected-continuation",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\multi_trs\\initial\\expected_continuation.pt"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 59.51500000001397,
+          "passed": true,
+          "actual_optimizer_updates": 1,
+          "glove_matched_rows": 19481,
+          "pid": 100128,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+          "checkpoint_restore_bitwise_equal": true,
+          "continuation_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "objective_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "valid_observation_state_unchanged": true
+        }
+      },
+      "actual_optimizer_updates": 4
+    },
+    "cem_original": {
+      "passed": true,
+      "workers": {
+        "initial": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "cem_original",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\cem_original",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\cem_original\\initial",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 57.421999999904074,
+          "passed": true,
+          "actual_optimizer_updates": 3,
+          "glove_matched_rows": 19481,
+          "pid": 114504,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb"
+        },
+        "resume": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "cem_original",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\cem_original",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\cem_original\\resume",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2",
+            "--resume-checkpoint",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\cem_original\\initial\\training_smoke_checkpoint.pt",
+            "--expected-continuation",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\cem_original\\initial\\expected_continuation.pt"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 56.84400000004098,
+          "passed": true,
+          "actual_optimizer_updates": 1,
+          "glove_matched_rows": 19481,
+          "pid": 113008,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+          "checkpoint_restore_bitwise_equal": true,
+          "continuation_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "objective_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "valid_observation_state_unchanged": true
+        }
+      },
+      "actual_optimizer_updates": 4
+    },
+    "kemp": {
+      "passed": true,
+      "workers": {
+        "initial": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "kemp",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\kemp",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\initial",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 46.57799999997951,
+          "passed": true,
+          "actual_optimizer_updates": 3,
+          "glove_matched_rows": 19481,
+          "pid": 113420,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb"
+        },
+        "resume": {
+          "command": [
+            "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+            "-u",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\native_train_smoke.py",
+            "--model",
+            "kemp",
+            "--workspace",
+            "E:\\github\\CASE\\benchmarks\\classic_baselines\\workspace\\preparation_20261026_v2\\kemp",
+            "--data-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\phase2_20261026\\data",
+            "--output-dir",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\resume",
+            "--device",
+            "cpu",
+            "--embedding-file",
+            "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+            "--batch-size",
+            "2",
+            "--resume-checkpoint",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\initial\\training_smoke_checkpoint.pt",
+            "--expected-continuation",
+            "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\initial\\expected_continuation.pt"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 47.46900000004098,
+          "passed": true,
+          "actual_optimizer_updates": 1,
+          "glove_matched_rows": 19481,
+          "pid": 114120,
+          "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+          "checkpoint_restore_bitwise_equal": true,
+          "continuation_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "objective_comparison": {
+            "passed": true,
+            "bitwise_equal": true,
+            "max_abs_error": 0.0,
+            "atol": 1e-06,
+            "rtol": 1e-05,
+            "mismatches": []
+          },
+          "valid_observation_state_unchanged": true
+        }
+      },
+      "actual_optimizer_updates": 4
+    }
+  },
+  "actual_optimizer_updates": 17
+}

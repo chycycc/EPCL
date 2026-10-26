@@ -1,0 +1,7 @@
+{
+  "python": "3.8.20",
+  "torch": "1.12.1+cu113",
+  "torch_cuda_runtime": "11.3",
+  "device_used": "cpu",
+  "cloud_runtime_validated": false
+}

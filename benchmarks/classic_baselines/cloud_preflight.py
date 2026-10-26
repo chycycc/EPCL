@@ -27,7 +27,7 @@ def validate(actual, target, reference=None):
     if len(gpus) != target["gpu_count"]:
         errors.append("Expected one visible GPU")
     for gpu in gpus:
-        if "4090D" not in gpu["name"] or gpu["memory_bytes"] < 23 * 1024 ** 3:
+        if "4090D" not in "".join(gpu["name"].split()).upper() or gpu["memory_bytes"] < 23 * 1024 ** 3:
             errors.append("Expected RTX 4090D 24GB")
     # CPU allocation/model are recorded separately: affinity may expose the host's
     # physical CPUs instead of the provider's advertised 18-vCPU allocation.

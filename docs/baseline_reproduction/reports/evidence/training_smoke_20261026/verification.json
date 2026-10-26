@@ -1,0 +1,140 @@
+{
+  "all_local_passed": true,
+  "local_device": "cpu",
+  "local_python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+  "actual_optimizer_updates": 17,
+  "packaged_bundle_verified": {
+    "bundle_verified": true,
+    "errors": [],
+    "training_started": false
+  },
+  "packaged_tests_passed": true,
+  "protected_54_files_unchanged": true,
+  "changed_preexisting_suite_files": [
+    "benchmarks/classic_baselines/CLOUD_README.md",
+    "benchmarks/classic_baselines/native_runtime.py",
+    "benchmarks/classic_baselines/protocol.json",
+    "benchmarks/classic_baselines/README.md"
+  ],
+  "cloud_training_smoke_measured": false,
+  "cloud_inference_passed_source": "user_report",
+  "cloud_archive_sha256": "ceb1c2cacf9758d99ee5b1bec345632761309fd2db698a07af537225599b4ebe",
+  "models": {
+    "case_original": {
+      "updates": 5,
+      "glove_matched_rows": 19481,
+      "restore_exact": true,
+      "continuation": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "objective": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "max_parameter_change": 2.384185791015625e-07,
+      "main_changed_parameter_counts": [
+        144,
+        144,
+        144
+      ],
+      "noam_warmup": 12000,
+      "checkpoint_sha256": "b07a8d226280a19b19f112b7b6e986d1d7122d37cb55ade198a186c3b02f9a75"
+    },
+    "multi_trs": {
+      "updates": 4,
+      "glove_matched_rows": 19481,
+      "restore_exact": true,
+      "continuation": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "objective": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "max_parameter_change": 2.4586915969848633e-07,
+      "main_changed_parameter_counts": [
+        40,
+        40,
+        40
+      ],
+      "noam_warmup": 8000,
+      "checkpoint_sha256": "f42e7df2e718e828b11046536a6bb8ea4a043cd78285b9f0dc21bb4089de73fa"
+    },
+    "cem_original": {
+      "updates": 4,
+      "glove_matched_rows": 19481,
+      "restore_exact": true,
+      "continuation": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "objective": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "max_parameter_change": 2.4586915969848633e-07,
+      "main_changed_parameter_counts": [
+        102,
+        102,
+        102
+      ],
+      "noam_warmup": 8000,
+      "checkpoint_sha256": "f9f1ce0f3ae094905ed7f3d421184ba8188b1bbd583842904ff95b3b5859dd9c"
+    },
+    "kemp": {
+      "updates": 4,
+      "glove_matched_rows": 19481,
+      "restore_exact": true,
+      "continuation": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "objective": {
+        "passed": true,
+        "bitwise_equal": true,
+        "max_abs_error": 0.0,
+        "atol": 1e-06,
+        "rtol": 1e-05,
+        "mismatches": []
+      },
+      "max_parameter_change": 2.4586915969848633e-07,
+      "main_changed_parameter_counts": [
+        55,
+        55,
+        55
+      ],
+      "noam_warmup": 8000,
+      "checkpoint_sha256": "e05b4c941ff8471f2c526fb3881d187f4a07158a8e524086be5171dd459344e7"
+    }
+  }
+}

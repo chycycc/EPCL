@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "model": "case_original",
+  "scope": "training_smoke_only",
+  "formal_training_started": false,
+  "seed": 13,
+  "precision": "fp32",
+  "accum_steps": 1,
+  "batch_size": 2,
+  "glove_sha256": "91125602f730fea7ca768736c6f442e668b49db095682bf2aad375db061c21ed",
+  "glove": {
+    "file_lines": 400000,
+    "matched_rows": 19481,
+    "vocabulary_rows": 24647,
+    "native_random_rows": 5166,
+    "dimension": 300,
+    "matched_rows_bitwise_equal": true,
+    "matched_rows_max_abs_error": 0.0,
+    "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef",
+    "embedding_trainable": true
+  },
+  "effective_native_config": {
+    "data_dir": "data",
+    "dataset": "ED",
+    "comet_file": "data/Comet",
+    "max_num_dialog": 9,
+    "concept_num": 3,
+    "total_concept_num": 10,
+    "cs_num": 5,
+    "emb_file": "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+    "save_path": "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\case_original\\initial\\native_save",
+    "model_path": "save/test",
+    "save_path_dataset": "save/",
+    "UNK_idx": 0,
+    "PAD_idx": 1,
+    "EOS_idx": 2,
+    "SOS_idx": 3,
+    "USR_idx": 4,
+    "SYS_idx": 5,
+    "CLS_idx": 6,
+    "KG_idx": 7,
+    "SEP_idx": 8,
+    "self_loop": 2,
+    "contain": 3,
+    "temporary": 4,
+    "intent_idx": 5,
+    "need_idx": 6,
+    "want_idx": 7,
+    "effect_idx": 8,
+    "react_idx": 9,
+    "relation_num": 10,
+    "batch_size": 2,
+    "lr": 0.0001,
+    "hidden_dim": 300,
+    "emb_dim": 300,
+    "max_grad_norm": 2.0,
+    "beam_size": 5,
+    "pointer_gen": false,
+    "oracle": false,
+    "basic_learner": true,
+    "project": false,
+    "topk": 5,
+    "l1": 0.0,
+    "softmax": true,
+    "mean_query": false,
+    "schedule": 10000,
+    "hop": 1,
+    "heads": 2,
+    "depth": 100,
+    "filter": 300,
+    "graph_layer_num": 1,
+    "graph_ffn_emb_dim": 300,
+    "graph_num_heads": 2,
+    "seed": 13,
+    "model": "case",
+    "cuda": true,
+    "gpu": 1,
+    "split_data_seed": 13,
+    "pretrain": false,
+    "pretrain_epoch": 4,
+    "woStrategy": true,
+    "model_file_path": "save/test/",
+    "warmup": 12000,
+    "fine_weight": 0.2,
+    "coarse_weight": 1.0,
+    "test": false,
+    "large_decoder": false,
+    "multitask": false,
+    "is_coverage": false,
+    "use_oov_emb": false,
+    "pretrain_emb": true,
+    "weight_sharing": false,
+    "label_smoothing": true,
+    "noam": true,
+    "universal": false,
+    "act": false,
+    "act_loss_weight": 0.001,
+    "dropout": 0.1,
+    "device": "cpu",
+    "shared_vocabulary_size": 24647,
+    "actual_optimizer": "Adam",
+    "actual_noam_warmup": 12000,
+    "optimizer_betas": [
+      0.9,
+      0.98
+    ],
+    "optimizer_eps": 1e-09
+  },
+  "updates": [
+    {
+      "phase": "bow_pretrain",
+      "iteration": 0,
+      "train_indices": [
+        0,
+        1
+      ],
+      "actual_batch_size": 2,
+      "objective": 10.100591659545898,
+      "native_numeric_returns": [
+        10.100591659545898
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 67,
+      "parameter_max_abs_change": 5.960464477539063e-08,
+      "embedding_max_abs_change": 5.960464477539063e-08,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 163,
+        "tensor": 0
+      },
+      "noam_step": 1,
+      "gradient_norm": 2.3901814289972663,
+      "gradient_parameter_count": 67,
+      "required_group_gradient_norms": {
+        "embedding": 0.5483336209531593,
+        "classifier": 0.0
+      },
+      "lr": [
+        4.3920523057894156e-08
+      ]
+    },
+    {
+      "phase": "main",
+      "iteration": 0,
+      "train_indices": [
+        0,
+        1
+      ],
+      "actual_batch_size": 2,
+      "objective": 40.44145965576172,
+      "native_numeric_returns": [
+        10.114278793334961,
+        0.27957746386528015,
+        1.1434801816940308,
+        10.103754043579102,
+        24434.56588858812,
+        0.0,
+        0.0,
+        3.6405558586120605,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 144,
+      "parameter_max_abs_change": 1.1920928955078125e-07,
+      "embedding_max_abs_change": 1.1920928955078125e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 96,
+        "tensor": 67
+      },
+      "noam_step": 2,
+      "gradient_norm": 110.53585384615701,
+      "gradient_parameter_count": 144,
+      "required_group_gradient_norms": {
+        "embedding": 88.92484364042635,
+        "classifier": 6.389895290410035,
+        "decoder": 1.519627474704078
+      },
+      "lr": [
+        8.784104611578831e-08
+      ]
+    },
+    {
+      "phase": "main",
+      "iteration": 1,
+      "train_indices": [
+        2,
+        3
+      ],
+      "actual_batch_size": 2,
+      "objective": 40.577781677246094,
+      "native_numeric_returns": [
+        10.12912654876709,
+        0.38934582471847534,
+        1.0874059200286865,
+        10.196442604064941,
+        26807.6508186322,
+        0.0,
+        0.0,
+        3.4762966632843018,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 144,
+      "parameter_max_abs_change": 1.341104507446289e-07,
+      "embedding_max_abs_change": 1.341104507446289e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 19,
+        "tensor": 144
+      },
+      "noam_step": 3,
+      "gradient_norm": 34.80916424464587,
+      "gradient_parameter_count": 144,
+      "required_group_gradient_norms": {
+        "embedding": 21.444527535281022,
+        "classifier": 5.730386442914729,
+        "decoder": 1.5606176987231728
+      },
+      "lr": [
+        1.3176156917368245e-07
+      ]
+    },
+    {
+      "phase": "main",
+      "iteration": 2,
+      "train_indices": [
+        4,
+        5
+      ],
+      "actual_batch_size": 2,
+      "objective": 41.391502380371094,
+      "native_numeric_returns": [
+        10.113790512084961,
+        0.32506063580513,
+        1.177899956703186,
+        10.134759902954102,
+        25204.04818737595,
+        0.0,
+        0.0,
+        4.431064605712891,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 144,
+      "parameter_max_abs_change": 2.384185791015625e-07,
+      "embedding_max_abs_change": 2.384185791015625e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 19,
+        "tensor": 144
+      },
+      "noam_step": 4,
+      "gradient_norm": 57.89968600071362,
+      "gradient_parameter_count": 144,
+      "required_group_gradient_norms": {
+        "embedding": 42.25336923416356,
+        "classifier": 7.99473246898917,
+        "decoder": 1.6679053635642969
+      },
+      "lr": [
+        1.7568209223157662e-07
+      ]
+    }
+  ],
+  "passed": true,
+  "pid": 111956,
+  "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+  "prepared_sources_sha256": {
+    "README.md": "383ae5223006e7df55c3cb5c52464a8017bf1f1fe51bee960d467a6ed2d6170e",
+    "main.py": "80e6e867c2276fed60c9fc2507e4e593aad11a922e925f460bb098a87a41a198",
+    "main.sh": "b1e770283036b8b3de2b7cca96128d55c54ee06970433d99a02ce4e0aec3590b",
+    "src/models/CASE/model.py": "17106eadc0195e55901ae7aa50dcb25c0ca7891468aea2f3b8104a1686d2292d",
+    "src/models/common.py": "dc7676ed534f7f6acb7ec20be05ade6d114f9d6883e70e420b879caa92cfa011",
+    "src/scripts/evaluate.py": "abb2a490069ada9164fc0eb61d0f2dc3fd4da886117fc83b56589ee4fdaee5b2",
+    "src/utils/comet.py": "2d7b0ba32b2d037af2821e0eb22cdb3ab21c507c775f7cd9e44c7cbe579ec3db",
+    "src/utils/common.py": "83fd4a74edf788d082dda8be2c8c4b04f1237ef3da142355a2cd5384d490e236",
+    "src/utils/config.py": "d7a1580e9c43f07d0c8c6043a7f8b3a28f94a4696d7bf0fd92c9803efb3ccda4",
+    "src/utils/constants.py": "640b2023a6c53c3d42c745212c73a155e1b352ef479a17f56558daeebfd6d2a5",
+    "src/utils/data/loader.py": "bf6fc317d2d6aea29ea22a5c49b062253fa756e6d67783e42338d59114d68929",
+    "src/utils/data/preprocess.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/utils/decode/beam.py": "1e1b55e1e6843f579e14d442f43f5b2b70ffad353b59ab0745d04161bc5fda95",
+    "src/utils/decode/case.py": "aa1bd34c2689585a9b81ceedd2499dece38ecd2a82f1a8c2e05e97678f440373",
+    "utils/utils.py": "41776722182627c2e2715b3116dd1557f808afdd8b72c74729e02f2349ae878e"
+  },
+  "environment_sha256": "3786fc357908e774824bb204ff60e06d96a48c06845320a4042d23632bf45d6d",
+  "adapter_sha256": {
+    "audit_data.py": "0b54d101eba194117a0560c8f1725b86e779f9e630cbc3db3fdcd7f7ddd2ba3a",
+    "audit_sources.py": "8ee89c56d4514b7e12af2ba2202fa384d13f179e61f6c761c5e50ae9d99a6a50",
+    "build_data_bundle.py": "2b85e4b8599d18c915c65fa4ce0c5521375938b3ad6445d3881e75c275f1bbbc",
+    "cloud_preflight.py": "58ab7b6ed916f163b682637101c259a5783a9d279a2ede12da759e282d66ee21",
+    "fetch_sources.py": "2b501751fe0e7e3c1792b2a1662e9efb6d74761b1f4e25a89555fac8bacd0b46",
+    "glove_audit.py": "0b7eb88b070c94600df0eada85572fa1b8a31773b96ec6b0fb11726cd5e0a849",
+    "native_export.py": "3c873e920963cc7d8c256cfaa2b928bc550367c7d33b71098d65204b68bbfd97",
+    "native_generation.py": "d33449778b75552bedffa00c44335cc26baf34e6b385bdfbdd9a78085c1fce7c",
+    "native_runtime.py": "c60ca05e84ec4bec043b4321e668fe2532cf886ee4be7c0a88668379005a7211",
+    "native_train_smoke.py": "a483af38d771c8b082ee9d553a39a2f1c98eac7c5b5fb5440e92a98468677f82",
+    "pack_cloud_bundle.py": "1514dceabea946861b5d19d0eb74fd0ff2a9ab87a234c38ce3feafa327ec5f60",
+    "pack_training_smoke_tools.py": "c036b27c765e5146356537400f39509ec7d3a0465d7ee561f107fa7b671b0590",
+    "prepare_workspaces.py": "baa6c25826fd211b19e01cd0379bf2edb8dfb8ec63a6ff2d1b5332069366ef38",
+    "run_smoke_queue.py": "75f94fe4f74eaf3f791345a95495d48156e29de6ac9ca6d0a6fc2b39cdfe31be",
+    "run_training_smoke_queue.py": "75b987687b94ad9d8ca811c4195310f04604873293885a8d27777fa2b503be63",
+    "score_records.py": "30dfb8f331088b0224af52a03d0cb17e40bf1629af57b9ad0010e760aaad5a1e",
+    "training_state.py": "1a5040653239a862aa39d8115498e539ccb388bcbd8a060db52f40a870e1090d",
+    "verify_cloud_bundle.py": "6652ab29ec365d792912469ad4df8e1a89496b56f8798233c09540c5ae74182a"
+  },
+  "test_samples": 0,
+  "generation_samples": 0,
+  "saved_state_sha256": "83c345923bab442bfbe246ea1c365acd29b23a73cfae08ebab89d4eb03d89bf5",
+  "checkpoint_sha256": "b07a8d226280a19b19f112b7b6e986d1d7122d37cb55ade198a186c3b02f9a75",
+  "actual_optimizer_updates": 4,
+  "peak_cuda_allocated_bytes": null
+}

@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "model": "kemp",
+  "scope": "training_smoke_only",
+  "formal_training_started": false,
+  "seed": 13,
+  "precision": "fp32",
+  "accum_steps": 1,
+  "batch_size": 2,
+  "glove_sha256": "91125602f730fea7ca768736c6f442e668b49db095682bf2aad375db061c21ed",
+  "glove": {
+    "file_lines": 400000,
+    "matched_rows": 19481,
+    "vocabulary_rows": 24647,
+    "native_random_rows": 5166,
+    "dimension": 300,
+    "matched_rows_bitwise_equal": true,
+    "matched_rows_max_abs_error": 0.0,
+    "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef",
+    "embedding_trainable": true
+  },
+  "effective_native_config": {
+    "dataset": "data/kemp_dataset_preproc.json",
+    "save_path": "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\initial\\native_save",
+    "resume_path": "result/",
+    "tokenizer_dir": "data/",
+    "emb_file": "E:\\github\\CASE\\scratch\\classic_baselines_training_smoke\\glove.6B.300d.cloud_original.txt",
+    "model": "KEMP",
+    "use_cuda": false,
+    "cuda": false,
+    "device_id": "0",
+    "eps": 1e-09,
+    "epochs": 10000,
+    "check_iter": 2000,
+    "noam": true,
+    "lr": 0.0001,
+    "dropout": 0.2,
+    "batch_size": 2,
+    "plm": false,
+    "use_oov_emb": false,
+    "pretrain_emb": true,
+    "weight_sharing": false,
+    "label_smoothing": true,
+    "universal": false,
+    "act": false,
+    "act_loss_weight": 0.001,
+    "specify_model": false,
+    "test": false,
+    "train_then_test": false,
+    "beam_search": false,
+    "beam_size": 5,
+    "topk": 0,
+    "hidden_dim": 300,
+    "emb_dim": 300,
+    "hop": 1,
+    "heads": 2,
+    "depth": 40,
+    "filter": 50,
+    "projection": false,
+    "concept_num": 1,
+    "total_concept_num": 10,
+    "max_seq_length": 1000,
+    "pointer_gen": true,
+    "attn_loss": true,
+    "emotion_feature": false,
+    "save_path_dataset": "E:\\github\\CASE\\results\\benchmarks\\classic_baselines\\training_smoke_20261026\\local_r2\\kemp\\initial\\native_save",
+    "collect_stats": false,
+    "UNK_idx": 0,
+    "PAD_idx": 1,
+    "EOS_idx": 2,
+    "SOS_idx": 3,
+    "USR_idx": 4,
+    "SYS_idx": 5,
+    "KG_idx": 7,
+    "CLS_idx": 6,
+    "SEP_idx": 8,
+    "USE_CUDA": false,
+    "seed": 13,
+    "device": "cpu",
+    "shared_vocabulary_size": 24647,
+    "actual_optimizer": "Adam",
+    "actual_noam_warmup": 8000,
+    "optimizer_betas": [
+      0.9,
+      0.98
+    ],
+    "optimizer_eps": 1e-09
+  },
+  "updates": [
+    {
+      "phase": "main",
+      "iteration": 0,
+      "train_indices": [
+        0,
+        1
+      ],
+      "actual_batch_size": 2,
+      "objective": 178.45791625976562,
+      "native_numeric_returns": [
+        8.555355072021484,
+        5194.496984650235,
+        7.601710796356201,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 55,
+      "parameter_max_abs_change": 1.1920928955078125e-07,
+      "embedding_max_abs_change": 1.1920928955078125e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 63,
+        "tensor": 0
+      },
+      "noam_step": 1,
+      "gradient_norm": 98.26284519034843,
+      "gradient_parameter_count": 55,
+      "required_group_gradient_norms": {
+        "embedding": 22.33816120632003,
+        "classifier": 20.552204974549944,
+        "decoder": 50.93711572301168
+      },
+      "lr": [
+        8.068715304598785e-08
+      ]
+    },
+    {
+      "phase": "main",
+      "iteration": 1,
+      "train_indices": [
+        2,
+        3
+      ],
+      "actual_batch_size": 2,
+      "objective": 181.51251220703125,
+      "native_numeric_returns": [
+        9.061178207397461,
+        8614.294102342812,
+        8.666424751281738,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 55,
+      "parameter_max_abs_change": 2.384185791015625e-07,
+      "embedding_max_abs_change": 2.384185791015625e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 8,
+        "tensor": 55
+      },
+      "noam_step": 2,
+      "gradient_norm": 86.8316842204951,
+      "gradient_parameter_count": 55,
+      "required_group_gradient_norms": {
+        "embedding": 14.28536770103854,
+        "classifier": 16.532060425535278,
+        "decoder": 32.28607567732618
+      },
+      "lr": [
+        1.613743060919757e-07
+      ]
+    },
+    {
+      "phase": "main",
+      "iteration": 2,
+      "train_indices": [
+        4,
+        5
+      ],
+      "actual_batch_size": 2,
+      "objective": 161.67935180664062,
+      "native_numeric_returns": [
+        8.8065824508667,
+        6678.057633813478,
+        8.946208953857422,
+        0.0
+      ],
+      "actual_optimizer_updates": 1,
+      "backward_calls": 1,
+      "changed_parameter_count": 55,
+      "parameter_max_abs_change": 2.4586915969848633e-07,
+      "embedding_max_abs_change": 2.4586915969848633e-07,
+      "zero_grad_signature": "(set_to_none: bool = False)",
+      "zero_grad_observation": {
+        "none": 8,
+        "tensor": 55
+      },
+      "noam_step": 3,
+      "gradient_norm": 108.33825737382487,
+      "gradient_parameter_count": 55,
+      "required_group_gradient_norms": {
+        "embedding": 72.10784360455371,
+        "classifier": 19.676203074170836,
+        "decoder": 29.457566380729077
+      },
+      "lr": [
+        2.4206145913796355e-07
+      ]
+    }
+  ],
+  "passed": true,
+  "pid": 113420,
+  "target_encoding_sha256": "ba4bf68d84cf15a88c5055c37e96cc3027fb75de886679fd7c69e4380a8989bb",
+  "prepared_sources_sha256": {
+    "README.md": "20ee23db351a6ff588bde6e6f1c1bdeca13498a72cee9cd91a6594dca716e30f",
+    "code/KEMP.py": "084a06a4bb613a7b237a64b61cd658025362bcd0700f719646974394b033c714",
+    "code/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "code/common.py": "7c7156c36a5920dddf564e26c9bafe60ee355f4a3356ac1a660e7f68a42f01ab",
+    "code/common_layer.py": "e81876da28e8eeb789d7013382b725638929c8195faa51117124b674cc9f5d61",
+    "code/dataloader.py": "9cab11ef18cb0f316643a53a7342612ff2d4392bac8c3a67d22aad1ef6d759aa",
+    "code/utils.py": "cee1d9eb982444c6e8b31c95bdc83ccc6e6ad9fc2379b15f9b2c6a69e8e9febc",
+    "main.py": "8d63501bdddfeadbf62ce2b50354da9c0e66692bc2a9dc44895bbc7c9b9d6cb8",
+    "requirements.txt": "1f0bee92981adfa5f4712fa5d74ebc37eb3951dd50c6aa3acbdf222130a043e1"
+  },
+  "environment_sha256": "3786fc357908e774824bb204ff60e06d96a48c06845320a4042d23632bf45d6d",
+  "adapter_sha256": {
+    "audit_data.py": "0b54d101eba194117a0560c8f1725b86e779f9e630cbc3db3fdcd7f7ddd2ba3a",
+    "audit_sources.py": "8ee89c56d4514b7e12af2ba2202fa384d13f179e61f6c761c5e50ae9d99a6a50",
+    "build_data_bundle.py": "2b85e4b8599d18c915c65fa4ce0c5521375938b3ad6445d3881e75c275f1bbbc",
+    "cloud_preflight.py": "58ab7b6ed916f163b682637101c259a5783a9d279a2ede12da759e282d66ee21",
+    "fetch_sources.py": "2b501751fe0e7e3c1792b2a1662e9efb6d74761b1f4e25a89555fac8bacd0b46",
+    "glove_audit.py": "0b7eb88b070c94600df0eada85572fa1b8a31773b96ec6b0fb11726cd5e0a849",
+    "native_export.py": "3c873e920963cc7d8c256cfaa2b928bc550367c7d33b71098d65204b68bbfd97",
+    "native_generation.py": "d33449778b75552bedffa00c44335cc26baf34e6b385bdfbdd9a78085c1fce7c",
+    "native_runtime.py": "c60ca05e84ec4bec043b4321e668fe2532cf886ee4be7c0a88668379005a7211",
+    "native_train_smoke.py": "a483af38d771c8b082ee9d553a39a2f1c98eac7c5b5fb5440e92a98468677f82",
+    "pack_cloud_bundle.py": "1514dceabea946861b5d19d0eb74fd0ff2a9ab87a234c38ce3feafa327ec5f60",
+    "pack_training_smoke_tools.py": "c036b27c765e5146356537400f39509ec7d3a0465d7ee561f107fa7b671b0590",
+    "prepare_workspaces.py": "baa6c25826fd211b19e01cd0379bf2edb8dfb8ec63a6ff2d1b5332069366ef38",
+    "run_smoke_queue.py": "75f94fe4f74eaf3f791345a95495d48156e29de6ac9ca6d0a6fc2b39cdfe31be",
+    "run_training_smoke_queue.py": "75b987687b94ad9d8ca811c4195310f04604873293885a8d27777fa2b503be63",
+    "score_records.py": "30dfb8f331088b0224af52a03d0cb17e40bf1629af57b9ad0010e760aaad5a1e",
+    "training_state.py": "1a5040653239a862aa39d8115498e539ccb388bcbd8a060db52f40a870e1090d",
+    "verify_cloud_bundle.py": "6652ab29ec365d792912469ad4df8e1a89496b56f8798233c09540c5ae74182a"
+  },
+  "test_samples": 0,
+  "generation_samples": 0,
+  "saved_state_sha256": "318db2e5ae0fa880081e055cf47569a8c72e9c1e06ae72fda3012340eb6b45ac",
+  "checkpoint_sha256": "e05b4c941ff8471f2c526fb3881d187f4a07158a8e524086be5171dd459344e7",
+  "actual_optimizer_updates": 3,
+  "peak_cuda_allocated_bytes": null
+}

@@ -1,0 +1,74 @@
+================================================================================
+                                      Opts                                      
+--------------------------------------------------------------------------------
+                               data_dir: data                                   
+                                dataset: ED                                     
+                             comet_file: data/Comet                             
+                         max_num_dialog: 9                                      
+                            concept_num: 3                                      
+                      total_concept_num: 10                                     
+                                 cs_num: 5                                      
+                      emb_file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+                     save_path: E:\github\CASE\results\benchmarks\classic_baselines\training_smoke_20261026\local_r2\case_original\resume\native_save
+                             model_path: save/test                              
+                      save_path_dataset: save/                                  
+                                PAD_idx: 1                                      
+                                EOS_idx: 2                                      
+                                SOS_idx: 3                                      
+                                USR_idx: 4                                      
+                                SYS_idx: 5                                      
+                                CLS_idx: 6                                      
+                                 KG_idx: 7                                      
+                                SEP_idx: 8                                      
+                              self_loop: 2                                      
+                                contain: 3                                      
+                              temporary: 4                                      
+                             intent_idx: 5                                      
+                               need_idx: 6                                      
+                               want_idx: 7                                      
+                             effect_idx: 8                                      
+                              react_idx: 9                                      
+                           relation_num: 10                                     
+                             batch_size: 2                                      
+                                     lr: 0.0001                                 
+                             hidden_dim: 300                                    
+                                emb_dim: 300                                    
+                          max_grad_norm: 2.0                                    
+                              beam_size: 5                                      
+                          basic_learner: 1                                      
+                                   topk: 5                                      
+                                softmax: 1                                      
+                               schedule: 10000                                  
+                                    hop: 1                                      
+                                  heads: 2                                      
+                                  depth: 100                                    
+                                 filter: 300                                    
+                        graph_layer_num: 1                                      
+                      graph_ffn_emb_dim: 300                                    
+                        graph_num_heads: 2                                      
+                                   seed: 13                                     
+                                  model: case                                   
+                                   cuda: 1                                      
+                                    gpu: 1                                      
+                        split_data_seed: 13                                     
+                               pretrain: 1                                      
+                         pretrain_epoch: 4                                      
+                             woStrategy: 1                                      
+                        model_file_path: save/test/                             
+                                 warmup: 12000                                  
+                            fine_weight: 0.2                                    
+                          coarse_weight: 1.0                                    
+                           pretrain_emb: 1                                      
+                        label_smoothing: 1                                      
+                                   noam: 1                                      
+                        act_loss_weight: 0.001                                  
+                                dropout: 0.1                                    
+================================================================================
+[Baseline Compatibility] CASE accuracy_score scalar -> numpy.float64 (.item compatible)
+Embeddings: 24647 x 300
+Loading embedding file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+Pre-trained: 19481 (79.04%)
+[Baseline Effective] {"model": "case_original", "device": "cpu", "seed": 13, "pretrain_emb": true, "pointer_gen": false, "weight_sharing": false}
+[GloVe Verified] {"file_lines": 400000, "matched_rows": 19481, "vocabulary_rows": 24647, "native_random_rows": 5166, "dimension": 300, "matched_rows_bitwise_equal": true, "matched_rows_max_abs_error": 0.0, "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef", "embedding_trainable": true}
+[Training Smoke Update] {"phase": "main", "iteration": 2, "train_indices": [4, 5], "actual_batch_size": 2, "objective": 41.391502380371094, "native_numeric_returns": [10.113790512084961, 0.32506063580513, 1.177899956703186, 10.134759902954102, 25204.04818737595, 0.0, 0.0, 4.431064605712891, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 144, "parameter_max_abs_change": 2.384185791015625e-07, "embedding_max_abs_change": 2.384185791015625e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 163, "tensor": 0}, "noam_step": 4, "gradient_norm": 57.89968600071362, "gradient_parameter_count": 144, "required_group_gradient_norms": {"embedding": 42.25336923416356, "classifier": 7.99473246898917, "decoder": 1.6679053635642969}, "lr": [1.7568209223157662e-07]}
+[Training Smoke PASS] {"model": "case_original", "resumed": true, "actual_updates": 1}

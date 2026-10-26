@@ -75,3 +75,11 @@ git -c safe.directory=E:/github/CASE diff -- main.py main.sh src tests
 ```
 
 原缓存、54 个受保护文件和当前脚本指纹记录于 [verification.json](evidence/phase2_20261026/verification.json)。本轮范围仅新增基线适配工具、归档文档与小型 JSON 证据；大数据、随机检查点、压缩包、vendor/workspace 均不提交 Git。
+
+## 6. 云端预检目标修订（2026-10-26）
+
+用户回传的首次云端预检显示 Python 3.10.8、torch 2.1.2+cu121、CUDA 12.1、Ubuntu 22.04.3，GPU 名称为 `NVIDIA GeForce RTX 4090 D`、显存 25,262,096,384 bytes；CPU 配额为 18 核。原检查失败原因是目标写为 torch 2.1.0，以及 GPU 名称空格匹配缺陷。根据用户“修正吧”的授权，将当前目标改为 torch 2.1.2，并仅在 GPU 名称比较时规范化空白和大小写，保留 D 型号与显存容量检查。
+
+此修订基于用户回传输出；原始 v3 压缩包、归档指纹及此前验收证据保持为历史快照。更新后的工具必须另行同步到云端，首次失败的环境 JSON 应保留，重跑使用新输出文件名。上述第 5 节的 torch 2.1 目标由本节修订为 2.1.2。尚未取得修订后的云端通过结果，也未独立比对历史 CASE-EPCL 训练环境；`cloud_ready=false`，训练验收仍待执行。
+
+后续用户回传确认环境预检通过、22 项工具测试通过；首次 CUDA 推理队列在 CASE 返回 `emotion_acc.item()` 时失败。其 `accuracy_score` 返回 Python float，原生代码预期支持 `.item()`。在独立 `native_runtime.py` 的 CASE 导入分支增加标量兼容适配：原生准确率函数完成计算后转为 NumPy float64，不改其参数或算法；适配生效状态打印到日志。原生源码与 prepared 指纹保持不变。增加 Python/NumPy 标量及真实准确率函数（含加权和未归一化）的回归检查。GPU 推理仍须使用新输出目录重跑，失败日志保留；未开展训练。

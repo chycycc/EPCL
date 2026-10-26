@@ -1,0 +1,39 @@
+================================================================================
+                                      Opts                                      
+--------------------------------------------------------------------------------
+                               data_dir: data/ED                                
+                              emo_input: self_att                               
+                            emo_combine: gate                                   
+                                decoder: single                                 
+                             hidden_dim: 300                                    
+                                emb_dim: 300                                    
+                             batch_size: 2                                      
+                                     lr: 0.0001                                 
+                          max_grad_norm: 2.0                                    
+                              beam_size: 5                                      
+                                   seed: 13                                     
+                     save_path: E:\github\CASE\results\benchmarks\classic_baselines\training_smoke_20261026\local_r2\multi_trs\resume\native_save
+                             model_path: save/test                              
+                      save_path_dataset: save/                                  
+                          basic_learner: 1                                      
+                                   topk: 5                                      
+                                softmax: 1                                      
+                               schedule: 10000                                  
+                           pretrain_emb: 1                                      
+                                  model: multi-trs                              
+                        label_smoothing: 1                                      
+                                   noam: 1                                      
+                        act_loss_weight: 0.001                                  
+                      emb_file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+                                    hop: 1                                      
+                                  heads: 2                                      
+                                  depth: 40                                     
+                                 filter: 50                                     
+================================================================================
+Embeddings: 24647 x 300
+Loading embedding file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+Pre-trained: 19481 (79.04%)
+[Baseline Effective] {"model": "multi_trs", "device": "cpu", "seed": 13, "pretrain_emb": true, "pointer_gen": false, "weight_sharing": false}
+[GloVe Verified] {"file_lines": 400000, "matched_rows": 19481, "vocabulary_rows": 24647, "native_random_rows": 5166, "dimension": 300, "matched_rows_bitwise_equal": true, "matched_rows_max_abs_error": 0.0, "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef", "embedding_trainable": true}
+[Training Smoke Update] {"phase": "main", "iteration": 2, "train_indices": [4, 5], "actual_batch_size": 2, "objective": 178.41339111328125, "native_numeric_returns": [10.131314277648926, 25117.35392489289, 2.526355743408203, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 40, "parameter_max_abs_change": 2.4586915969848633e-07, "embedding_max_abs_change": 2.4586915969848633e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 42, "tensor": 0}, "noam_step": 3, "gradient_norm": 105.30672045133203, "gradient_parameter_count": 40, "required_group_gradient_norms": {"embedding": 70.81242584041414, "classifier": 17.13341092264294, "decoder": 11.204490990374456}, "lr": [2.4206145913796355e-07]}
+[Training Smoke PASS] {"model": "multi_trs", "resumed": true, "actual_updates": 1}

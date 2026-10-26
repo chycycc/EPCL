@@ -1,0 +1,41 @@
+================================================================================
+                                      Opts                                      
+--------------------------------------------------------------------------------
+                               data_dir: data/ED                                
+                              emo_input: self_att                               
+                            emo_combine: gate                                   
+                                decoder: single                                 
+                             hidden_dim: 300                                    
+                                emb_dim: 300                                    
+                             batch_size: 2                                      
+                                     lr: 0.0001                                 
+                          max_grad_norm: 2.0                                    
+                              beam_size: 5                                      
+                                   seed: 13                                     
+                     save_path: E:\github\CASE\results\benchmarks\classic_baselines\training_smoke_20261026\local_r2\cem_original\initial\native_save
+                             model_path: save/test                              
+                      save_path_dataset: save/                                  
+                          basic_learner: 1                                      
+                                   topk: 5                                      
+                                softmax: 1                                      
+                               schedule: 10000                                  
+                           pretrain_emb: 1                                      
+                                  model: cem                                    
+                        label_smoothing: 1                                      
+                                   noam: 1                                      
+                        act_loss_weight: 0.001                                  
+                      emb_file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+                                    hop: 1                                      
+                                  heads: 2                                      
+                                  depth: 40                                     
+                                 filter: 50                                     
+================================================================================
+Embeddings: 24647 x 300
+Loading embedding file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+Pre-trained: 19481 (79.04%)
+[Baseline Effective] {"model": "cem_original", "device": "cpu", "seed": 13, "pretrain_emb": true, "pointer_gen": false, "weight_sharing": false}
+[GloVe Verified] {"file_lines": 400000, "matched_rows": 19481, "vocabulary_rows": 24647, "native_random_rows": 5166, "dimension": 300, "matched_rows_bitwise_equal": true, "matched_rows_max_abs_error": 0.0, "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef", "embedding_trainable": true}
+[Training Smoke Update] {"phase": "main", "iteration": 0, "train_indices": [0, 1], "actual_batch_size": 2, "objective": 28.55832290649414, "native_numeric_returns": [10.065836906433105, 23525.42208885487, 3.389561653137207, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 102, "parameter_max_abs_change": 1.1920928955078125e-07, "embedding_max_abs_change": 1.1920928955078125e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 104, "tensor": 0}, "noam_step": 1, "gradient_norm": 62.21996188648937, "gradient_parameter_count": 102, "required_group_gradient_norms": {"embedding": 44.87880513459914, "classifier": 17.104825884769433, "decoder": 1.5516999802007192}, "lr": [8.068715304598785e-08]}
+[Training Smoke Update] {"phase": "main", "iteration": 1, "train_indices": [2, 3], "actual_batch_size": 2, "objective": 29.097198486328125, "native_numeric_returns": [10.1204252243042, 24845.333428790298, 3.7889885902404785, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 102, "parameter_max_abs_change": 2.384185791015625e-07, "embedding_max_abs_change": 2.384185791015625e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 2, "tensor": 102}, "noam_step": 2, "gradient_norm": 47.61781886823049, "gradient_parameter_count": 102, "required_group_gradient_norms": {"embedding": 34.50872655579878, "classifier": 12.73474191601489, "decoder": 1.5049120442730837}, "lr": [1.613743060919757e-07]}
+[Training Smoke Update] {"phase": "main", "iteration": 2, "train_indices": [4, 5], "actual_batch_size": 2, "objective": 29.802616119384766, "native_numeric_returns": [10.182724952697754, 26442.423567946436, 4.336710453033447, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 102, "parameter_max_abs_change": 2.4586915969848633e-07, "embedding_max_abs_change": 2.4586915969848633e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 2, "tensor": 102}, "noam_step": 3, "gradient_norm": 59.49499540285348, "gradient_parameter_count": 102, "required_group_gradient_norms": {"embedding": 42.91030427549406, "classifier": 17.273804214567612, "decoder": 1.517828906748664}, "lr": [2.4206145913796355e-07]}
+[Training Smoke PASS] {"model": "cem_original", "resumed": false, "actual_updates": 3}

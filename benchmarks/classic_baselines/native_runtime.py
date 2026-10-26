@@ -2,6 +2,7 @@
 import ast
 import contextlib
 import copy
+import functools
 import importlib
 import json
 import os
@@ -13,6 +14,15 @@ import types
 from audit_data import CacheReader
 from audit_sources import sha256
 from build_data_bundle import cem_view, kemp_vocabulary
+
+
+def item_compatible_accuracy(metric):
+    """Preserve the native CASE .item() contract across sklearn scalar types."""
+    @functools.wraps(metric)
+    def wrapped(*args, **kwargs):
+        import numpy as np
+        return np.float64(metric(*args, **kwargs))
+    return wrapped
 
 
 def seed_all(seed, device):
@@ -55,7 +65,7 @@ def readonly_observation(model):
 
 class NativeRuntime:
     def __init__(self, model_name, workspace, data_dir, output, device="cpu", seed=13,
-                 random_embeddings=False, embedding_file=None):
+                 random_embeddings=False, embedding_file=None, batch_size=16):
         import torch
         self.name = model_name
         self.workspace = workspace.resolve()
@@ -90,7 +100,7 @@ class NativeRuntime:
             asset.write_bytes((self.data_dir / "assets/NRCDict.json").read_bytes())
         self.vocab = types.SimpleNamespace(**self.vocabulary)
         native = provenance["native_model"]
-        argv = ["baseline_native", "--model", native, "--batch_size", "16",
+        argv = ["baseline_native", "--model", native, "--batch_size", str(batch_size),
                 "--save_path", str(self.output / "native_save")]
         if embedding_file:
             argv += ["--emb_file", str(embedding_file.resolve())]
@@ -99,6 +109,9 @@ class NativeRuntime:
             from src.utils.config import config
             from src.models.CASE.model import CASE
             from src.utils.data.loader import Dataset
+            case_module = sys.modules[CASE.__module__]
+            case_module.accuracy_score = item_compatible_accuracy(case_module.accuracy_score)
+            print('[Baseline Compatibility] CASE accuracy_score scalar -> numpy.float64 (.item compatible)', flush=True)
             config.device = torch.device(device)
             config.pretrain = False
             config.pretrain_emb = not random_embeddings

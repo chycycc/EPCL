@@ -1,0 +1,7 @@
+Embeddings: 24647 x 300
+Loading embedding file: E:\github\CASE\scratch\classic_baselines_training_smoke\glove.6B.300d.cloud_original.txt
+Pre-trained: 19481 (79.04%)
+[Baseline Effective] {"model": "kemp", "device": "cpu", "seed": 13, "pretrain_emb": true, "pointer_gen": true, "weight_sharing": false}
+[GloVe Verified] {"file_lines": 400000, "matched_rows": 19481, "vocabulary_rows": 24647, "native_random_rows": 5166, "dimension": 300, "matched_rows_bitwise_equal": true, "matched_rows_max_abs_error": 0.0, "embedding_sha256_before_training": "10d1af93b9cecae2afea8e417109ca5b6b5ace785190fc3f464b1ee014ec66ef", "embedding_trainable": true}
+[Training Smoke Update] {"phase": "main", "iteration": 2, "train_indices": [4, 5], "actual_batch_size": 2, "objective": 161.67935180664062, "native_numeric_returns": [8.8065824508667, 6678.057633813478, 8.946208953857422, 0.0], "actual_optimizer_updates": 1, "backward_calls": 1, "changed_parameter_count": 55, "parameter_max_abs_change": 2.4586915969848633e-07, "embedding_max_abs_change": 2.4586915969848633e-07, "zero_grad_signature": "(set_to_none: bool = False)", "zero_grad_observation": {"none": 63, "tensor": 0}, "noam_step": 3, "gradient_norm": 108.33825737382487, "gradient_parameter_count": 55, "required_group_gradient_norms": {"embedding": 72.10784360455371, "classifier": 19.676203074170836, "decoder": 29.457566380729077}, "lr": [2.4206145913796355e-07]}
+[Training Smoke PASS] {"model": "kemp", "resumed": true, "actual_updates": 1}

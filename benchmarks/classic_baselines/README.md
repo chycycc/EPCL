@@ -13,11 +13,13 @@
 - `native_export.py`、`native_runtime.py`、`native_generation.py`：每次只加载一个原生工程，以 hooks 导出目标 NLL/分类；从无参考回复的原生 Greedy 路径取得编码状态后执行共同搜索。不提供训练入口。
 - `score_records.py`：对适配器导出的 JSONL 计算指标，校验 ID/标签/数值完整性。它不负责运行模型或加载权重。
 - `run_smoke_queue.py`：串行运行四模型推理 smoke，验证恢复、只读状态、零优化器更新、原生 Greedy 一致及目标回复替换检查。
+- `run_training_smoke_queue.py`、`native_train_smoke.py`：有硬步数上限的 GloVe/反向/更新/新进程恢复验收，增量包和命令见 [TRAINING_SMOKE_README.md](TRAINING_SMOKE_README.md)。不提供正式训练循环。
+- `training_state.py`、`glove_audit.py`：完整 Adam/Noam/RNG/动态状态恢复及原始 GloVe 全部命中行核验。
 - `pack_cloud_bundle.py`、`verify_cloud_bundle.py`：打包/校验可上传的源码与数据包，不包含权重；云端命令见 [CLOUD_README.md](CLOUD_README.md)。
-- `cloud_preflight.py`：在云端显式运行，记录并校验环境，不训练。只有这个命令会导入 torch。
+- `cloud_preflight.py`：在云端显式运行，记录并校验环境，不训练。
 - `tests/`：本套件的 CPU 合同测试，与根目录历史测试分开运行。
 
-所有模型都应在其工作副本的独立子进程和工作目录中运行。不通过 `sys.path` 将多个上游工程同时导入一个进程，不导入 CASE-EPCL 的 `src`，不调用主项目的自动清理评测入口。原生模块的实际文件路径会保存并核验。本地推理适配器已完成；指定云端环境、预训练初始化与训练路径仍待验收，当前工具不提供训练子命令。
+所有模型都应在其工作副本的独立子进程和工作目录中运行。不通过 `sys.path` 将多个上游工程同时导入一个进程，不导入 CASE-EPCL 的 `src`，不调用主项目的自动清理评测入口。原生模块的实际文件路径会保存并核验。用户已回传四模型云端 GPU 推理通过；独立训练烟测新增于 2026-10-26，GPU 训练烟测须另行回传。
 
 ## 准备命令
 
@@ -58,7 +60,7 @@ python benchmarks/classic_baselines/cloud_preflight.py --output results/benchmar
 python benchmarks/classic_baselines/cloud_preflight.py --reference results/benchmarks/classic_baselines/case_epcl_cloud_environment.json --output results/benchmarks/classic_baselines/baseline_cloud_environment.json
 ```
 
-检查 Ubuntu 22.04 / Python 3.10 / PyTorch 2.1.0 / torch CUDA 12.1 / 单张 4090D；对比完整 Python、torch、cuDNN 和相关包版本。CPU 型号、affinity、cgroup quota 留存，18 vCPU 分配仍以实例实际配置核验。不要为迁就旧 requirements.txt 降级或覆盖 CASE-EPCL 环境；兼容修补先在工作副本做 diff 记录。
+检查 Ubuntu 22.04 / Python 3.10 / PyTorch 2.1.2 / torch CUDA 12.1 / 单张 4090D；对比完整 Python、torch、cuDNN 和相关包版本。CPU 型号、affinity、cgroup quota 留存，18 vCPU 分配仍以实例实际配置核验。不要为迁就旧 requirements.txt 降级或覆盖 CASE-EPCL 环境；兼容修补先在工作副本做 diff 记录。
 
 ## 指标文件合同
 

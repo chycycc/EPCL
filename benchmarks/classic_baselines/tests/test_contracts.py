@@ -117,9 +117,20 @@ class PreparationTests(unittest.TestCase):
         import json
         target = json.loads((HERE / "cloud_target.json").read_text(encoding="utf-8"))
         good = {"os_release": {"ID": "ubuntu", "VERSION_ID": "22.04"}, "python": "3.10.14",
-                "torch": "2.1.0+cu121", "torch_cuda_runtime": "12.1", "packages": {}, "cudnn": 8902,
+                "torch": "2.1.2+cu121", "torch_cuda_runtime": "12.1", "packages": {}, "cudnn": 8902,
                 "gpus": [{"name": "NVIDIA GeForce RTX 4090D", "memory_bytes": 24 * 1024 ** 3}]}
         self.assertEqual(validate(good, target, copy.deepcopy(good)), [])
+        spaced = copy.deepcopy(good)
+        spaced["gpus"][0]["name"] = "NVIDIA GeForce RTX 4090 D"
+        self.assertEqual(validate(spaced, target), [])
+        for name, memory in [("NVIDIA GeForce RTX 4090", 24 * 1024 ** 3),
+                             ("NVIDIA GeForce RTX 4090 D", 16 * 1024 ** 3)]:
+            wrong_gpu = copy.deepcopy(spaced)
+            wrong_gpu["gpus"][0].update(name=name, memory_bytes=memory)
+            self.assertIn("Expected RTX 4090D 24GB", validate(wrong_gpu, target))
+        wrong_torch = copy.deepcopy(good)
+        wrong_torch["torch"] = "2.1.0+cu121"
+        self.assertIn("Expected PyTorch 2.1.2", validate(wrong_torch, target))
         bad = copy.deepcopy(good)
         bad.update(python="3.8.20", torch="1.12.1+cu113")
         self.assertGreaterEqual(len(validate(bad, target)), 2)

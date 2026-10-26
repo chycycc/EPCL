@@ -11,7 +11,7 @@ HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 from build_data_bundle import cem_view, kemp_vocabulary, validate_features
 from native_generation import search, tokenize_response
-from native_runtime import NativeRuntime, readonly_observation
+from native_runtime import NativeRuntime, readonly_observation, item_compatible_accuracy
 from verify_cloud_bundle import verify
 from audit_sources import sha256
 
@@ -56,6 +56,17 @@ class DataAdapterTests(unittest.TestCase):
 
 
 class NativeObservationTests(unittest.TestCase):
+    def test_accuracy_scalar_compatibility_preserves_native_metric(self):
+        import numpy as np
+        from sklearn.metrics import accuracy_score
+        for result in (0.0, 0.5, 1.0, np.float64(0.75)):
+            self.assertEqual(item_compatible_accuracy(lambda: result)().item(), float(result))
+        labels, predictions = [0, 1, 1, 0], [0, 0, 1, 0]
+        wrapped = item_compatible_accuracy(accuracy_score)
+        for kwargs in ({}, {"normalize": False}, {"sample_weight": [1, 2, 3, 4]}):
+            self.assertEqual(wrapped(labels, predictions, **kwargs).item(),
+                             float(accuracy_score(labels, predictions, **kwargs)))
+
     def test_observation_restores_rng_and_auxiliary_frequency(self):
         import numpy as np
         import torch

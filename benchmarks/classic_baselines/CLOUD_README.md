@@ -1,6 +1,8 @@
 # 云端准备包：只做环境核验与推理 smoke
 
-本包包含四模型独立源码、统一数据包和检查工具。**没有训练子命令，不含模型权重，不代表正式训练已验收。**本地验证是 Python 3.8 / torch 1.12 的 CPU 随机权重 smoke；云端 Python 3.10 / torch 2.1 / CUDA 12.1 仍须实测。
+2026-10-26 后续：用户已回传四模型 GPU 推理通过，实际共同环境为 Python 3.10.8 / PyTorch 2.1.2+cu121 / RTX 4090D。下文保留原准备包的推理步骤；新增独立训练烟测及增量上传说明见 [TRAINING_SMOKE_README.md](TRAINING_SMOKE_README.md)，正式训练尚未启动。
+
+本包包含四模型独立源码、统一数据包和检查工具。**没有训练子命令，不含模型权重，不代表正式训练已验收。**本地验证是 Python 3.8 / torch 1.12 的 CPU 随机权重 smoke；云端目标根据用户回传与修订授权更新为 Python 3.10 / torch 2.1.2 / CUDA 12.1。GPU 名称兼容 `4090D` 与 `4090 D`；修订后仍须重跑预检与 GPU 推理 smoke。
 
 将 `.tar.gz` 上传至云端的新目录并解压，进入 `classic_baselines_bundle/`。以下命令应在实际 CASE-EPCL 使用的同一 Python 环境执行：
 
