@@ -1,0 +1,66 @@
+{
+  "base_commit": "89fc315b098d6db13922310bf3704d3e8e310e3a",
+  "created_local": "2026-10-26 20:26:52 +0800",
+  "environment": {
+    "python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19042-SP0",
+    "torch": "1.12.1+cu113",
+    "numpy": "1.24.4",
+    "scipy": "1.9.3",
+    "sklearn": "1.0.2",
+    "cuda": "11.3",
+    "cudnn": 8302,
+    "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "source_sha256": {
+    "main.py": "8680120d7aeed5f0b631d14ef61b21412b6163fb680c9c40c8623f7bd13689a8",
+    "main.sh": "ceff4064c4ca196343cd795b3cc7719ccd7f116baa4c0a3d429320c6095c6964",
+    "scratch/v10_trial1/eval_v10_return.py": "2156ff6fe90603ce6215b0318f34c75c95dbc8e35fa01f94c2d132eb566d0c35",
+    "src/models/CASE/model.py": "ed43d6d7f3d11b137eb93deb34bdb5f7761d7fed3fe06e753c8f55f9957605a4",
+    "src/models/common.py": "d369763a2a6e25318796967a946ec33a7af092ce3341f29c05fc8bbc43fc292d",
+    "src/scripts/eval_pipeline.py": "e6881f1f4ebfb4f06b94187e18c74fdde0cb165877c89059f58281ec39bedd0c",
+    "src/scripts/eval_prototype_ncm.py": "478a04c9eedebdd5b1f7584c03a9bbd4b6eceada102c138528812ebc4f643bb3",
+    "src/scripts/evaluate.py": "03484476428cc31f95c633e528b08e563b5a395715c9f2e1a4d5b3bc0c492460",
+    "src/utils/comet.py": "40c9fbc9c79a960ad803a427ca140abf255baa66b8741b6475968988ce1aa226",
+    "src/utils/common.py": "78d8dfc57edf284a3fa3c7d4b7b6f62f02fedff1b97a675b975c35cf4b1846e3",
+    "src/utils/config.py": "8e1467179d4456dbe59495ddae4c5324ce93612cd510a10f5d63a770f84b736a",
+    "src/utils/constants.py": "2ddd4fe817464b5eb2bdfce49fbfcd6c43bd05a571d910930e4eda4f183e6b19",
+    "src/utils/data/loader.py": "ed0a08630d941f09b4851e85e97b515401aaf1874980fa2e8d2e406d4caedb6d",
+    "src/utils/decode/beam.py": "826052650fb249b67add5d2c99e38f38929d9215aeadf4a1b5cbd5fbdfdd4786",
+    "src/utils/decode/case.py": "5604e810f8525dd689635c3d1b220a01226e53b91f2bd54dbedfd3bf20eebf70",
+    "src/utils/prefix_runtime.py": "6333819640a534bd9a5e281d6256632c06b195d161e1c700200e8db9a5ab9f22",
+    "scratch/trial12/analyze_trial12_norm_local.py": "ec9f74d1d690d80342e9ef838e196312e2d8267a680b63692dcec4e1396f3697",
+    "scratch/trial12/audit_trial12_gate.py": "34110191ccf9d9876a81b25d8c62dab4e253f8642398c0476bdf85f6a90488e8"
+  },
+  "archive_before_sha256": {
+    "results/cloud_archive/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best": "cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f",
+    "results/cloud_archive/v10_trial1_sep_dec_head/CASE_8499_37.5940_ppl_best": "83e80ae06d9019f8d56ecac9e2eb6edd3aa1396e7c1e76916a423fe9788cd2c7",
+    "results/cloud_archive/v10_trial1_sep_dec_head/checkpoint_sha256.txt": "e0e82dc88529d9a1849fe06e09e3391dd021c40f4b92c009a8852502668ed577",
+    "results/cloud_archive/v10_trial1_sep_dec_head/dec_emo_diagnostics.jsonl": "a44eb984d4c6053b6a90a7869a83ab3a277840b36641f1094585f110ae3e95a6",
+    "results/cloud_archive/v10_trial1_sep_dec_head/env_metadata.json": "4a65eda541b46652ed86b9eebdc84514a04d14205501f86f3ca58995b871f2d4",
+    "results/cloud_archive/v10_trial1_sep_dec_head/eval_metrics.json": "fe2eb37e6d17002f4dd9439eaecec8899e37b3ca886557c595d5aa89e8becf51",
+    "results/cloud_archive/v10_trial1_sep_dec_head/source_sha256.txt": "12337781a83e7fd312ffe20584eab052c81e36a633a5e37eb2efcf38a1a56d15",
+    "results/cloud_archive/v10_trial1_sep_dec_head/v10_trial1_sep_dec_head.log": "41599c42456220be8373a5c2bc2598178bf6e6c1274dcfead12b4a9d71f99773",
+    "results/cloud_archive/v10_trial1_sep_dec_head/v10_trial1_sep_dec_head_eval.txt": "8703dedd96e8dec3f01dbfa86dc9275d8b81dff32862f4bcd6e0f5594c94cc69",
+    "results/cloud_archive/v10_trial1_sep_dec_head/v10_trial1_sep_dec_head_manifold.png": "ef2870a06642ebbcd273281ab5b7c4f0977cc590800d4415a490220110d97358",
+    "results/cloud_archive/v10_trial1_sep_dec_head/v10_trial1_sep_dec_head_results.txt": "712a01a755e3981cbd24315a9ec6f57170f1815bb3622cba34b76e5f5e6d613e"
+  },
+  "data_sha256": {
+    "data/ED/dataset_preproc.p": "94851e73f3fd9efcf9c32f15d3aaa2274a22196bbf309b1e4d862330cd744ea2"
+  },
+  "checkpoints": {
+    "V10": {
+      "source": "results/cloud_archive/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best",
+      "sha256": "cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f"
+    },
+    "V10_PPL": {
+      "source": "results/cloud_archive/v10_trial1_sep_dec_head/CASE_8499_37.5940_ppl_best",
+      "sha256": "83e80ae06d9019f8d56ecac9e2eb6edd3aa1396e7c1e76916a423fe9788cd2c7"
+    }
+  },
+  "old_T11B_npz": "results/v9/trial12_local_eval/v9_trial12_B_composite_local/test_predictions.npz",
+  "historical_reference": "results/v10/history_reference_20261026/input_manifest.json",
+  "training_started": false
+}

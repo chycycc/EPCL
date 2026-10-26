@@ -1,0 +1,27 @@
+{
+  "Test_PPL": 32.56,
+  "Test_EMO_loss": 2.284,
+  "Test_EMO_acc": 42.21,
+  "Test_BOW_loss": 5.0974,
+  "Test_KL_loss": 0.0683,
+  "_scope": {
+    "n_samples": 5255,
+    "batch_size": 1,
+    "aggregation": "macro: exp(mean per-batch token CE)",
+    "dataset": "ED test split (full)"
+  },
+  "unrounded": {
+    "ppl": 32.56464648604055,
+    "accuracy_pct": 42.20742150333016,
+    "emo_loss": 2.2839880790552654,
+    "correct": 2218,
+    "n": 5255
+  },
+  "cloud_prediction_mismatches": 0,
+  "old_T11B_comparison": {
+    "ctx_ce_max_abs_difference": 0.0,
+    "prediction_mismatches": 0,
+    "old_ppl": 32.56464648604055,
+    "old_npz_sha256": "2997bb9e2ff8ba291021fc7c0848772c77bece1163df76ffeb748cb604f851ed"
+  }
+}

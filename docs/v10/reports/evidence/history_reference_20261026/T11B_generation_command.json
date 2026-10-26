@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+    "src/scripts/eval_pipeline.py",
+    "--model_path",
+    "E:\\github\\CASE\\results\\v10\\gen_full5255\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\CASE_7499_37.5058_composite_best",
+    "--batch_size",
+    "1",
+    "--gen_samples",
+    "0",
+    "--skip_test_eval",
+    "--skip_manifold",
+    "--use_arc_margin",
+    "--epcl_anchor",
+    "fine_emotion",
+    "--cls_anchor",
+    "default",
+    "--gpu",
+    "0",
+    "--results_path",
+    "E:\\github\\CASE\\results\\v10\\gen_full5255\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\generation_report.txt",
+    "--plot_path",
+    "E:\\github\\CASE\\results\\v10\\gen_full5255\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\unused_manifold.png",
+    "--save_path",
+    "E:\\github\\CASE\\results\\v10\\gen_full5255\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\loader_config",
+    "--exp_name",
+    "v9_trial11_B_gnorm6_local_full5255"
+  ],
+  "cwd": "E:\\github\\CASE"
+}

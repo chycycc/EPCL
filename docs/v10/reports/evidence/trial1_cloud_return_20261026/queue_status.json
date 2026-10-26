@@ -1,0 +1,21 @@
+{
+  "status": "complete",
+  "completed": [
+    {
+      "task": "test_V10",
+      "elapsed_seconds": 208.71899999992456
+    },
+    {
+      "task": "test_V10_PPL",
+      "elapsed_seconds": 206.09299999999348
+    },
+    {
+      "task": "generation_V10",
+      "elapsed_seconds": 3783.0
+    }
+  ],
+  "training_started": false,
+  "active": null,
+  "archives_unchanged": true,
+  "data_unchanged": true
+}

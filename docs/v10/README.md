@@ -6,7 +6,9 @@
 >
 > **研究定位**：停止继续堆叠新模块，转向现有已启用组件之间的梯度、表征与损失调度配合优化；目录整理与模型改动严格分开处理。
 >
-> **当前状态**：**V10 Trial 1**（`v10_trial1_sep_dec_head`）已完成 v1.1 训练实现冻结、实装及[审查修正与本地验收](reports/03_v10_trial1_corrections_and_acceptance.md)：61项回归、10组配置、阶段三双组重跑与真实打包均通过。[事前方案现为 v1.2](plans/v10_trial1_sep_dec_head_plan.md)（2026-10-26 评测与报告层修订，见 [04 复核](reports/04_v10_trial1_v1_2_protocol_review.md)）；正式云端运行时由 `main.sh` 在训练前现场核验，待用户执行云端训练。
+> **优先阅读**：[Trial1 实验结论与下一步决策记录](reports/07_v10_trial1_findings_and_next_steps.md)——集中说明结果、可能原因、主线决策与下一轮建议。详细验收证据留在05/06报告。
+>
+> **当前状态（2026-10-26）**：用户已完成 **V10 Trial 1** 云端训练并回传归档。正式 Test `32.61 / 41.75% / 2.4438` 未通过冻结双门槛，主线保留 T11-B。历史参照补评与全量生成已完成，见[报告05](reports/05_historical_reference_local_evaluation.md)；V10 本地两份检查点 Test、配对统计、全量5255生成与云端轨迹审计全部完成，见[报告06](reports/06_v10_trial1_cloud_results_audit.md)。事前方案仍为[v1.2](plans/v10_trial1_sep_dec_head_plan.md)，训练代码与判据不变。
 
 ---
 
@@ -24,7 +26,10 @@ docs/v10/
     ├── 02_v10_trial1_independent_review.md       # 修正前独立复核
     ├── 03_v10_trial1_corrections_and_acceptance.md
     ├── 04_v10_trial1_v1_2_protocol_review.md
-    └── evidence/trial1_correction/              # 可提交的小型原始证据
+    ├── 05_historical_reference_local_evaluation.md
+    ├── 06_v10_trial1_cloud_results_audit.md
+    ├── 07_v10_trial1_findings_and_next_steps.md    # 结果、解释与下一步建议
+    └── evidence/                              # 工程验收、历史参照和云端回传的小型原始证据
 ```
 
 对应端云回传路径分工：

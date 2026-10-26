@@ -1,0 +1,35 @@
+{
+  "status": "complete",
+  "experiment": "v10_trial1_sep_dec_head",
+  "checkpoint": "results/v10/trial1_cloud_return_20261026/test/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best/CASE_7499_37.6658_composite_best",
+  "checkpoint_sha256": "cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f",
+  "environment": {
+    "python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19042-SP0",
+    "torch": "1.12.1+cu113",
+    "numpy": "1.24.4",
+    "scipy": "1.9.3",
+    "sklearn": "1.0.2",
+    "cuda": "11.3",
+    "cudnn": 8302,
+    "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "input_manifest_sha256": "63a43114c345f2756cd50b4a701427853b9f206226ecfe255cb0b726aed34633",
+  "scope": {
+    "test_n": 5255,
+    "batch_size": 1,
+    "shuffle": false,
+    "ppl": "exp(mean per-sample token CE)",
+    "accuracy": "sample micro",
+    "emo_loss": "mean sample CE",
+    "generation_n": 0
+  },
+  "started": "2026-10-26 20:26:56 +0800",
+  "all_model_tensors_restored_exact": true,
+  "elapsed_seconds": 203.56200000003446,
+  "predictions_sha256": "3535568d7e1254988a16ecc52ef615356c23195ae898c33987eb08d1f0c13c21",
+  "checkpoint_unchanged": true,
+  "source_unchanged": true
+}

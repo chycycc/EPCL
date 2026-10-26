@@ -1,0 +1,89 @@
+{
+  "checkpoint": "save/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best",
+  "eval_time": "2026-10-26 18:34:45",
+  "evaluation_protocol": {
+    "test": {
+      "status": "computed",
+      "dataset_n": 5255,
+      "evaluated_n": 5255,
+      "batch_size": 1,
+      "ppl_aggregation": "macro: exp(mean per-batch token CE)"
+    },
+    "manifold": {
+      "status": "computed",
+      "evaluated_n": 5255,
+      "batch_size": 1
+    },
+    "generation": {
+      "status": "computed",
+      "evaluated_n": 500,
+      "batch_size": 1
+    }
+  },
+  "test_metrics": {
+    "Test_PPL": 32.61,
+    "Test_EMO_loss": 2.4438,
+    "Test_EMO_acc": 41.75,
+    "Test_BOW_loss": 5.1257,
+    "Test_MIM_loss": 0.0,
+    "Test_KL_loss": 0.0722,
+    "_scope": {
+      "n_samples": 5255,
+      "batch_size": 1,
+      "aggregation": "macro: exp(mean per-batch token CE)",
+      "dataset": "ED test split (full)"
+    }
+  },
+  "manifold_metrics": {
+    "Silhouette_Cosine": -0.04,
+    "Silhouette_Euclidean": -0.0189,
+    "DBI": 5.6299,
+    "CHI": 49.6,
+    "Centroid_Alignment": 0.9435,
+    "Centroid_Offset": 0.3246,
+    "Plot_Path": "results/v10/v10_trial1_sep_dec_head_manifold.png",
+    "_scope": {
+      "n_samples": 5255,
+      "batch_size": 1,
+      "source": "full test set (feature extraction)",
+      "metric_space": "L2-normalized unit hypersphere (samples & prototypes co-scaled)",
+      "tsne": {
+        "perplexity": 30,
+        "random_state": 42,
+        "init": "pca"
+      }
+    }
+  },
+  "generation_metrics": {
+    "Greedy": {
+      "Dist-1": 5.85,
+      "Dist-2": 19.81,
+      "Unique": 62.8,
+      "Avg_Len": 9.41
+    },
+    "Beam": {
+      "Dist-1": 4.79,
+      "Dist-2": 13.89,
+      "Unique": 40.4,
+      "Avg_Len": 7.81
+    },
+    "Sampling": {
+      "Dist-1": 8.8,
+      "Dist-2": 41.08,
+      "Unique": 97.0,
+      "Avg_Len": 10.61
+    },
+    "Sampling_0.8": {
+      "Dist-1": 10.03,
+      "Dist-2": 49.67,
+      "Unique": 99.4,
+      "Avg_Len": 11.57
+    },
+    "_scope": {
+      "n_samples": 500,
+      "sampling": "first-N of test set (sequential, not random)",
+      "decode_batch_size": 1,
+      "note": "Dist-2/Unique 均为该子集内统计"
+    }
+  }
+}

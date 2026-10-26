@@ -1,0 +1,68 @@
+{
+  "base_commit": "e97a0c03d356adfcce41a312844ee480ebe905cc",
+  "created_local": "2026-10-26 16:36:56 +0800",
+  "environment": {
+    "python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19042-SP0",
+    "torch": "1.12.1+cu113",
+    "numpy": "1.24.4",
+    "scipy": "1.9.3",
+    "sklearn": "1.0.2",
+    "cuda": "11.3",
+    "cudnn": 8302,
+    "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "source_sha256": {
+    "main.py": "8680120d7aeed5f0b631d14ef61b21412b6163fb680c9c40c8623f7bd13689a8",
+    "main.sh": "ceff4064c4ca196343cd795b3cc7719ccd7f116baa4c0a3d429320c6095c6964",
+    "scratch/v10_trial1/history_reference_eval.py": "f0953546f10e50456c30cd51a0a92ea5a223b36e4ee546d1ca48525abe8b5e7d",
+    "src/models/CASE/model.py": "ed43d6d7f3d11b137eb93deb34bdb5f7761d7fed3fe06e753c8f55f9957605a4",
+    "src/models/common.py": "d369763a2a6e25318796967a946ec33a7af092ce3341f29c05fc8bbc43fc292d",
+    "src/scripts/eval_pipeline.py": "e6881f1f4ebfb4f06b94187e18c74fdde0cb165877c89059f58281ec39bedd0c",
+    "src/scripts/eval_prototype_ncm.py": "478a04c9eedebdd5b1f7584c03a9bbd4b6eceada102c138528812ebc4f643bb3",
+    "src/scripts/evaluate.py": "03484476428cc31f95c633e528b08e563b5a395715c9f2e1a4d5b3bc0c492460",
+    "src/utils/comet.py": "40c9fbc9c79a960ad803a427ca140abf255baa66b8741b6475968988ce1aa226",
+    "src/utils/common.py": "78d8dfc57edf284a3fa3c7d4b7b6f62f02fedff1b97a675b975c35cf4b1846e3",
+    "src/utils/config.py": "8e1467179d4456dbe59495ddae4c5324ce93612cd510a10f5d63a770f84b736a",
+    "src/utils/constants.py": "2ddd4fe817464b5eb2bdfce49fbfcd6c43bd05a571d910930e4eda4f183e6b19",
+    "src/utils/data/loader.py": "ed0a08630d941f09b4851e85e97b515401aaf1874980fa2e8d2e406d4caedb6d",
+    "src/utils/decode/beam.py": "826052650fb249b67add5d2c99e38f38929d9215aeadf4a1b5cbd5fbdfdd4786",
+    "src/utils/decode/case.py": "5604e810f8525dd689635c3d1b220a01226e53b91f2bd54dbedfd3bf20eebf70",
+    "src/utils/prefix_runtime.py": "6333819640a534bd9a5e281d6256632c06b195d161e1c700200e8db9a5ab9f22",
+    "scratch/trial12/analyze_trial12_norm_local.py": "ec9f74d1d690d80342e9ef838e196312e2d8267a680b63692dcec4e1396f3697",
+    "scratch/trial12/audit_trial12_gate.py": "34110191ccf9d9876a81b25d8c62dab4e253f8642398c0476bdf85f6a90488e8"
+  },
+  "archive_before_sha256": {
+    "results/cloud_archive/v9_trial10/CASE_7499_37.3144_composite_best": "b7c0d0fb7c1e5a41a2133e5dde9405370379cf35e4a0d48101fad6f9f358f0ce",
+    "results/cloud_archive/v9_trial10/eval_metrics.json": "510328b7d680d8c997e7ef822ff04d3235e23cf8c86ee4de2bfb54e1a42a1a23",
+    "results/cloud_archive/v9_trial10/v9_trial10.log": "f3391ccca8866440c343f05d5294a27b15a1e5ea0176960318b0df69d59b1176",
+    "results/cloud_archive/v9_trial10/v9_trial10_eval.txt": "729f97062a1776c1a070fbe8ea3d33a829bd635aa640c6db5d15059c76f40dba",
+    "results/cloud_archive/v9_trial10/v9_trial10_manifold.png": "f1987aa9fd912466e7cb22c5caa6c406cbdfff6b4912fa5418d60cd26ec36606",
+    "results/cloud_archive/v9_trial10/v9_trial10_results.txt": "ba35a0af19a18252f826291ea00cea208e790c92d252d7974039fe99a97aa3ae",
+    "results/cloud_archive/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best": "aa559e7e912faa1b12a85e0c70ad01a5798cf80fa48df789ca30783b085fbe7b",
+    "results/cloud_archive/v9_trial11_B_gnorm6/CASE_8999_37.4802_ppl_best": "aaa74f90ed5fe5687f70d5daa1a64cd1a2f3aa6068315c7797f1c79370810355",
+    "results/cloud_archive/v9_trial11_B_gnorm6/eval_metrics.json": "cc3c91a9ee64ed1a028e826c4a9ce8994519c2d1eccf98ee77c82123e3822ab8",
+    "results/cloud_archive/v9_trial11_B_gnorm6/v9_trial11_B_gnorm6.log": "a637a5398882c02aa1cd061313201c59929088cb8b7c6ef592674fd7044994b9",
+    "results/cloud_archive/v9_trial11_B_gnorm6/v9_trial11_B_gnorm6_eval.txt": "d332e9db6209f7960220f73c51efc8c3a0e4e94e786288a681e403ae994d506e",
+    "results/cloud_archive/v9_trial11_B_gnorm6/v9_trial11_B_gnorm6_manifold.png": "f9b2326ba2e08b0a21954c9caa5f40c13b8f339f4498160e4ff6d8e86bfda355",
+    "results/cloud_archive/v9_trial11_B_gnorm6/v9_trial11_B_gnorm6_results.txt": "699c42584a6fe902a8ed2a8cdf2ccf2fc644730005f71b3f59bdc22bc137372a"
+  },
+  "data_sha256": {
+    "data/ED/dataset_preproc.p": "94851e73f3fd9efcf9c32f15d3aaa2274a22196bbf309b1e4d862330cd744ea2"
+  },
+  "checkpoints": {
+    "T10": {
+      "source": "results/cloud_archive/v9_trial10/CASE_7499_37.3144_composite_best",
+      "sha256": "b7c0d0fb7c1e5a41a2133e5dde9405370379cf35e4a0d48101fad6f9f358f0ce"
+    },
+    "T11B": {
+      "source": "results/cloud_archive/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best",
+      "sha256": "aa559e7e912faa1b12a85e0c70ad01a5798cf80fa48df789ca30783b085fbe7b"
+    }
+  },
+  "old_T11B_npz": "results/v9/trial12_local_eval/v9_trial12_B_composite_local/test_predictions.npz",
+  "old_T11B_missing_emo_ce": true,
+  "training_started": false
+}

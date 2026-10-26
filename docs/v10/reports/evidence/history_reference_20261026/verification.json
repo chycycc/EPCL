@@ -1,0 +1,115 @@
+{
+  "all_passed": true,
+  "base_commit": "e97a0c03d356adfcce41a312844ee480ebe905cc",
+  "test_samples_each": 5255,
+  "generation_samples_each": 5255,
+  "model_count": 2,
+  "archives_unchanged": true,
+  "production_sources_unchanged": true,
+  "dataset_unchanged": true,
+  "acceptance_11_source_test_hashes_unchanged": true,
+  "copied_checkpoint_hashes_match": true,
+  "pair_id_label_order_equal": true,
+  "mcnemar_independent_exact_sum_matches": true,
+  "bootstrap_100_vs50_bitwise_equal": true,
+  "bootstrap_replicates": 10000,
+  "bootstrap_seed": 20261023,
+  "training_started": false,
+  "cloud_used": false,
+  "scripts_sha256": {
+    "scratch\\v10_trial1\\history_reference_eval.py": "f0953546f10e50456c30cd51a0a92ea5a223b36e4ee546d1ca48525abe8b5e7d",
+    "scratch\\v10_trial1\\analyze_history_reference.py": "9ce12d18a8a8c332956d6423b97131bda805845b349e1d25a18fd99b43af81df",
+    "scratch\\v10_trial1\\finalize_history_reference.py": "491649118575dd90992f49c1d5b18ba278c077833dd1a187933a8bdc1bdef5d4",
+    "scratch\\v10_trial1\\write_history_reference_report.py": "618cfc24d84823b12adef4728a09e259c52b4c40804097c425133b5a3bb0e5be"
+  },
+  "exported_evidence_sha256": {
+    "input_manifest.json": "a97f51979ac9c1fe7973bdcf8ca60455d4ca50a7a0a8a12c79c4e13b1d42a7c2",
+    "queue_status.json": "8366999307fa5cd753a2a864d91d03e6e36df9f41c930d417e1c14541acccbb2",
+    "tokenizer_environment.json": "71000869ad1b56991d10bdc31699eeee57f2cdfc7de284bbce6f34c47a87d8cf",
+    "paired_comparison.json": "2bea2a2ec56d7ea877b42029f8228999b8bb97d4869fc59c613a718a26e4be06",
+    "bootstrap_distributions.npz": "67084ddfaea4c4f54c71036c72a0c1a037a1e9012d42894f8a4a4b5a14b39844",
+    "T10_test_run_manifest.json": "f1446f7f9f57f121b94a1f72620e8dcd35dfb906851c5297166f7d4897420bba",
+    "T10_test_test_metrics.json": "7cd3044f7c14538c52eabb6098bf8d3080d7e55a86fbbf260f77f72826ebfa53",
+    "T10_test_test_predictions.npz": "b7efa165e91136981dbce09ec444ce01d9b63c1674f6ad833990758bb22e8d6a",
+    "T10_test_command.json": "61f616387439a0a5d55940f711fbd007f45b4c7b54d4c95aea23f899c523ae5a",
+    "T10_generation_run_manifest.json": "b84f7bb5755b667a1898111f072dd46fe8d6dc99c16f5839fcd2983a8ddc84b5",
+    "T10_generation_eval_metrics.json": "1cc814d1ab47d28dee9d2e918bcc4d35126f0dbcb9fbdbb3befa6499e5de0874",
+    "T10_generation_generation_report.txt": "9f2084fdea93fee4b85636df172cb6014721030329a7c3d791cf12be96b94468",
+    "T10_generation_command.json": "b1c56a68c16c1aecb7e141cb470d6b5b35586416e27a92e2f44281f196424fbb",
+    "T11B_test_run_manifest.json": "9fd9800d12c1011caa683955e428e0b31acc98d7f2ca965da466c321175d4a3e",
+    "T11B_test_test_metrics.json": "b6675dc63c92c665b32bbd184a5f4c20f835e95f7e40da763b46ff70d708c7df",
+    "T11B_test_test_predictions.npz": "d67f44c0fea5c60c95ae5c59e895ee5d1e1308c1e5c8c115592cfb557cc26645",
+    "T11B_test_command.json": "31ef588fe828e1e972320873cb69dc7692c70ad395407263788eeb2a239931a3",
+    "T11B_generation_run_manifest.json": "8c78ce4d97495b5456ae7fb8e3e4cc419aed581542c58c829dcfb8d93a383646",
+    "T11B_generation_eval_metrics.json": "86526f2836d8b85fe638aea46a164475790c518352c34812636ab32592b63cb4",
+    "T11B_generation_generation_report.txt": "f9ad8895e51c881710d73aabad4b69137dc86a7835e48b675b63a767b1bc996e",
+    "T11B_generation_command.json": "58c4811c4c59ded9d09fe7de2f04a0ce624cf46bbe8a75ba24371d59acc62311"
+  },
+  "generation_metrics": {
+    "T10": {
+      "Greedy": {
+        "Dist-1": 0.87,
+        "Dist-2": 4.35,
+        "Unique": 36.59,
+        "Avg_Len": 9.51
+      },
+      "Beam": {
+        "Dist-1": 0.74,
+        "Dist-2": 2.9,
+        "Unique": 18.1,
+        "Avg_Len": 8.15
+      },
+      "Sampling": {
+        "Dist-1": 1.63,
+        "Dist-2": 14.46,
+        "Unique": 92.01,
+        "Avg_Len": 10.93
+      },
+      "Sampling_0.8": {
+        "Dist-1": 2.15,
+        "Dist-2": 19.38,
+        "Unique": 95.47,
+        "Avg_Len": 11.41
+      },
+      "_scope": {
+        "n_samples": 5255,
+        "sampling": "first-N of test set (sequential, not random)",
+        "decode_batch_size": 1,
+        "note": "Dist-2/Unique 均为该子集内统计"
+      }
+    },
+    "T11B": {
+      "Greedy": {
+        "Dist-1": 0.89,
+        "Dist-2": 4.66,
+        "Unique": 38.61,
+        "Avg_Len": 9.62
+      },
+      "Beam": {
+        "Dist-1": 0.71,
+        "Dist-2": 2.98,
+        "Unique": 18.06,
+        "Avg_Len": 8.07
+      },
+      "Sampling": {
+        "Dist-1": 1.7,
+        "Dist-2": 14.85,
+        "Unique": 92.05,
+        "Avg_Len": 11.02
+      },
+      "Sampling_0.8": {
+        "Dist-1": 2.21,
+        "Dist-2": 19.76,
+        "Unique": 95.17,
+        "Avg_Len": 11.38
+      },
+      "_scope": {
+        "n_samples": 5255,
+        "sampling": "first-N of test set (sequential, not random)",
+        "decode_batch_size": 1,
+        "note": "Dist-2/Unique 均为该子集内统计"
+      }
+    }
+  },
+  "complete_scope": "A1-A4 local Test inference, paired statistics and full generation; cloud return assessed separately in report 06"
+}

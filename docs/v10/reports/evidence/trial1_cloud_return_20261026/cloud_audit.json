@@ -1,0 +1,2752 @@
+{
+  "passed": true,
+  "cloud_formal_test": {
+    "Test_PPL": 32.61,
+    "Test_EMO_loss": 2.4438,
+    "Test_EMO_acc": 41.75
+  },
+  "gate": {
+    "ppl_pass": false,
+    "acc_pass": false,
+    "candidate": false
+  },
+  "source_matches_frozen_git_blobs": {
+    "main.sh": {
+      "cloud_sha256": "ceff4064c4ca196343cd795b3cc7719ccd7f116baa4c0a3d429320c6095c6964",
+      "commit_e97a0c0_sha256": "ceff4064c4ca196343cd795b3cc7719ccd7f116baa4c0a3d429320c6095c6964"
+    },
+    "main.py": {
+      "cloud_sha256": "8680120d7aeed5f0b631d14ef61b21412b6163fb680c9c40c8623f7bd13689a8",
+      "commit_e97a0c0_sha256": "8680120d7aeed5f0b631d14ef61b21412b6163fb680c9c40c8623f7bd13689a8"
+    },
+    "src/models/common.py": {
+      "cloud_sha256": "d369763a2a6e25318796967a946ec33a7af092ce3341f29c05fc8bbc43fc292d",
+      "commit_e97a0c0_sha256": "d369763a2a6e25318796967a946ec33a7af092ce3341f29c05fc8bbc43fc292d"
+    },
+    "src/models/CASE/model.py": {
+      "cloud_sha256": "ed43d6d7f3d11b137eb93deb34bdb5f7761d7fed3fe06e753c8f55f9957605a4",
+      "commit_e97a0c0_sha256": "ed43d6d7f3d11b137eb93deb34bdb5f7761d7fed3fe06e753c8f55f9957605a4"
+    },
+    "src/utils/config.py": {
+      "cloud_sha256": "8e1467179d4456dbe59495ddae4c5324ce93612cd510a10f5d63a770f84b736a",
+      "commit_e97a0c0_sha256": "8e1467179d4456dbe59495ddae4c5324ce93612cd510a10f5d63a770f84b736a"
+    },
+    "src/utils/prefix_runtime.py": {
+      "cloud_sha256": "6333819640a534bd9a5e281d6256632c06b195d161e1c700200e8db9a5ab9f22",
+      "commit_e97a0c0_sha256": "6333819640a534bd9a5e281d6256632c06b195d161e1c700200e8db9a5ab9f22"
+    },
+    "src/utils/data/loader.py": {
+      "cloud_sha256": "a666e27b7700095e2a2fe66064ebdda7fd7a46cad5233d7e24d070e9e21e5112",
+      "commit_e97a0c0_sha256": "a666e27b7700095e2a2fe66064ebdda7fd7a46cad5233d7e24d070e9e21e5112"
+    },
+    "src/scripts/eval_pipeline.py": {
+      "cloud_sha256": "e6881f1f4ebfb4f06b94187e18c74fdde0cb165877c89059f58281ec39bedd0c",
+      "commit_e97a0c0_sha256": "e6881f1f4ebfb4f06b94187e18c74fdde0cb165877c89059f58281ec39bedd0c"
+    },
+    "src/scripts/eval_prototype_ncm.py": {
+      "cloud_sha256": "478a04c9eedebdd5b1f7584c03a9bbd4b6eceada102c138528812ebc4f643bb3",
+      "commit_e97a0c0_sha256": "478a04c9eedebdd5b1f7584c03a9bbd4b6eceada102c138528812ebc4f643bb3"
+    }
+  },
+  "checkpoint_checks": {
+    "V10": {
+      "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\CASE_7499_37.6658_composite_best",
+      "sha256": "cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f",
+      "metadata": {
+        "iter": 7499,
+        "current_loss": 37.66578371394391,
+        "tag": "composite_best",
+        "prefix_attention_mode": "none",
+        "prefix_norm_mode": "none",
+        "dec_emo_head_mode": "separate_linear_v1"
+      },
+      "state_tensors_finite": true,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7092375205070925,
+        "row_cosine_median": 0.7091199985000769,
+        "row_cosine_min": 0.6454025275076529,
+        "row_cosine_max": 0.7830287654638552,
+        "bias_l2_distance": 0.13329896173171357,
+        "weight_max_abs_diff": 0.2140553630888462,
+        "bias_max_abs_diff": 0.06140530575066805
+      },
+      "diagnostic_recompute_max_abs_error": 1.1102230246251565e-16,
+      "embedding_generator_values_equal": false
+    },
+    "V10_PPL": {
+      "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\CASE_8499_37.5940_ppl_best",
+      "sha256": "83e80ae06d9019f8d56ecac9e2eb6edd3aa1396e7c1e76916a423fe9788cd2c7",
+      "metadata": {
+        "iter": 8499,
+        "current_loss": 37.594007166317034,
+        "tag": "ppl_best",
+        "prefix_attention_mode": "none",
+        "prefix_norm_mode": "none",
+        "dec_emo_head_mode": "separate_linear_v1"
+      },
+      "state_tensors_finite": true,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7059775456906076,
+        "row_cosine_median": 0.7048572202777665,
+        "row_cosine_min": 0.6416807304124872,
+        "row_cosine_max": 0.7791812056093156,
+        "bias_l2_distance": 0.1370494311770428,
+        "weight_max_abs_diff": 0.21783612295985222,
+        "bias_max_abs_diff": 0.06251584179699421
+      },
+      "diagnostic_recompute_max_abs_error": 1.1102230246251565e-16,
+      "embedding_generator_values_equal": false
+    }
+  },
+  "V10": {
+    "options": {
+      "data_dir": "data",
+      "dataset": "ED",
+      "comet_file": "data/Comet",
+      "max_num_dialog": "9",
+      "concept_num": "3",
+      "total_concept_num": "10",
+      "cs_num": "5",
+      "emb_file": "vectors/glove.6B.300d.txt",
+      "save_path": "save/v10_trial1_sep_dec_head/",
+      "model_path": "save/test",
+      "save_path_dataset": "save/",
+      "PAD_idx": "1",
+      "EOS_idx": "2",
+      "SOS_idx": "3",
+      "USR_idx": "4",
+      "SYS_idx": "5",
+      "CLS_idx": "6",
+      "KG_idx": "7",
+      "SEP_idx": "8",
+      "self_loop": "2",
+      "contain": "3",
+      "temporary": "4",
+      "intent_idx": "5",
+      "need_idx": "6",
+      "want_idx": "7",
+      "effect_idx": "8",
+      "react_idx": "9",
+      "relation_num": "10",
+      "batch_size": "32",
+      "accum_steps": "1",
+      "precision": "fp32",
+      "lr": "0.000576",
+      "hidden_dim": "300",
+      "emb_dim": "300",
+      "max_grad_norm": "6.0",
+      "beam_size": "5",
+      "basic_learner": "1",
+      "topk": "5",
+      "softmax": "1",
+      "schedule": "10000",
+      "hop": "1",
+      "heads": "2",
+      "depth": "100",
+      "filter": "300",
+      "graph_layer_num": "1",
+      "graph_ffn_emb_dim": "300",
+      "graph_num_heads": "2",
+      "seed": "13",
+      "model": "case",
+      "cuda": "1",
+      "split_data_seed": "13",
+      "pretrain": "1",
+      "pretrain_epoch": "4",
+      "woStrategy": "1",
+      "model_file_path": "save/v10_trial1_sep_dec_head/",
+      "warmup": "2000",
+      "fine_weight": "0.2",
+      "coarse_weight": "1.0",
+      "lambda_epcl": "0.03",
+      "epcl_warmup": "3000",
+      "epcl_freeze_step": "14000",
+      "alpha_mim": "0.1",
+      "div_weight": "2.0",
+      "lr_schedule": "cosine",
+      "freeze_patience": "3",
+      "min_freeze_step": "16000",
+      "max_freeze_step": "32000",
+      "freeze_metric": "emo_acc",
+      "emotion_head_type": "linear",
+      "mlp_hidden_dim": "300",
+      "mlp_dropout": "0.1",
+      "num_prototypes_per_class": "1",
+      "alpha_uni": "0.8",
+      "use_pcam": "1",
+      "pcam_heads": "2",
+      "pcam_dropout": "0.1",
+      "pcam_gate_bias": "-1.0",
+      "pcam_tau_attn": "1.5",
+      "erp_hidden_dim": "768",
+      "erp_dropout": "0.1",
+      "cchp_alpha": "0.1",
+      "cchp_reg_weight": "0.01",
+      "unlikelihood_weight": "0.1",
+      "use_mcp": "1",
+      "mcp_momentum": "0.96",
+      "use_arc_margin": "1",
+      "arc_margin": "0.3",
+      "arc_mode": "cos",
+      "arc_margin_ramp_steps": "2500",
+      "epcl_anchor": "fine_emotion",
+      "cls_anchor": "default",
+      "freeze_decay_weight": "0.05",
+      "emo_bias_gate_init": "-2.0",
+      "anneal_start_step": "24000",
+      "anneal_steps": "16000",
+      "anneal_min_weight": "0.05",
+      "emo_vocab_topk_ratio": "0.15",
+      "use_pcgrad": "1",
+      "gate_warmup_steps": "2500",
+      "mask_update_interval": "1000",
+      "patience": "6",
+      "use_bias_annealing": "1",
+      "bias_anneal_start": "2500",
+      "bias_anneal_steps": "2500",
+      "bias_min_scale": "0.05",
+      "use_emo_loss_ramp": "1",
+      "emo_loss_ramp_start": "2500",
+      "emo_loss_ramp_steps": "2500",
+      "emo_loss_ramp_max": "1.25",
+      "emo_loss_ramp_shape": "bell",
+      "use_composite_score": "1",
+      "composite_acc_weight": "20.0",
+      "composite_mode": "emo_loss",
+      "composite_emo_loss_weight": "5.0",
+      "proto_prefix_len": "4",
+      "proto_prefix_init": "proto",
+      "proto_prefix_source": "ckpt",
+      "proto_prefix_prior_path": "results/cloud_archive/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best",
+      "use_separate_dec_emo_head": "1",
+      "check_iter": "500",
+      "max_step": "10000",
+      "exp_name": "v10_trial1_sep_dec_head",
+      "lr_decay_start_step": "3000",
+      "lr_decay_steps": "6000",
+      "min_save_step": "3000",
+      "pretrain_emb": "1",
+      "label_smoothing": "1",
+      "noam": "1",
+      "act_loss_weight": "0.001",
+      "dropout": "0.1"
+    },
+    "valid": [
+      {
+        "step": 499,
+        "ppl": 67.2645,
+        "emo_loss": 2.4574,
+        "emo_acc_batch_macro": 0.3037,
+        "score_from_rounded_log": 79.5515,
+        "line": 545
+      },
+      {
+        "step": 999,
+        "ppl": 53.5042,
+        "emo_loss": 2.299,
+        "emo_acc_batch_macro": 0.3314,
+        "score_from_rounded_log": 64.9992,
+        "line": 920
+      },
+      {
+        "step": 1499,
+        "ppl": 49.1035,
+        "emo_loss": 2.1544,
+        "emo_acc_batch_macro": 0.3742,
+        "score_from_rounded_log": 59.875499999999995,
+        "line": 1298
+      },
+      {
+        "step": 1999,
+        "ppl": 45.6829,
+        "emo_loss": 2.0473,
+        "emo_acc_batch_macro": 0.413,
+        "score_from_rounded_log": 55.919399999999996,
+        "line": 1675
+      },
+      {
+        "step": 2499,
+        "ppl": 44.3134,
+        "emo_loss": 2.0207,
+        "emo_acc_batch_macro": 0.4154,
+        "score_from_rounded_log": 54.4169,
+        "line": 2053
+      },
+      {
+        "step": 2999,
+        "ppl": 42.7334,
+        "emo_loss": 2.0579,
+        "emo_acc_batch_macro": 0.4046,
+        "score_from_rounded_log": 53.02290000000001,
+        "line": 2430
+      },
+      {
+        "step": 3499,
+        "ppl": 42.3783,
+        "emo_loss": 2.021,
+        "emo_acc_batch_macro": 0.4201,
+        "score_from_rounded_log": 52.4833,
+        "line": 2808
+      },
+      {
+        "step": 3999,
+        "ppl": 42.0523,
+        "emo_loss": 2.0412,
+        "emo_acc_batch_macro": 0.4291,
+        "score_from_rounded_log": 52.258300000000006,
+        "line": 3185
+      },
+      {
+        "step": 4499,
+        "ppl": 41.1836,
+        "emo_loss": 2.0706,
+        "emo_acc_batch_macro": 0.4296,
+        "score_from_rounded_log": 51.5366,
+        "line": 3563
+      },
+      {
+        "step": 4999,
+        "ppl": 39.6832,
+        "emo_loss": 2.0805,
+        "emo_acc_batch_macro": 0.4387,
+        "score_from_rounded_log": 50.0857,
+        "line": 3940
+      },
+      {
+        "step": 5499,
+        "ppl": 39.3956,
+        "emo_loss": 2.2265,
+        "emo_acc_batch_macro": 0.4272,
+        "score_from_rounded_log": 50.5281,
+        "line": 4318
+      },
+      {
+        "step": 5999,
+        "ppl": 39.0702,
+        "emo_loss": 2.19,
+        "emo_acc_batch_macro": 0.4378,
+        "score_from_rounded_log": 50.0202,
+        "line": 4693
+      },
+      {
+        "step": 6499,
+        "ppl": 38.328,
+        "emo_loss": 2.3282,
+        "emo_acc_batch_macro": 0.4236,
+        "score_from_rounded_log": 49.969,
+        "line": 5071
+      },
+      {
+        "step": 6999,
+        "ppl": 37.9,
+        "emo_loss": 2.3856,
+        "emo_acc_batch_macro": 0.4274,
+        "score_from_rounded_log": 49.828,
+        "line": 5448
+      },
+      {
+        "step": 7499,
+        "ppl": 37.6658,
+        "emo_loss": 2.382,
+        "emo_acc_batch_macro": 0.4313,
+        "score_from_rounded_log": 49.5758,
+        "line": 5826
+      },
+      {
+        "step": 7999,
+        "ppl": 37.7664,
+        "emo_loss": 2.525,
+        "emo_acc_batch_macro": 0.4295,
+        "score_from_rounded_log": 50.3914,
+        "line": 6203
+      },
+      {
+        "step": 8499,
+        "ppl": 37.594,
+        "emo_loss": 2.5272,
+        "emo_acc_batch_macro": 0.43,
+        "score_from_rounded_log": 50.230000000000004,
+        "line": 6576
+      },
+      {
+        "step": 8999,
+        "ppl": 37.618,
+        "emo_loss": 2.6351,
+        "emo_acc_batch_macro": 0.4224,
+        "score_from_rounded_log": 50.7935,
+        "line": 6951
+      },
+      {
+        "step": 9499,
+        "ppl": 37.787,
+        "emo_loss": 2.6322,
+        "emo_acc_batch_macro": 0.4208,
+        "score_from_rounded_log": 50.948,
+        "line": 7324
+      },
+      {
+        "step": 9999,
+        "ppl": 37.7417,
+        "emo_loss": 2.6345,
+        "emo_acc_batch_macro": 0.4259,
+        "score_from_rounded_log": 50.9142,
+        "line": 7697
+      }
+    ],
+    "log_sha256": "41599c42456220be8373a5c2bc2598178bf6e6c1274dcfead12b4a9d71f99773",
+    "references": [
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1,
+        "text": "[Runtime Preflight] {\"python\": \"3.10.8 (main, Nov 24 2022, 14:13:03) [GCC 11.2.0]\", \"platform\": \"Linux-5.15.0-101-generic-x86_64-with-glibc2.35\", \"torch\": \"2.1.2+cu121\", \"numpy\": \"1.26.3\", \"sklearn\": \"1.7.2\", \"cuda_version\": \"12.1\", \"cudnn_version\": 8902, \"cuda_available\": true, \"gpu_name\": \"NVIDIA GeForce RTX 4090 D\", \"hardware_mode\": \"24G\", \"experiment\": \"v10_trial1_sep_dec_head\", \"recorded_before_training\": true, \"optimizer_zero_grad\": [{\"device\": \"cpu\", \"signature\": \"(set_to_none: bool = True) -> None\", \"grad_is_none\": true, \"grad_is_zero_tensor\": false}, {\"device\": \"cuda:0\", \"signature\": \"(set_to_none: bool = True) -> None\", \"grad_is_none\": true, \"grad_is_zero_tensor\": false}], \"runtime_contract_passed\": true}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 160,
+        "text": "[Gradient Clip] 成功启用全局梯度裁剪: max_grad_norm=6.0"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 163,
+        "text": "[Prefix Status] use_proto_prefix=False"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 164,
+        "text": "[Prefix Diagnostic Status] enabled=False | Valid first256/batch4"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 165,
+        "text": "[Prefix Gate Status] stage=initialized | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 166,
+        "text": "[Prefix Norm Status] stage=initialized | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 167,
+        "text": "[Dec Emo Head Status] stage=initialized | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.015244 | max_abs_diff=1.141929e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 168,
+        "text": "[Dec Emo Head Status] stage=post_make_model | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=1.000000 | max_abs_diff=0.000000e+00"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 169,
+        "text": "# PARAMETERS 30345889"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 176,
+        "text": "[Gradient Norm] Step 1 (Update 1): Total Grad Norm=16.7696 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 177,
+        "text": "[Gradient Norm] Step 500 (Update 500): Total Grad Norm=5.8164 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 179,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 180,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 181,
+        "text": "[Dec Emo Head Status] stage=valid_step_499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.969379 | max_abs_diff=7.577811e-02"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 545,
+        "text": "valid\t5.4070\t0.0517\t1.0751\t4.2086\t67.2645\t0.0000\t0.0000\t2.4574\t0.3037\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 548,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_499_67.2645_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 550,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_499_67.2645_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 551,
+        "text": "[*] Step 499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=79.5516 (PPL=67.2645, EMO_loss=2.4574)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 552,
+        "text": "[Gradient Norm] Step 1000 (Update 1000): Total Grad Norm=6.3388 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 554,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 555,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 556,
+        "text": "[Dec Emo Head Status] stage=valid_step_999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.936394 | max_abs_diff=1.150080e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 920,
+        "text": "valid\t5.3949\t0.0487\t1.0747\t3.9798\t53.5042\t0.0000\t0.0000\t2.2990\t0.3314\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 923,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_999_53.5042_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 926,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_999_53.5042_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 928,
+        "text": "[*] Step 999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=64.9994 (PPL=53.5042, EMO_loss=2.2990)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 930,
+        "text": "[Gradient Norm] Step 1500 (Update 1500): Total Grad Norm=5.0431 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 932,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 933,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 934,
+        "text": "[Dec Emo Head Status] stage=valid_step_1499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.906843 | max_abs_diff=1.405133e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1298,
+        "text": "valid\t5.3812\t0.0424\t1.0673\t3.8939\t49.1035\t0.0000\t0.0000\t2.1544\t0.3742\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1301,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_1499_49.1035_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1304,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_1499_49.1035_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1306,
+        "text": "[*] Step 1499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=59.8753 (PPL=49.1035, EMO_loss=2.1544)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1307,
+        "text": "[Gradient Norm] Step 2000 (Update 2000): Total Grad Norm=5.0000 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1309,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1310,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1311,
+        "text": "[Dec Emo Head Status] stage=valid_step_1999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.877655 | max_abs_diff=1.429930e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1675,
+        "text": "valid\t5.3801\t0.0419\t1.0714\t3.8217\t45.6829\t0.0000\t0.0000\t2.0473\t0.4130\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1678,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_1999_45.6829_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1681,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_1999_45.6829_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1683,
+        "text": "[*] Step 1999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=55.9194 (PPL=45.6829, EMO_loss=2.0473)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1685,
+        "text": "[Gradient Norm] Step 2500 (Update 2500): Total Grad Norm=5.8080 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1687,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1688,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 1689,
+        "text": "[Dec Emo Head Status] stage=valid_step_2499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.849375 | max_abs_diff=1.472922e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2053,
+        "text": "valid\t5.3738\t0.0427\t1.0618\t3.7913\t44.3134\t0.0000\t0.0000\t2.0207\t0.4154\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2056,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_2499_44.3134_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2059,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_2499_44.3134_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2061,
+        "text": "[*] Step 2499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=54.4170 (PPL=44.3134, EMO_loss=2.0207)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2062,
+        "text": "[Gradient Norm] Step 3000 (Update 3000): Total Grad Norm=6.7540 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2064,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2065,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2066,
+        "text": "[Dec Emo Head Status] stage=valid_step_2999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.823131 | max_abs_diff=1.524155e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2430,
+        "text": "valid\t5.3616\t0.0398\t1.0641\t3.7550\t42.7334\t0.0000\t0.0000\t2.0579\t0.4046\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2433,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_2999_42.7334_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2436,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_2999_42.7334_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2438,
+        "text": "[*] Step 2999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=53.0228 (PPL=42.7334, EMO_loss=2.0579)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2440,
+        "text": "[Gradient Norm] Step 3500 (Update 3500): Total Grad Norm=6.0978 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2442,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2443,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2444,
+        "text": "[Dec Emo Head Status] stage=valid_step_3499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.802044 | max_abs_diff=1.832983e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2808,
+        "text": "valid\t5.3727\t0.0398\t1.0629\t3.7466\t42.3783\t0.0000\t0.0000\t2.0210\t0.4201\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2811,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_3499_42.3783_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2814,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_3499_42.3783_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2816,
+        "text": "[*] [V8.2 E] Step 3499: 正式进入退火成熟期 (>= min_save_step 3000)，锚定成熟期基线复合黄金权重！Score=52.4831 (PPL=42.3783, EMO_loss=2.0210)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2817,
+        "text": "[Gradient Norm] Step 4000 (Update 4000): Total Grad Norm=6.9586 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2819,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2820,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 2821,
+        "text": "[Dec Emo Head Status] stage=valid_step_3999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.779502 | max_abs_diff=1.889368e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3185,
+        "text": "valid\t5.3487\t0.0382\t1.0624\t3.7389\t42.0523\t0.0000\t0.0000\t2.0412\t0.4291\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3188,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_3999_42.0523_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3191,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_3999_42.0523_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3193,
+        "text": "[*] Step 3999: 刷新成熟期复合黄金权重！Score=52.2582 (PPL=42.0523, EMO_loss=2.0412)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3195,
+        "text": "[Gradient Norm] Step 4500 (Update 4500): Total Grad Norm=7.9851 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3197,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3198,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3199,
+        "text": "[Dec Emo Head Status] stage=valid_step_4499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.760505 | max_abs_diff=1.960103e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3563,
+        "text": "valid\t5.3480\t0.0353\t1.0641\t3.7180\t41.1836\t0.0000\t0.0000\t2.0706\t0.4296\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3566,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_4499_41.1836_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3569,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_4499_41.1836_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3571,
+        "text": "[*] Step 4499: 刷新成熟期复合黄金权重！Score=51.5365 (PPL=41.1836, EMO_loss=2.0706)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3572,
+        "text": "[Gradient Norm] Step 5000 (Update 5000): Total Grad Norm=5.7435 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3574,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3575,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3576,
+        "text": "[Dec Emo Head Status] stage=valid_step_4999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.747907 | max_abs_diff=2.071278e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3940,
+        "text": "valid\t5.3374\t0.0380\t1.0622\t3.6809\t39.6832\t0.0000\t0.0000\t2.0805\t0.4387\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3943,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_4999_39.6832_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3946,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_4999_39.6832_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3948,
+        "text": "[*] Step 4999: 刷新成熟期复合黄金权重！Score=50.0858 (PPL=39.6832, EMO_loss=2.0805)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3950,
+        "text": "[Gradient Norm] Step 5500 (Update 5500): Total Grad Norm=6.2807 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3952,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3953,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 3954,
+        "text": "[Dec Emo Head Status] stage=valid_step_5499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.734884 | max_abs_diff=2.073805e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4318,
+        "text": "valid\t5.3346\t0.0358\t1.0630\t3.6737\t39.3956\t0.0000\t0.0000\t2.2265\t0.4272\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4321,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_5499_39.3956_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4324,
+        "text": "[-] Step 5499: 未改善 (Score=50.5282 (PPL=39.3956, EMO_loss=2.2265) vs 最优=50.0858)，Patience: 1/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4325,
+        "text": "[Gradient Norm] Step 6000 (Update 6000): Total Grad Norm=7.1229 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4327,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4328,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4329,
+        "text": "[Dec Emo Head Status] stage=valid_step_5999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.726129 | max_abs_diff=2.141515e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4693,
+        "text": "valid\t5.3339\t0.0363\t1.0604\t3.6654\t39.0702\t0.0000\t0.0000\t2.1900\t0.4378\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4696,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_5999_39.0702_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4699,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_5999_39.0702_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4701,
+        "text": "[*] Step 5999: 刷新成熟期复合黄金权重！Score=50.0202 (PPL=39.0702, EMO_loss=2.1900)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4703,
+        "text": "[Gradient Norm] Step 6500 (Update 6500): Total Grad Norm=6.2396 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4705,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4706,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 4707,
+        "text": "[Dec Emo Head Status] stage=valid_step_6499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.718121 | max_abs_diff=2.137724e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5071,
+        "text": "valid\t5.3153\t0.0369\t1.0617\t3.6462\t38.3280\t0.0000\t0.0000\t2.3282\t0.4236\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5074,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_6499_38.3280_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5077,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_6499_38.3280_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5079,
+        "text": "[*] Step 6499: 刷新成熟期复合黄金权重！Score=49.9692 (PPL=38.3280, EMO_loss=2.3282)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5080,
+        "text": "[Gradient Norm] Step 7000 (Update 7000): Total Grad Norm=8.9620 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5082,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5083,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5084,
+        "text": "[Dec Emo Head Status] stage=valid_step_6999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.712267 | max_abs_diff=2.185160e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5448,
+        "text": "valid\t5.3168\t0.0344\t1.0643\t3.6350\t37.9000\t0.0000\t0.0000\t2.3856\t0.4274\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5451,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_6999_37.9000_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5454,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_6999_37.9000_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5456,
+        "text": "[*] Step 6999: 刷新成熟期复合黄金权重！Score=49.8280 (PPL=37.9000, EMO_loss=2.3856)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5458,
+        "text": "[Gradient Norm] Step 7500 (Update 7500): Total Grad Norm=6.2554 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5460,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5461,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5462,
+        "text": "[Dec Emo Head Status] stage=valid_step_7499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.709238 | max_abs_diff=2.140554e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5826,
+        "text": "valid\t5.3065\t0.0342\t1.0612\t3.6288\t37.6658\t0.0000\t0.0000\t2.3820\t0.4313\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5829,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_7499_37.6658_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5832,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5834,
+        "text": "[*] Step 7499: 刷新成熟期复合黄金权重！Score=49.5758 (PPL=37.6658, EMO_loss=2.3820)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5835,
+        "text": "[Gradient Norm] Step 8000 (Update 8000): Total Grad Norm=5.4676 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5837,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5838,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 5839,
+        "text": "[Dec Emo Head Status] stage=valid_step_7999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.707023 | max_abs_diff=2.183369e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6203,
+        "text": "valid\t5.3000\t0.0339\t1.0608\t3.6314\t37.7664\t0.0000\t0.0000\t2.5250\t0.4295\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6206,
+        "text": "[-] Step 7999: 未改善 (Score=50.3915 (PPL=37.7664, EMO_loss=2.5250) vs 最优=49.5758)，Patience: 1/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6208,
+        "text": "[Gradient Norm] Step 8500 (Update 8500): Total Grad Norm=6.6182 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6210,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6211,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6212,
+        "text": "[Dec Emo Head Status] stage=valid_step_8499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.705978 | max_abs_diff=2.178361e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6576,
+        "text": "valid\t5.2975\t0.0344\t1.0607\t3.6268\t37.5940\t0.0000\t0.0000\t2.5272\t0.4300\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6579,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_8499_37.5940_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6582,
+        "text": "[-] Step 8499: 未改善 (Score=50.2301 (PPL=37.5940, EMO_loss=2.5272) vs 最优=49.5758)，Patience: 2/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6583,
+        "text": "[Gradient Norm] Step 9000 (Update 9000): Total Grad Norm=7.2722 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6585,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6586,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6587,
+        "text": "[Dec Emo Head Status] stage=valid_step_8999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.705426 | max_abs_diff=2.172342e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6951,
+        "text": "valid\t5.2982\t0.0342\t1.0610\t3.6275\t37.6180\t0.0000\t0.0000\t2.6351\t0.4224\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6954,
+        "text": "[-] Step 8999: 未改善 (Score=50.7936 (PPL=37.6180, EMO_loss=2.6351) vs 最优=49.5758)，Patience: 3/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6956,
+        "text": "[Gradient Norm] Step 9500 (Update 9500): Total Grad Norm=7.0145 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6958,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6959,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 6960,
+        "text": "[Dec Emo Head Status] stage=valid_step_9499 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.704877 | max_abs_diff=2.182155e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7324,
+        "text": "valid\t5.2983\t0.0337\t1.0617\t3.6320\t37.7870\t0.0000\t0.0000\t2.6322\t0.4208\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7327,
+        "text": "[-] Step 9499: 未改善 (Score=50.9483 (PPL=37.7870, EMO_loss=2.6322) vs 最优=49.5758)，Patience: 4/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7328,
+        "text": "[Gradient Norm] Step 10000 (Update 10000): Total Grad Norm=6.9534 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7330,
+        "text": "[Prefix Gate Status] stage=current | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7331,
+        "text": "[Prefix Norm Status] stage=current | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7332,
+        "text": "[Dec Emo Head Status] stage=valid_step_9999 | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.704383 | max_abs_diff=2.185752e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7697,
+        "text": "valid\t5.2967\t0.0337\t1.0620\t3.6308\t37.7417\t0.0000\t0.0000\t2.6345\t0.4259\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7700,
+        "text": "[-] Step 9999: 未改善 (Score=50.9144 (PPL=37.7417, EMO_loss=2.6345) vs 最优=49.5758)，Patience: 5/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7707,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7708,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v10_trial1_sep_dec_head/CASE_8499_37.5940_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7711,
+        "text": "[Gradient Norm] 总更新步数=10000（含 pretrain 阶段） | 均值=6.3181 | 中位数=6.0521 | P95=7.7573 | 最大值=55.8975"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7713,
+        "text": "[PCGrad 负内积冲突监控] 冲突发生步数=3698/10000 (占比=36.98%) | 冲突步平均|cos|=0.0236"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7721,
+        "text": "test\t5.1257\t0.0722\t0.0000\t3.4848\t32.6160\t0.0000\t0.0000\t2.4438\t0.4175\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7854,
+        "text": "[Evaluation Status] skip_test_eval=False | skip_manifold=False | skip_generation=False"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7903,
+        "text": "[Gradient Clip] 成功启用全局梯度裁剪: max_grad_norm=6.0"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7906,
+        "text": "[Prefix Status] use_proto_prefix=False"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7907,
+        "text": "[Prefix Diagnostic Status] enabled=False | Valid first256/batch4"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7908,
+        "text": "[Prefix Gate Status] stage=constructor_pending_restore | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7909,
+        "text": "[Prefix Norm Status] stage=constructor_pending_restore | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7910,
+        "text": "[Dec Emo Head Status] stage=constructor_pending_restore | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.015244 | max_abs_diff=1.141929e-01"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7912,
+        "text": "[+] [Weight Audit] 关键拓扑前缀完整性核验通过: ['decoder.', 'encoder.', 'emotion_linear.', 'pcam.', 'epcl_criterion.', 'dec_emotion_linear.']"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7913,
+        "text": "[Prefix Gate Status] stage=checkpoint_restored | use_proto_prefix_gate=False | mode=none | tanh_gate={}"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7914,
+        "text": "[Prefix Norm Status] stage=checkpoint_restored | use_proto_prefix_norm=False | mode=none"
+      },
+      {
+        "path": "results\\cloud_archive\\v10_trial1_sep_dec_head\\v10_trial1_sep_dec_head.log",
+        "line": 7915,
+        "text": "[Dec Emo Head Status] stage=checkpoint_restored | use_separate_dec_emo_head=True | mode=separate_linear_v1 | added_params=9632 | total_trainable_params=30345889 | row_cos_mean=0.709238 | max_abs_diff=2.140554e-01"
+      }
+    ]
+  },
+  "T11B": {
+    "options": {
+      "data_dir": "data",
+      "dataset": "ED",
+      "comet_file": "data/Comet",
+      "max_num_dialog": "9",
+      "concept_num": "3",
+      "total_concept_num": "10",
+      "cs_num": "5",
+      "emb_file": "vectors/glove.6B.300d.txt",
+      "save_path": "save/v9_trial11_B_gnorm6/",
+      "model_path": "save/test",
+      "save_path_dataset": "save/",
+      "PAD_idx": "1",
+      "EOS_idx": "2",
+      "SOS_idx": "3",
+      "USR_idx": "4",
+      "SYS_idx": "5",
+      "CLS_idx": "6",
+      "KG_idx": "7",
+      "SEP_idx": "8",
+      "self_loop": "2",
+      "contain": "3",
+      "temporary": "4",
+      "intent_idx": "5",
+      "need_idx": "6",
+      "want_idx": "7",
+      "effect_idx": "8",
+      "react_idx": "9",
+      "relation_num": "10",
+      "batch_size": "32",
+      "accum_steps": "1",
+      "precision": "fp32",
+      "lr": "0.000576",
+      "hidden_dim": "300",
+      "emb_dim": "300",
+      "max_grad_norm": "6.0",
+      "beam_size": "5",
+      "basic_learner": "1",
+      "topk": "5",
+      "softmax": "1",
+      "schedule": "10000",
+      "hop": "1",
+      "heads": "2",
+      "depth": "100",
+      "filter": "300",
+      "graph_layer_num": "1",
+      "graph_ffn_emb_dim": "300",
+      "graph_num_heads": "2",
+      "seed": "13",
+      "model": "case",
+      "cuda": "1",
+      "split_data_seed": "13",
+      "pretrain": "1",
+      "pretrain_epoch": "4",
+      "woStrategy": "1",
+      "model_file_path": "save/v9_trial11_B_gnorm6/",
+      "warmup": "2000",
+      "fine_weight": "0.2",
+      "coarse_weight": "1.0",
+      "lambda_epcl": "0.03",
+      "epcl_warmup": "3000",
+      "epcl_freeze_step": "14000",
+      "alpha_mim": "0.1",
+      "div_weight": "2.0",
+      "lr_schedule": "cosine",
+      "freeze_patience": "3",
+      "min_freeze_step": "16000",
+      "max_freeze_step": "32000",
+      "freeze_metric": "emo_acc",
+      "emotion_head_type": "linear",
+      "mlp_hidden_dim": "300",
+      "mlp_dropout": "0.1",
+      "num_prototypes_per_class": "1",
+      "alpha_uni": "0.8",
+      "use_pcam": "1",
+      "pcam_heads": "2",
+      "pcam_dropout": "0.1",
+      "pcam_gate_bias": "-1.0",
+      "pcam_tau_attn": "1.5",
+      "erp_hidden_dim": "768",
+      "erp_dropout": "0.1",
+      "cchp_alpha": "0.1",
+      "cchp_reg_weight": "0.01",
+      "unlikelihood_weight": "0.1",
+      "use_mcp": "1",
+      "mcp_momentum": "0.96",
+      "use_arc_margin": "1",
+      "arc_margin": "0.3",
+      "arc_mode": "cos",
+      "arc_margin_ramp_steps": "2500",
+      "epcl_anchor": "fine_emotion",
+      "cls_anchor": "default",
+      "freeze_decay_weight": "0.05",
+      "emo_bias_gate_init": "-2.0",
+      "anneal_start_step": "24000",
+      "anneal_steps": "16000",
+      "anneal_min_weight": "0.05",
+      "emo_vocab_topk_ratio": "0.15",
+      "use_pcgrad": "1",
+      "gate_warmup_steps": "2500",
+      "mask_update_interval": "1000",
+      "patience": "6",
+      "use_bias_annealing": "1",
+      "bias_anneal_start": "2500",
+      "bias_anneal_steps": "2500",
+      "bias_min_scale": "0.05",
+      "use_emo_loss_ramp": "1",
+      "emo_loss_ramp_start": "2500",
+      "emo_loss_ramp_steps": "2500",
+      "emo_loss_ramp_max": "1.25",
+      "emo_loss_ramp_shape": "bell",
+      "use_composite_score": "1",
+      "composite_acc_weight": "20.0",
+      "composite_mode": "emo_loss",
+      "composite_emo_loss_weight": "5.0",
+      "check_iter": "500",
+      "max_step": "10000",
+      "exp_name": "v9_trial11_B_gnorm6",
+      "lr_decay_start_step": "3000",
+      "lr_decay_steps": "6000",
+      "min_save_step": "3000",
+      "pretrain_emb": "1",
+      "label_smoothing": "1",
+      "noam": "1",
+      "act_loss_weight": "0.001",
+      "dropout": "0.1"
+    },
+    "valid": [
+      {
+        "step": 499,
+        "ppl": 67.141,
+        "emo_loss": 2.4818,
+        "emo_acc_batch_macro": 0.2977,
+        "score_from_rounded_log": 79.55000000000001,
+        "line": 530
+      },
+      {
+        "step": 999,
+        "ppl": 53.6344,
+        "emo_loss": 2.27,
+        "emo_acc_batch_macro": 0.3412,
+        "score_from_rounded_log": 64.9844,
+        "line": 901
+      },
+      {
+        "step": 1499,
+        "ppl": 49.1082,
+        "emo_loss": 2.1463,
+        "emo_acc_batch_macro": 0.3797,
+        "score_from_rounded_log": 59.83969999999999,
+        "line": 1274
+      },
+      {
+        "step": 1999,
+        "ppl": 45.8009,
+        "emo_loss": 2.0571,
+        "emo_acc_batch_macro": 0.4093,
+        "score_from_rounded_log": 56.0864,
+        "line": 1647
+      },
+      {
+        "step": 2499,
+        "ppl": 44.5739,
+        "emo_loss": 2.0248,
+        "emo_acc_batch_macro": 0.4159,
+        "score_from_rounded_log": 54.697900000000004,
+        "line": 2021
+      },
+      {
+        "step": 2999,
+        "ppl": 43.3475,
+        "emo_loss": 2.0587,
+        "emo_acc_batch_macro": 0.4021,
+        "score_from_rounded_log": 53.641,
+        "line": 2394
+      },
+      {
+        "step": 3499,
+        "ppl": 42.5573,
+        "emo_loss": 1.9702,
+        "emo_acc_batch_macro": 0.4333,
+        "score_from_rounded_log": 52.4083,
+        "line": 2768
+      },
+      {
+        "step": 3999,
+        "ppl": 42.0177,
+        "emo_loss": 2.0304,
+        "emo_acc_batch_macro": 0.4215,
+        "score_from_rounded_log": 52.1697,
+        "line": 3141
+      },
+      {
+        "step": 4499,
+        "ppl": 41.1679,
+        "emo_loss": 1.9705,
+        "emo_acc_batch_macro": 0.4371,
+        "score_from_rounded_log": 51.0204,
+        "line": 3515
+      },
+      {
+        "step": 4999,
+        "ppl": 39.7377,
+        "emo_loss": 2.0197,
+        "emo_acc_batch_macro": 0.4357,
+        "score_from_rounded_log": 49.8362,
+        "line": 3888
+      },
+      {
+        "step": 5499,
+        "ppl": 38.9731,
+        "emo_loss": 2.1123,
+        "emo_acc_batch_macro": 0.4362,
+        "score_from_rounded_log": 49.5346,
+        "line": 4262
+      },
+      {
+        "step": 5999,
+        "ppl": 39.1128,
+        "emo_loss": 2.1307,
+        "emo_acc_batch_macro": 0.4368,
+        "score_from_rounded_log": 49.7663,
+        "line": 4635
+      },
+      {
+        "step": 6499,
+        "ppl": 38.3107,
+        "emo_loss": 2.2525,
+        "emo_acc_batch_macro": 0.435,
+        "score_from_rounded_log": 49.5732,
+        "line": 5003
+      },
+      {
+        "step": 6999,
+        "ppl": 37.7159,
+        "emo_loss": 2.2683,
+        "emo_acc_batch_macro": 0.4271,
+        "score_from_rounded_log": 49.0574,
+        "line": 5374
+      },
+      {
+        "step": 7499,
+        "ppl": 37.5058,
+        "emo_loss": 2.2308,
+        "emo_acc_batch_macro": 0.4378,
+        "score_from_rounded_log": 48.659800000000004,
+        "line": 5748
+      },
+      {
+        "step": 7999,
+        "ppl": 37.6478,
+        "emo_loss": 2.4554,
+        "emo_acc_batch_macro": 0.4265,
+        "score_from_rounded_log": 49.9248,
+        "line": 6121
+      },
+      {
+        "step": 8499,
+        "ppl": 37.4946,
+        "emo_loss": 2.4498,
+        "emo_acc_batch_macro": 0.4279,
+        "score_from_rounded_log": 49.7436,
+        "line": 6490
+      },
+      {
+        "step": 8999,
+        "ppl": 37.4802,
+        "emo_loss": 2.539,
+        "emo_acc_batch_macro": 0.424,
+        "score_from_rounded_log": 50.175200000000004,
+        "line": 6860
+      },
+      {
+        "step": 9499,
+        "ppl": 37.6452,
+        "emo_loss": 2.5208,
+        "emo_acc_batch_macro": 0.4239,
+        "score_from_rounded_log": 50.2492,
+        "line": 7232
+      },
+      {
+        "step": 9999,
+        "ppl": 37.6908,
+        "emo_loss": 2.5676,
+        "emo_acc_batch_macro": 0.4253,
+        "score_from_rounded_log": 50.528800000000004,
+        "line": 7601
+      }
+    ],
+    "log_sha256": "a637a5398882c02aa1cd061313201c59929088cb8b7c6ef592674fd7044994b9",
+    "references": [
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 154,
+        "text": "[Gradient Clip] 成功启用全局梯度裁剪: max_grad_norm=6.0"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 157,
+        "text": "# PARAMETERS 30336257"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 164,
+        "text": "[Gradient Norm] Step 1 (Update 1): Total Grad Norm=16.7716 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 165,
+        "text": "[Gradient Norm] Step 500 (Update 500): Total Grad Norm=5.9793 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 530,
+        "text": "valid\t5.3839\t0.0495\t1.0733\t4.2068\t67.1410\t0.0000\t0.0000\t2.4818\t0.2977\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 532,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_499_67.1410_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 534,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_499_67.1410_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 535,
+        "text": "[*] Step 499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=79.5498 (PPL=67.1410, EMO_loss=2.4818)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 536,
+        "text": "[Gradient Norm] Step 1000 (Update 1000): Total Grad Norm=6.6008 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 901,
+        "text": "valid\t5.3966\t0.0503\t1.0688\t3.9822\t53.6344\t0.0000\t0.0000\t2.2700\t0.3412\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 903,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_999_53.6344_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 906,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_999_53.6344_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 908,
+        "text": "[*] Step 999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=64.9845 (PPL=53.6344, EMO_loss=2.2700)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 910,
+        "text": "[Gradient Norm] Step 1500 (Update 1500): Total Grad Norm=4.9880 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1274,
+        "text": "valid\t5.3784\t0.0439\t1.0634\t3.8940\t49.1082\t0.0000\t0.0000\t2.1463\t0.3797\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1276,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_1499_49.1082_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1279,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_1499_49.1082_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1281,
+        "text": "[*] Step 1499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=59.8398 (PPL=49.1082, EMO_loss=2.1463)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1282,
+        "text": "[Gradient Norm] Step 2000 (Update 2000): Total Grad Norm=5.4267 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1647,
+        "text": "valid\t5.3625\t0.0488\t1.0652\t3.8243\t45.8009\t0.0000\t0.0000\t2.0571\t0.4093\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1649,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_1999_45.8009_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1652,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_1999_45.8009_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1654,
+        "text": "[*] Step 1999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=56.0865 (PPL=45.8009, EMO_loss=2.0571)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 1656,
+        "text": "[Gradient Norm] Step 2500 (Update 2500): Total Grad Norm=5.6755 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2021,
+        "text": "valid\t5.3714\t0.0406\t1.0597\t3.7971\t44.5739\t0.0000\t0.0000\t2.0248\t0.4159\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2023,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_2499_44.5739_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2026,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_2499_44.5739_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2028,
+        "text": "[*] Step 2499 < min_save_step(3000): 保护期刷新过渡复合权重！Score=54.6978 (PPL=44.5739, EMO_loss=2.0248)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2029,
+        "text": "[Gradient Norm] Step 3000 (Update 3000): Total Grad Norm=5.7390 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2394,
+        "text": "valid\t5.3634\t0.0401\t1.0604\t3.7692\t43.3475\t0.0000\t0.0000\t2.0587\t0.4021\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2396,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_2999_43.3475_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2399,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_2999_43.3475_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2401,
+        "text": "[*] Step 2999 < min_save_step(3000): 保护期刷新过渡复合权重！Score=53.6409 (PPL=43.3475, EMO_loss=2.0587)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2403,
+        "text": "[Gradient Norm] Step 3500 (Update 3500): Total Grad Norm=5.5725 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2768,
+        "text": "valid\t5.3685\t0.0406\t1.0616\t3.7509\t42.5573\t0.0000\t0.0000\t1.9702\t0.4333\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2770,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_3499_42.5573_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2773,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_3499_42.5573_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2775,
+        "text": "[*] [V8.2 E] Step 3499: 正式进入退火成熟期 (>= min_save_step 3000)，锚定成熟期基线复合黄金权重！Score=52.4081 (PPL=42.5573, EMO_loss=1.9702)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 2776,
+        "text": "[Gradient Norm] Step 4000 (Update 4000): Total Grad Norm=5.9551 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3141,
+        "text": "valid\t5.3404\t0.0373\t1.0616\t3.7381\t42.0177\t0.0000\t0.0000\t2.0304\t0.4215\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3143,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_3999_42.0177_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3146,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_3999_42.0177_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3148,
+        "text": "[*] Step 3999: 刷新成熟期复合黄金权重！Score=52.1699 (PPL=42.0177, EMO_loss=2.0304)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3150,
+        "text": "[Gradient Norm] Step 4500 (Update 4500): Total Grad Norm=5.6278 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3515,
+        "text": "valid\t5.3348\t0.0360\t1.0587\t3.7177\t41.1679\t0.0000\t0.0000\t1.9705\t0.4371\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3517,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_4499_41.1679_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3520,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_4499_41.1679_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3522,
+        "text": "[*] Step 4499: 刷新成熟期复合黄金权重！Score=51.0205 (PPL=41.1679, EMO_loss=1.9705)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3523,
+        "text": "[Gradient Norm] Step 5000 (Update 5000): Total Grad Norm=5.6783 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3888,
+        "text": "valid\t5.3587\t0.0386\t1.0592\t3.6823\t39.7377\t0.0000\t0.0000\t2.0197\t0.4357\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3890,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_4999_39.7377_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3893,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_4999_39.7377_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3895,
+        "text": "[*] Step 4999: 刷新成熟期复合黄金权重！Score=49.8360 (PPL=39.7377, EMO_loss=2.0197)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 3897,
+        "text": "[Gradient Norm] Step 5500 (Update 5500): Total Grad Norm=5.8918 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4262,
+        "text": "valid\t5.3212\t0.0342\t1.0574\t3.6629\t38.9731\t0.0000\t0.0000\t2.1123\t0.4362\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4264,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_5499_38.9731_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4267,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_5499_38.9731_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4269,
+        "text": "[*] Step 5499: 刷新成熟期复合黄金权重！Score=49.5348 (PPL=38.9731, EMO_loss=2.1123)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4270,
+        "text": "[Gradient Norm] Step 6000 (Update 6000): Total Grad Norm=6.7190 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4635,
+        "text": "valid\t5.3075\t0.0333\t1.0588\t3.6665\t39.1128\t0.0000\t0.0000\t2.1307\t0.4368\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4637,
+        "text": "[-] Step 5999: 未改善 (Score=49.7666 (PPL=39.1128, EMO_loss=2.1307) vs 最优=49.5348)，Patience: 1/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 4639,
+        "text": "[Gradient Norm] Step 6500 (Update 6500): Total Grad Norm=5.4277 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5003,
+        "text": "valid\t5.2944\t0.0324\t1.0584\t3.6457\t38.3107\t0.0000\t0.0000\t2.2525\t0.4350\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5005,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_6499_38.3107_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5008,
+        "text": "[-] Step 6499: 未改善 (Score=49.5730 (PPL=38.3107, EMO_loss=2.2525) vs 最优=49.5348)，Patience: 2/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5009,
+        "text": "[Gradient Norm] Step 7000 (Update 7000): Total Grad Norm=5.9228 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5374,
+        "text": "valid\t5.2863\t0.0325\t1.0583\t3.6301\t37.7159\t0.0000\t0.0000\t2.2683\t0.4271\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5376,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_6999_37.7159_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5379,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_6999_37.7159_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5381,
+        "text": "[*] Step 6999: 刷新成熟期复合黄金权重！Score=49.0577 (PPL=37.7159, EMO_loss=2.2683)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5383,
+        "text": "[Gradient Norm] Step 7500 (Update 7500): Total Grad Norm=7.6411 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5748,
+        "text": "valid\t5.2816\t0.0314\t1.0581\t3.6245\t37.5058\t0.0000\t0.0000\t2.2308\t0.4378\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5750,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_7499_37.5058_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5753,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5755,
+        "text": "[*] Step 7499: 刷新成熟期复合黄金权重！Score=48.6597 (PPL=37.5058, EMO_loss=2.2308)，已落盘检查点。"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 5756,
+        "text": "[Gradient Norm] Step 8000 (Update 8000): Total Grad Norm=7.0759 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6121,
+        "text": "valid\t5.2787\t0.0328\t1.0567\t3.6283\t37.6478\t0.0000\t0.0000\t2.4554\t0.4265\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6123,
+        "text": "[-] Step 7999: 未改善 (Score=49.9250 (PPL=37.6478, EMO_loss=2.4554) vs 最优=48.6597)，Patience: 1/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6125,
+        "text": "[Gradient Norm] Step 8500 (Update 8500): Total Grad Norm=6.5557 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6490,
+        "text": "valid\t5.2759\t0.0320\t1.0568\t3.6242\t37.4946\t0.0000\t0.0000\t2.4498\t0.4279\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6492,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_8499_37.4946_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6495,
+        "text": "[-] Step 8499: 未改善 (Score=49.7434 (PPL=37.4946, EMO_loss=2.4498) vs 最优=48.6597)，Patience: 2/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6496,
+        "text": "[Gradient Norm] Step 9000 (Update 9000): Total Grad Norm=7.3685 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6860,
+        "text": "valid\t5.2753\t0.0323\t1.0567\t3.6238\t37.4802\t0.0000\t0.0000\t2.5390\t0.4240\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6862,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_8999_37.4802_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6865,
+        "text": "[-] Step 8999: 未改善 (Score=50.1753 (PPL=37.4802, EMO_loss=2.5390) vs 最优=48.6597)，Patience: 3/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 6867,
+        "text": "[Gradient Norm] Step 9500 (Update 9500): Total Grad Norm=6.6972 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7232,
+        "text": "valid\t5.2741\t0.0318\t1.0570\t3.6282\t37.6452\t0.0000\t0.0000\t2.5208\t0.4239\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7234,
+        "text": "[-] Step 9499: 未改善 (Score=50.2495 (PPL=37.6452, EMO_loss=2.5208) vs 最优=48.6597)，Patience: 4/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7235,
+        "text": "[Gradient Norm] Step 10000 (Update 10000): Total Grad Norm=6.4782 (Clip=6.0)"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7601,
+        "text": "valid\t5.2744\t0.0316\t1.0573\t3.6294\t37.6908\t0.0000\t0.0000\t2.5676\t0.4253\t0.0000"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7603,
+        "text": "[-] Step 9999: 未改善 (Score=50.5288 (PPL=37.6908, EMO_loss=2.5676) vs 最优=48.6597)，Patience: 5/6"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7610,
+        "text": "[Checkpoint Save] 权重落盘成功 [composite_best]: save/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7611,
+        "text": "[Checkpoint Save] 权重落盘成功 [ppl_best]: save/v9_trial11_B_gnorm6/CASE_8999_37.4802_ppl_best"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7614,
+        "text": "[Gradient Norm] 总更新步数=10000（含 pretrain 阶段） | 均值=6.1930 | 中位数=6.0091 | P95=7.5213 | 最大值=36.9754"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7616,
+        "text": "[PCGrad 负内积冲突监控] 冲突发生步数=3704/10000 (占比=37.04%) | 冲突步平均|cos|=0.0228"
+      },
+      {
+        "path": "results\\cloud_archive\\v9_trial11_B_gnorm6\\v9_trial11_B_gnorm6.log",
+        "line": 7623,
+        "text": "test\t5.0971\t0.0686\t0.0000\t3.4834\t32.5687\t0.0000\t0.0000\t2.2840\t0.4221\t0.0000"
+      }
+    ]
+  },
+  "printed_options_differences": {
+    "exp_name": [
+      "v9_trial11_B_gnorm6",
+      "v10_trial1_sep_dec_head"
+    ],
+    "model_file_path": [
+      "save/v9_trial11_B_gnorm6/",
+      "save/v10_trial1_sep_dec_head/"
+    ],
+    "proto_prefix_init": [
+      null,
+      "proto"
+    ],
+    "proto_prefix_len": [
+      null,
+      "4"
+    ],
+    "proto_prefix_prior_path": [
+      null,
+      "results/cloud_archive/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best"
+    ],
+    "proto_prefix_source": [
+      null,
+      "ckpt"
+    ],
+    "save_path": [
+      "save/v9_trial11_B_gnorm6/",
+      "save/v10_trial1_sep_dec_head/"
+    ],
+    "use_separate_dec_emo_head": [
+      null,
+      "1"
+    ]
+  },
+  "valid_comparison": {
+    "actual_V10_n": 20,
+    "actual_T11B_n": 20,
+    "common_steps": [
+      499,
+      999,
+      1499,
+      1999,
+      2499,
+      2999,
+      3499,
+      3999,
+      4499,
+      4999,
+      5499,
+      5999,
+      6499,
+      6999,
+      7499,
+      7999,
+      8499,
+      8999,
+      9499,
+      9999
+    ],
+    "common_n": 20,
+    "V10_only_steps": [],
+    "T11B_only_steps": [],
+    "metrics": {
+      "ppl": {
+        "deltas": [
+          0.12349999999999284,
+          -0.1302000000000021,
+          -0.004699999999999704,
+          -0.1180000000000021,
+          -0.2605000000000004,
+          -0.6140999999999934,
+          -0.17899999999999494,
+          0.03460000000000463,
+          0.015699999999995384,
+          -0.05449999999999733,
+          0.42249999999999943,
+          -0.04260000000000019,
+          0.017300000000005866,
+          0.18410000000000082,
+          0.1599999999999966,
+          0.1186000000000007,
+          0.09940000000000282,
+          0.1377999999999986,
+          0.14179999999999637,
+          0.05089999999999861
+        ],
+        "less": 8,
+        "greater": 12,
+        "equal": 0,
+        "mean_delta": 0.005130000000000123,
+        "sign_p_descriptive_only": 0.5034446716308594
+      },
+      "emo_loss": {
+        "deltas": [
+          -0.024399999999999977,
+          0.028999999999999915,
+          0.008099999999999774,
+          -0.009800000000000253,
+          -0.0040999999999997705,
+          -0.0007999999999999119,
+          0.050799999999999956,
+          0.010799999999999699,
+          0.1001000000000003,
+          0.060799999999999965,
+          0.1142000000000003,
+          0.05929999999999991,
+          0.07569999999999988,
+          0.11730000000000018,
+          0.15120000000000022,
+          0.06959999999999988,
+          0.07739999999999991,
+          0.09609999999999985,
+          0.11140000000000017,
+          0.06689999999999996
+        ],
+        "less": 4,
+        "greater": 16,
+        "equal": 0,
+        "mean_delta": 0.05798,
+        "sign_p_descriptive_only": 0.01181793212890625
+      },
+      "emo_acc_batch_macro": {
+        "deltas": [
+          0.006000000000000005,
+          -0.009800000000000031,
+          -0.005500000000000005,
+          0.003699999999999981,
+          -0.0005000000000000004,
+          0.0025000000000000022,
+          -0.013200000000000045,
+          0.007599999999999996,
+          -0.007500000000000007,
+          0.0030000000000000027,
+          -0.008999999999999952,
+          0.0010000000000000009,
+          -0.011400000000000021,
+          0.00030000000000002247,
+          -0.006500000000000006,
+          0.0030000000000000027,
+          0.0020999999999999908,
+          -0.0015999999999999903,
+          -0.0030999999999999917,
+          0.0005999999999999894
+        ],
+        "less": 10,
+        "greater": 10,
+        "equal": 0,
+        "mean_delta": -0.0019150000000000029,
+        "sign_p_descriptive_only": 1.0
+      },
+      "score_from_rounded_log": {
+        "deltas": [
+          0.0014999999999929514,
+          0.01480000000000814,
+          0.03580000000000183,
+          -0.1670000000000016,
+          -0.2810000000000059,
+          -0.6180999999999912,
+          0.07500000000000284,
+          0.08860000000000667,
+          0.5161999999999978,
+          0.24950000000000472,
+          0.9935000000000045,
+          0.25390000000000157,
+          0.39580000000000126,
+          0.7706000000000017,
+          0.9159999999999968,
+          0.4665999999999997,
+          0.4864000000000033,
+          0.6182999999999979,
+          0.6987999999999985,
+          0.3853999999999971
+        ],
+        "less": 3,
+        "greater": 17,
+        "equal": 0,
+        "mean_delta": 0.2950300000000009,
+        "sign_p_descriptive_only": 0.0025768280029296875
+      }
+    },
+    "limit": "Correlated training snapshots; sign p is descriptive, not independent runs. Historical F1 deployment not hash-proven."
+  },
+  "diagnostics": [
+    {
+      "step": 499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.5775048971425627,
+      "dec_emo_ce_batch_macro": 2.5779430687427523,
+      "dec_emo_acc_sample_micro": 0.24991280083711195,
+      "dec_emo_correct": 1433,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.9693786771106442,
+        "row_cosine_median": 0.9700456809673428,
+        "row_cosine_min": 0.9546261890867151,
+        "row_cosine_max": 0.980556134717296,
+        "bias_l2_distance": 0.04825869845300148,
+        "weight_max_abs_diff": 0.07577810995280743,
+        "bias_max_abs_diff": 0.020764096174389124
+      }
+    },
+    {
+      "step": 999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.3066383021859953,
+      "dec_emo_ce_batch_macro": 2.308182277944353,
+      "dec_emo_acc_sample_micro": 0.3226369026857342,
+      "dec_emo_correct": 1850,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.9363935114505677,
+        "row_cosine_median": 0.9363588755120535,
+        "row_cosine_min": 0.9085700738931655,
+        "row_cosine_max": 0.9597894908081894,
+        "bias_l2_distance": 0.05858615297904313,
+        "weight_max_abs_diff": 0.11500801891088486,
+        "bias_max_abs_diff": 0.023007850628346205
+      }
+    },
+    {
+      "step": 1499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.180465916286664,
+      "dec_emo_ce_batch_macro": 2.1807161370913186,
+      "dec_emo_acc_sample_micro": 0.36431810254621555,
+      "dec_emo_correct": 2089,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.9068431256758411,
+        "row_cosine_median": 0.906622673481616,
+        "row_cosine_min": 0.8674622693806111,
+        "row_cosine_max": 0.9311385661710629,
+        "bias_l2_distance": 0.07006516516378902,
+        "weight_max_abs_diff": 0.14051328226923943,
+        "bias_max_abs_diff": 0.027921119704842567
+      }
+    },
+    {
+      "step": 1999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.113346182181522,
+      "dec_emo_ce_batch_macro": 2.1130455137402926,
+      "dec_emo_acc_sample_micro": 0.3826299267527032,
+      "dec_emo_correct": 2194,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.8776552388117879,
+        "row_cosine_median": 0.8781733052301286,
+        "row_cosine_min": 0.8304875267216668,
+        "row_cosine_max": 0.9113715308040033,
+        "bias_l2_distance": 0.08287011491600776,
+        "weight_max_abs_diff": 0.1429929882287979,
+        "bias_max_abs_diff": 0.03655008599162102
+      }
+    },
+    {
+      "step": 2499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.048569589614203,
+      "dec_emo_ce_batch_macro": 2.0472937615933238,
+      "dec_emo_acc_sample_micro": 0.40129054761074295,
+      "dec_emo_correct": 2301,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.849375350096531,
+        "row_cosine_median": 0.8534480119737475,
+        "row_cosine_min": 0.8016287513875424,
+        "row_cosine_max": 0.8924975570503229,
+        "bias_l2_distance": 0.09708181959364862,
+        "weight_max_abs_diff": 0.14729218184947968,
+        "bias_max_abs_diff": 0.04435501201078296
+      }
+    },
+    {
+      "step": 2999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0660517195770454,
+      "dec_emo_ce_batch_macro": 2.062501633608783,
+      "dec_emo_acc_sample_micro": 0.391873038018835,
+      "dec_emo_correct": 2247,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.8231314660061902,
+        "row_cosine_median": 0.8266888962499124,
+        "row_cosine_min": 0.7646574105591339,
+        "row_cosine_max": 0.8680187770868387,
+        "bias_l2_distance": 0.09545136280368703,
+        "weight_max_abs_diff": 0.15241550654172897,
+        "bias_max_abs_diff": 0.039766678935848176
+      }
+    },
+    {
+      "step": 3499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.049438851279667,
+      "dec_emo_ce_batch_macro": 2.0465087573837355,
+      "dec_emo_acc_sample_micro": 0.41070805720265086,
+      "dec_emo_correct": 2355,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.8020435216783774,
+        "row_cosine_median": 0.8022458554435354,
+        "row_cosine_min": 0.7352617958531633,
+        "row_cosine_max": 0.8558936507512817,
+        "bias_l2_distance": 0.10627728595162188,
+        "weight_max_abs_diff": 0.1832982674241066,
+        "bias_max_abs_diff": 0.05110069736838341
+      }
+    },
+    {
+      "step": 3999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 1.9817307001213018,
+      "dec_emo_ce_batch_macro": 1.9811362110906177,
+      "dec_emo_acc_sample_micro": 0.4225671433554238,
+      "dec_emo_correct": 2423,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7795016034639377,
+        "row_cosine_median": 0.7827459643258123,
+        "row_cosine_min": 0.7133797634637713,
+        "row_cosine_max": 0.8440174560477132,
+        "bias_l2_distance": 0.10863372793243836,
+        "weight_max_abs_diff": 0.18893677927553654,
+        "bias_max_abs_diff": 0.04843147285282612
+      }
+    },
+    {
+      "step": 4499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0110008847143828,
+      "dec_emo_ce_batch_macro": 2.0092295785744985,
+      "dec_emo_acc_sample_micro": 0.420648761771887,
+      "dec_emo_correct": 2412,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7605050117207375,
+        "row_cosine_median": 0.7637415938733505,
+        "row_cosine_min": 0.6908449930442677,
+        "row_cosine_max": 0.8236446176620021,
+        "bias_l2_distance": 0.1161774075854008,
+        "weight_max_abs_diff": 0.1960102766752243,
+        "bias_max_abs_diff": 0.05467366427183151
+      }
+    },
+    {
+      "step": 4999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 1.9978377354199104,
+      "dec_emo_ce_batch_macro": 1.9970161658746224,
+      "dec_emo_acc_sample_micro": 0.4328566445762121,
+      "dec_emo_correct": 2482,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7479066695015106,
+        "row_cosine_median": 0.7477141974881443,
+        "row_cosine_min": 0.6785192760343843,
+        "row_cosine_max": 0.8174486871819557,
+        "bias_l2_distance": 0.12320923468069968,
+        "weight_max_abs_diff": 0.20712780207395554,
+        "bias_max_abs_diff": 0.0570675116032362
+      }
+    },
+    {
+      "step": 5499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.01305697194616,
+      "dec_emo_ce_batch_macro": 2.013604089838487,
+      "dec_emo_acc_sample_micro": 0.4370422043948378,
+      "dec_emo_correct": 2506,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7348839728858955,
+        "row_cosine_median": 0.7345384782375038,
+        "row_cosine_min": 0.6701160747640035,
+        "row_cosine_max": 0.8091423267862097,
+        "bias_l2_distance": 0.12575470495271548,
+        "weight_max_abs_diff": 0.207380510866642,
+        "bias_max_abs_diff": 0.056482475250959396
+      }
+    },
+    {
+      "step": 5999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0439978326119568,
+      "dec_emo_ce_batch_macro": 2.040967826158912,
+      "dec_emo_acc_sample_micro": 0.4358214161144053,
+      "dec_emo_correct": 2499,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7261285959355738,
+        "row_cosine_median": 0.7243087898142253,
+        "row_cosine_min": 0.664185187906014,
+        "row_cosine_max": 0.7958038905754985,
+        "bias_l2_distance": 0.13152404032094317,
+        "weight_max_abs_diff": 0.2141515053808689,
+        "bias_max_abs_diff": 0.05980980955064297
+      }
+    },
+    {
+      "step": 6499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0524946258672654,
+      "dec_emo_ce_batch_macro": 2.0532812758728314,
+      "dec_emo_acc_sample_micro": 0.4307638646668992,
+      "dec_emo_correct": 2470,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7181210946313095,
+        "row_cosine_median": 0.713999482862535,
+        "row_cosine_min": 0.6533054365097409,
+        "row_cosine_max": 0.788057801541789,
+        "bias_l2_distance": 0.1359752615486446,
+        "weight_max_abs_diff": 0.21377240866422653,
+        "bias_max_abs_diff": 0.05911191087216139
+      }
+    },
+    {
+      "step": 6999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.065222179677622,
+      "dec_emo_ce_batch_macro": 2.067423735614176,
+      "dec_emo_acc_sample_micro": 0.4377397976979421,
+      "dec_emo_correct": 2510,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7122670801589397,
+        "row_cosine_median": 0.7104706835266483,
+        "row_cosine_min": 0.6456484224238581,
+        "row_cosine_max": 0.7840872580923859,
+        "bias_l2_distance": 0.13651527115419776,
+        "weight_max_abs_diff": 0.2185160294175148,
+        "bias_max_abs_diff": 0.060322100296616554
+      }
+    },
+    {
+      "step": 7499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.062184483322234,
+      "dec_emo_ce_batch_macro": 2.062689577539762,
+      "dec_emo_acc_sample_micro": 0.4424485524938961,
+      "dec_emo_correct": 2537,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7092375205070925,
+        "row_cosine_median": 0.709119998500077,
+        "row_cosine_min": 0.6454025275076529,
+        "row_cosine_max": 0.7830287654638552,
+        "bias_l2_distance": 0.13329896173171357,
+        "weight_max_abs_diff": 0.2140553630888462,
+        "bias_max_abs_diff": 0.06140530575066805
+      }
+    },
+    {
+      "step": 7999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0935964454621607,
+      "dec_emo_ce_batch_macro": 2.0949228615672504,
+      "dec_emo_acc_sample_micro": 0.4387861876525985,
+      "dec_emo_correct": 2516,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7070229249070937,
+        "row_cosine_median": 0.7063079111883429,
+        "row_cosine_min": 0.6425743252814233,
+        "row_cosine_max": 0.7803469902847517,
+        "bias_l2_distance": 0.13627077613490826,
+        "weight_max_abs_diff": 0.21833688020706177,
+        "bias_max_abs_diff": 0.06232308782637119
+      }
+    },
+    {
+      "step": 8499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.0847753425654028,
+      "dec_emo_ce_batch_macro": 2.0854061676396265,
+      "dec_emo_acc_sample_micro": 0.4382629926752703,
+      "dec_emo_correct": 2513,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7059775456906076,
+        "row_cosine_median": 0.7048572202777665,
+        "row_cosine_min": 0.6416807304124872,
+        "row_cosine_max": 0.7791812056093155,
+        "bias_l2_distance": 0.1370494311770428,
+        "weight_max_abs_diff": 0.21783612295985222,
+        "bias_max_abs_diff": 0.06251584179699421
+      }
+    },
+    {
+      "step": 8999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.1278031265689887,
+      "dec_emo_ce_batch_macro": 2.127784108232569,
+      "dec_emo_acc_sample_micro": 0.43564701778862924,
+      "dec_emo_correct": 2498,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7054257792905709,
+        "row_cosine_median": 0.7042016952255206,
+        "row_cosine_min": 0.6411956137552424,
+        "row_cosine_max": 0.7784601199816263,
+        "bias_l2_distance": 0.13730461820290626,
+        "weight_max_abs_diff": 0.21723420917987823,
+        "bias_max_abs_diff": 0.0630599046126008
+      }
+    },
+    {
+      "step": 9499,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.1207108199908253,
+      "dec_emo_ce_batch_macro": 2.1208544311700046,
+      "dec_emo_acc_sample_micro": 0.4377397976979421,
+      "dec_emo_correct": 2510,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7048766242224429,
+        "row_cosine_median": 0.7035604086870397,
+        "row_cosine_min": 0.6406011109274824,
+        "row_cosine_max": 0.7783037833023826,
+        "bias_l2_distance": 0.13798752723959673,
+        "weight_max_abs_diff": 0.2182154878973961,
+        "bias_max_abs_diff": 0.06342049594968557
+      }
+    },
+    {
+      "step": 9999,
+      "scope": {
+        "split": "Valid full",
+        "evaluated_n": 5734,
+        "num_batches": 180,
+        "batch_size": 32,
+        "teacher_forcing": true,
+        "training": false
+      },
+      "dec_emo_ce_sample_mean": 2.1135836663793346,
+      "dec_emo_ce_batch_macro": 2.113596041445379,
+      "dec_emo_acc_sample_micro": 0.4408789675619114,
+      "dec_emo_correct": 2528,
+      "head_divergence": {
+        "head_mode": "separate_linear_v1",
+        "row_cosine_mean": 0.7043830079009523,
+        "row_cosine_median": 0.7029088119675773,
+        "row_cosine_min": 0.640126676390151,
+        "row_cosine_max": 0.7779629854636414,
+        "bias_l2_distance": 0.13805902279613072,
+        "weight_max_abs_diff": 0.21857524290680885,
+        "bias_max_abs_diff": 0.0632295161485672
+      }
+    }
+  ],
+  "diagnostic_log_matches_file": true,
+  "limitations": [
+    "Old T11B training sources/environment are not fully fingerprinted.",
+    "Current print_opts omits false values; absent toggles alone do not prove their state.",
+    "No NCM report in return; outside frozen Trial1 primary outcome set.",
+    "Only cloud manifest-listed source files are authenticated, not entire deployed directory or training data."
+  ]
+}

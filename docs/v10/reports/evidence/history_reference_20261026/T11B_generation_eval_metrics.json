@@ -1,0 +1,57 @@
+{
+  "checkpoint": "E:\\github\\CASE\\results\\v10\\gen_full5255\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\CASE_7499_37.5058_composite_best",
+  "eval_time": "2026-10-26 18:56:49",
+  "evaluation_protocol": {
+    "test": {
+      "status": "skipped",
+      "dataset_n": 5255,
+      "evaluated_n": 0,
+      "batch_size": 1,
+      "ppl_aggregation": "macro: exp(mean per-batch token CE)"
+    },
+    "manifold": {
+      "status": "skipped",
+      "evaluated_n": 0,
+      "batch_size": null
+    },
+    "generation": {
+      "status": "computed",
+      "evaluated_n": 5255,
+      "batch_size": 1
+    }
+  },
+  "test_metrics": {},
+  "manifold_metrics": {},
+  "generation_metrics": {
+    "Greedy": {
+      "Dist-1": 0.89,
+      "Dist-2": 4.66,
+      "Unique": 38.61,
+      "Avg_Len": 9.62
+    },
+    "Beam": {
+      "Dist-1": 0.71,
+      "Dist-2": 2.98,
+      "Unique": 18.06,
+      "Avg_Len": 8.07
+    },
+    "Sampling": {
+      "Dist-1": 1.7,
+      "Dist-2": 14.85,
+      "Unique": 92.05,
+      "Avg_Len": 11.02
+    },
+    "Sampling_0.8": {
+      "Dist-1": 2.21,
+      "Dist-2": 19.76,
+      "Unique": 95.17,
+      "Avg_Len": 11.38
+    },
+    "_scope": {
+      "n_samples": 5255,
+      "sampling": "first-N of test set (sequential, not random)",
+      "decode_batch_size": 1,
+      "note": "Dist-2/Unique 均为该子集内统计"
+    }
+  }
+}

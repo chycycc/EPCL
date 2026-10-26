@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "E:\\Dev\\condaData\\envs_dirs\\cem_env\\python.exe",
+    "scratch\\v10_trial1\\history_reference_eval.py",
+    "test",
+    "--key",
+    "T10"
+  ],
+  "cwd": "E:\\github\\CASE"
+}

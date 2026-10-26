@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "completed": [
+    {
+      "task": "test_T10",
+      "elapsed_seconds": 221.71900000004098
+    },
+    {
+      "task": "test_T11B",
+      "elapsed_seconds": 218.5779999999795
+    },
+    {
+      "task": "generation_T10",
+      "elapsed_seconds": 4016.109999999986
+    },
+    {
+      "task": "generation_T11B",
+      "elapsed_seconds": 3928.0779999999795
+    }
+  ],
+  "training_started": false,
+  "active": null,
+  "archives_unchanged": true,
+  "data_unchanged": true
+}

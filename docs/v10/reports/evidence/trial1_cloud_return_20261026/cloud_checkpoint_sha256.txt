@@ -1,0 +1,2 @@
+cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f  save/v10_trial1_sep_dec_head//CASE_7499_37.6658_composite_best
+83e80ae06d9019f8d56ecac9e2eb6edd3aa1396e7c1e76916a423fe9788cd2c7  save/v10_trial1_sep_dec_head//CASE_8499_37.5940_ppl_best

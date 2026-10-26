@@ -1,0 +1,117 @@
+{
+  "comparison": "T10 minus T11-B",
+  "scope": {
+    "n": 5255,
+    "batch": 1,
+    "shuffle": false,
+    "ppl": "exp(mean per-sample token CE)",
+    "accuracy": "sample micro; difference in percentage points",
+    "emo_loss": "sample mean classification CE",
+    "generation_n": 0
+  },
+  "models": {
+    "T10": {
+      "experiment": "v9_trial10",
+      "checkpoint": "results/cloud_archive/v9_trial10/CASE_7499_37.3144_composite_best",
+      "checkpoint_sha256": "b7c0d0fb7c1e5a41a2133e5dde9405370379cf35e4a0d48101fad6f9f358f0ce",
+      "n": 5255,
+      "batch": 1,
+      "ppl": 32.474551968610584,
+      "accuracy_pct": 42.3977164605138,
+      "correct": 2228,
+      "emo_loss": 2.3189905694929935,
+      "predictions_npz": "results\\v10\\history_reference_20261026\\test\\v9_trial10\\CASE_7499_37.3144_composite_best\\test_predictions.npz",
+      "predictions_sha256": "b7efa165e91136981dbce09ec444ce01d9b63c1674f6ad833990758bb22e8d6a",
+      "cloud_prediction_mismatches": 0
+    },
+    "T11B": {
+      "experiment": "v9_trial11_B_gnorm6",
+      "checkpoint": "results/cloud_archive/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best",
+      "checkpoint_sha256": "aa559e7e912faa1b12a85e0c70ad01a5798cf80fa48df789ca30783b085fbe7b",
+      "n": 5255,
+      "batch": 1,
+      "ppl": 32.56464648604055,
+      "accuracy_pct": 42.20742150333016,
+      "correct": 2218,
+      "emo_loss": 2.2839880790552654,
+      "predictions_npz": "results\\v10\\history_reference_20261026\\test\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\test_predictions.npz",
+      "predictions_sha256": "d67f44c0fea5c60c95ae5c59e895ee5d1e1308c1e5c8c115592cfb557cc26645",
+      "cloud_prediction_mismatches": 0,
+      "old_T11B_comparison": {
+        "ctx_ce_max_abs_difference": 0.0,
+        "prediction_mismatches": 0,
+        "old_ppl": 32.56464648604055,
+        "old_npz_sha256": "2997bb9e2ff8ba291021fc7c0848772c77bece1163df76ffeb748cb604f851ed"
+      }
+    }
+  },
+  "pairing": {
+    "identities_labels_order_equal": true,
+    "both_correct": 1828,
+    "T10_only_correct": 400,
+    "T11B_only_correct": 390,
+    "both_wrong": 2637
+  },
+  "mcnemar": {
+    "exact_two_sided_p": 0.7488354805801417,
+    "independent_integer_sum_p": 0.7488354805801426,
+    "unadjusted": true
+  },
+  "differences": {
+    "ppl": {
+      "point": -0.09009451742996788,
+      "ci95": [
+        -0.24259314067909601,
+        0.05734087163191288
+      ],
+      "ci95_width": 0.2999340123110089
+    },
+    "accuracy_pp": {
+      "point": 0.19029495718363465,
+      "ci95": [
+        -0.8563273073263558,
+        1.236917221693625
+      ],
+      "ci95_width": 2.093244529019981
+    },
+    "emo_loss": {
+      "point": 0.035002490437728184,
+      "ci95": [
+        -0.00414122279730934,
+        0.07426968594063282
+      ],
+      "ci95_width": 0.07841090873794217
+    }
+  },
+  "bootstrap": {
+    "replicates": 10000,
+    "seed": 20261023,
+    "rng": "NumPy RandomState",
+    "interval": "marginal percentile 95%",
+    "paired_indices_shared_across_metrics": true,
+    "batch100_vs50_distributions_bitwise_equal": true,
+    "distribution_sha256": "67084ddfaea4c4f54c71036c72a0c1a037a1e9012d42894f8a4a4b5a14b39844"
+  },
+  "environment": {
+    "python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19042-SP0",
+    "torch": "1.12.1+cu113",
+    "numpy": "1.24.4",
+    "scipy": "1.9.3",
+    "sklearn": "1.0.2",
+    "cuda": "11.3",
+    "cudnn": 8302,
+    "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "input_manifest_sha256": "a97f51979ac9c1fe7973bdcf8ca60455d4ca50a7a0a8a12c79c4e13b1d42a7c2",
+  "analysis_script_sha256": "9ce12d18a8a8c332956d6423b97131bda805845b349e1d25a18fd99b43af81df",
+  "method_reference": "scratch/trial12/analyze_trial12_norm_local.py",
+  "limitations": [
+    "Fixed trained checkpoints, item resampling assumes independent test items.",
+    "Dialogue dependence, training seed variance and historical training environment differences are not covered.",
+    "Historical model differences include clipping and Arc ramp; do not attribute to either alone.",
+    "Marginal confidence intervals and unadjusted p are reported descriptively; no equivalence claim from non-significance."
+  ]
+}

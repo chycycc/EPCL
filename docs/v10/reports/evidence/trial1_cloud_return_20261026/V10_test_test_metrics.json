@@ -1,0 +1,21 @@
+{
+  "Test_PPL": 32.61,
+  "Test_EMO_loss": 2.4438,
+  "Test_EMO_acc": 41.75,
+  "Test_BOW_loss": 5.1272,
+  "Test_KL_loss": 0.0722,
+  "_scope": {
+    "n_samples": 5255,
+    "batch_size": 1,
+    "aggregation": "macro: exp(mean per-batch token CE)",
+    "dataset": "ED test split (full)"
+  },
+  "unrounded": {
+    "ppl": 32.61198695686928,
+    "accuracy_pct": 41.75071360608944,
+    "emo_loss": 2.4437708946645977,
+    "correct": 2194,
+    "n": 5255
+  },
+  "cloud_prediction_mismatches": 0
+}

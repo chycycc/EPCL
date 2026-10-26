@@ -1,0 +1,93 @@
+{
+  "all_passed": true,
+  "scope": "C1-C4: two Test checkpoints, two primary comparisons, composite full5255 generation, actual Valid/diagnostic audit",
+  "production_sources_unchanged": true,
+  "acceptance_11_source_test_hashes_unchanged": true,
+  "original_cloud_archives_unchanged": true,
+  "dataset_unchanged": true,
+  "copied_checkpoint_hashes_match": true,
+  "local_environment_matches_history_references": true,
+  "training_started_locally": false,
+  "test_samples_each": 5255,
+  "test_checkpoints": 2,
+  "generation_samples": 5255,
+  "valid_common_points": 20,
+  "cloud_sources_byte_equal_count": 8,
+  "cloud_loader_LF_normalized_match": true,
+  "frozen_commit_all_9_source_blobs_match_cloud": true,
+  "bootstrap_replicates": 10000,
+  "bootstrap_seed": 20261023,
+  "scripts_sha256": {
+    "scratch\\v10_trial1\\eval_v10_return.py": "2156ff6fe90603ce6215b0318f34c75c95dbc8e35fa01f94c2d132eb566d0c35",
+    "scratch\\v10_trial1\\audit_v10_return.py": "54bc32ea702033e2176b3f29bf4a1678ee193dffdb54089afa886bbc9a7884a6",
+    "scratch\\v10_trial1\\analyze_v10_return.py": "7b93492dc118932c02fcfc690c03ef79ec7152a2307c00c96be8e093ffff5ea8",
+    "scratch\\v10_trial1\\finalize_v10_return.py": "1fb22ab88788567513ad572732f3fbb3a545245bb585734e2fbc2ab30f6e554d",
+    "scratch\\v10_trial1\\write_v10_return_report.py": "eb6b4c80192198fc7b052f63029b09ce0c77d582482c34b40c5b03e987174b78",
+    "scratch\\v10_trial1\\analyze_history_reference.py": "9ce12d18a8a8c332956d6423b97131bda805845b349e1d25a18fd99b43af81df"
+  },
+  "exported_evidence_sha256": {
+    "input_manifest.json": "63a43114c345f2756cd50b4a701427853b9f206226ecfe255cb0b726aed34633",
+    "queue_status.json": "a5ba771a7e120ea58e5115a43aa30565840b9433e50eb22940a24613e03aae41",
+    "cloud_hash_verification.json": "618a11c873caacf3974083ff158c114384c44c69a59c825ad2cee7b53fc6401b",
+    "cloud_audit.json": "b6c19f7d4818e00f91d70f80df1d4b1b4d7076a26fd32ba4657bdd2308fe0284",
+    "paired_comparisons.json": "36ad6847be027f1e0ddb2ac7435cc89e61e7b178669f2fdc2f559520edcb0319",
+    "V10_minus_T11B_bootstrap.npz": "a9207d5c99cb13f9d95d66c85626a04a0ac20d4834d08c09c8a85bb3a9c4440e",
+    "V10_minus_T10_bootstrap.npz": "695e4e3dfcf11e1c0c4ac63322ad276dd73663a388b17cb435bf5ef0c90ac68d",
+    "tokenizer_environment.json": "71000869ad1b56991d10bdc31699eeee57f2cdfc7de284bbce6f34c47a87d8cf",
+    "V10_test_run_manifest.json": "dc1b2bf700ff849356b31490d7cb58f727728a55b1dc704d1121a629e2df3292",
+    "V10_test_command.json": "4e4bdabd7e0da805dd48a2f4e2c161bad6709e514fbda8fb6575a3e5230b5a1f",
+    "V10_test_test_metrics.json": "d22ec07840dcdb3667d62cea95fdfadc76d56cce6dd9271ec1f88da22b3034c7",
+    "V10_test_test_predictions.npz": "3535568d7e1254988a16ecc52ef615356c23195ae898c33987eb08d1f0c13c21",
+    "V10_PPL_test_run_manifest.json": "4b021ceccf91b7380f0e9ec8b4b6a7be029f4db96a6f1b1271e60a2590425462",
+    "V10_PPL_test_command.json": "f083e1f987e8e07fc922e9a3c6516379e4f18c08b00fe4c1ff7c9b85bd2ee970",
+    "V10_PPL_test_test_metrics.json": "21771986d4e49ff2a3e972e486e0e12eecb6a25c67a6fd672e8f4d95d397465c",
+    "V10_PPL_test_test_predictions.npz": "350313674bf56db973bcf3932eb09e45dc1803ff17c4b30176eb38d8a3ee09b1",
+    "V10_generation_run_manifest.json": "1c6e3091ae26cc5f8bd66eb2485d9f541884f8f78aa6cd473986b210c019e7a1",
+    "V10_generation_command.json": "3ce143d65afe9753d936bd977aa78ff0b664f4c68c08be037379c0c949850d6a",
+    "V10_generation_eval_metrics.json": "ec71359255767a5e97a4abf8b1e8658c5cd55532a9a95b24247f1e199ecd062e",
+    "V10_generation_generation_report.txt": "a60938220097093aae7ad1bc6bc2da3710a2052087ed5efd48a766d8c11f9b59",
+    "cloud_env_metadata.json": "4a65eda541b46652ed86b9eebdc84514a04d14205501f86f3ca58995b871f2d4",
+    "cloud_dec_emo_diagnostics.jsonl": "a44eb984d4c6053b6a90a7869a83ab3a277840b36641f1094585f110ae3e95a6",
+    "cloud_checkpoint_sha256.txt": "e0e82dc88529d9a1849fe06e09e3391dd021c40f4b92c009a8852502668ed577",
+    "cloud_source_sha256.txt": "12337781a83e7fd312ffe20584eab052c81e36a633a5e37eb2efcf38a1a56d15",
+    "cloud_eval_metrics.json": "fe2eb37e6d17002f4dd9439eaecec8899e37b3ca886557c595d5aa89e8becf51",
+    "cloud_v10_trial1_sep_dec_head_eval.txt": "8703dedd96e8dec3f01dbfa86dc9275d8b81dff32862f4bcd6e0f5594c94cc69"
+  },
+  "generation_metrics": {
+    "Greedy": {
+      "Dist-1": 0.94,
+      "Dist-2": 4.85,
+      "Unique": 37.05,
+      "Avg_Len": 9.18
+    },
+    "Beam": {
+      "Dist-1": 0.79,
+      "Dist-2": 3.16,
+      "Unique": 17.22,
+      "Avg_Len": 7.69
+    },
+    "Sampling": {
+      "Dist-1": 1.74,
+      "Dist-2": 15.12,
+      "Unique": 91.53,
+      "Avg_Len": 10.57
+    },
+    "Sampling_0.8": {
+      "Dist-1": 2.32,
+      "Dist-2": 20.4,
+      "Unique": 94.71,
+      "Avg_Len": 10.91
+    },
+    "_scope": {
+      "n_samples": 5255,
+      "sampling": "first-N of test set (sequential, not random)",
+      "decode_batch_size": 1,
+      "note": "Dist-2/Unique 均为该子集内统计"
+    }
+  },
+  "formal_gate": {
+    "ppl_pass": false,
+    "acc_pass": false,
+    "candidate": false
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "models": {
+    "V10": {
+      "predictions_path": "results\\v10\\trial1_cloud_return_20261026\\test\\v10_trial1_sep_dec_head\\CASE_7499_37.6658_composite_best\\test_predictions.npz",
+      "predictions_sha256": "3535568d7e1254988a16ecc52ef615356c23195ae898c33987eb08d1f0c13c21",
+      "checkpoint_sha256": "cb45017c2df918f5fc007bffedda747d692caf445413c8ef24f5df573a44ad4f",
+      "checkpoint": "results/v10/trial1_cloud_return_20261026/test/v10_trial1_sep_dec_head/CASE_7499_37.6658_composite_best/CASE_7499_37.6658_composite_best",
+      "ppl": 32.61198695686928,
+      "accuracy_pct": 41.75071360608944,
+      "correct": 2194,
+      "emo_loss": 2.4437708946645977
+    },
+    "V10_PPL": {
+      "predictions_path": "results\\v10\\trial1_cloud_return_20261026\\test\\v10_trial1_sep_dec_head\\CASE_8499_37.5940_ppl_best\\test_predictions.npz",
+      "predictions_sha256": "350313674bf56db973bcf3932eb09e45dc1803ff17c4b30176eb38d8a3ee09b1",
+      "checkpoint_sha256": "83e80ae06d9019f8d56ecac9e2eb6edd3aa1396e7c1e76916a423fe9788cd2c7",
+      "checkpoint": "results/v10/trial1_cloud_return_20261026/test/v10_trial1_sep_dec_head/CASE_8499_37.5940_ppl_best/CASE_8499_37.5940_ppl_best",
+      "ppl": 32.577461838647594,
+      "accuracy_pct": 40.875356803044724,
+      "correct": 2148,
+      "emo_loss": 2.639457611240108
+    },
+    "T10": {
+      "predictions_path": "results\\v10\\history_reference_20261026\\test\\v9_trial10\\CASE_7499_37.3144_composite_best\\test_predictions.npz",
+      "predictions_sha256": "b7efa165e91136981dbce09ec444ce01d9b63c1674f6ad833990758bb22e8d6a",
+      "checkpoint_sha256": "b7c0d0fb7c1e5a41a2133e5dde9405370379cf35e4a0d48101fad6f9f358f0ce",
+      "checkpoint": "results/v10/history_reference_20261026/test/v9_trial10/CASE_7499_37.3144_composite_best/CASE_7499_37.3144_composite_best",
+      "ppl": 32.474551968610584,
+      "accuracy_pct": 42.3977164605138,
+      "correct": 2228,
+      "emo_loss": 2.3189905694929935
+    },
+    "T11B": {
+      "predictions_path": "results\\v10\\history_reference_20261026\\test\\v9_trial11_B_gnorm6\\CASE_7499_37.5058_composite_best\\test_predictions.npz",
+      "predictions_sha256": "d67f44c0fea5c60c95ae5c59e895ee5d1e1308c1e5c8c115592cfb557cc26645",
+      "checkpoint_sha256": "aa559e7e912faa1b12a85e0c70ad01a5798cf80fa48df789ca30783b085fbe7b",
+      "checkpoint": "results/v10/history_reference_20261026/test/v9_trial11_B_gnorm6/CASE_7499_37.5058_composite_best/CASE_7499_37.5058_composite_best",
+      "ppl": 32.56464648604055,
+      "accuracy_pct": 42.20742150333016,
+      "correct": 2218,
+      "emo_loss": 2.2839880790552654
+    }
+  },
+  "pairs": {
+    "V10_minus_T11B": {
+      "differences": {
+        "ppl": {
+          "point": 0.04734047082872905,
+          "ci95": [
+            -0.11550265224649889,
+            0.20897787398263434
+          ],
+          "ci95_width": 0.32448052622913326
+        },
+        "accuracy_pp": {
+          "point": -0.45670789724072314,
+          "ci95": [
+            -1.5794481446241675,
+            0.6660323501427212
+          ],
+          "ci95_width": 2.2454804947668885
+        },
+        "emo_loss": {
+          "point": 0.15978281560933238,
+          "ci95": [
+            0.11612947013137731,
+            0.20318229644438313
+          ],
+          "ci95_width": 0.08705282631300582
+        }
+      },
+      "pairing": {
+        "identities_labels_order_equal": true,
+        "both_correct": 1770,
+        "V10_only_correct": 424,
+        "T11B_only_correct": 448,
+        "both_wrong": 2613
+      },
+      "mcnemar_exact_two_sided_p": 0.43606874030529996,
+      "independent_integer_sum_p": 0.43606874030530096,
+      "bootstrap_sha256": "a9207d5c99cb13f9d95d66c85626a04a0ac20d4834d08c09c8a85bb3a9c4440e",
+      "bootstrap_batch100_vs50_bitwise_equal": true
+    },
+    "V10_minus_T10": {
+      "differences": {
+        "ppl": {
+          "point": 0.13743498825869693,
+          "ci95": [
+            -0.020688497494580727,
+            0.3000664099170457
+          ],
+          "ci95_width": 0.32075490741162643
+        },
+        "accuracy_pp": {
+          "point": -0.6470028544243578,
+          "ci95": [
+            -1.7316841103710752,
+            0.41864890580399616
+          ],
+          "ci95_width": 2.1503330161750713
+        },
+        "emo_loss": {
+          "point": 0.1247803251716042,
+          "ci95": [
+            0.08236886411251981,
+            0.1677187700386706
+          ],
+          "ci95_width": 0.0853499059261508
+        }
+      },
+      "pairing": {
+        "identities_labels_order_equal": true,
+        "both_correct": 1807,
+        "V10_only_correct": 387,
+        "T10_only_correct": 421,
+        "both_wrong": 2640
+      },
+      "mcnemar_exact_two_sided_p": 0.24565107923519136,
+      "independent_integer_sum_p": 0.2456510792351922,
+      "bootstrap_sha256": "695e4e3dfcf11e1c0c4ac63322ad276dd73663a388b17cb435bf5ef0c90ac68d",
+      "bootstrap_batch100_vs50_bitwise_equal": true
+    }
+  },
+  "environment": {
+    "python": "3.8.20 (default, Oct  3 2024, 15:19:54) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19042-SP0",
+    "torch": "1.12.1+cu113",
+    "numpy": "1.24.4",
+    "scipy": "1.9.3",
+    "sklearn": "1.0.2",
+    "cuda": "11.3",
+    "cudnn": 8302,
+    "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1"
+  },
+  "bootstrap": {
+    "replicates": 10000,
+    "seed": 20261023,
+    "rng": "NumPy RandomState",
+    "interval": "marginal percentile 95%",
+    "paired_indices_shared_across_metrics": true
+  },
+  "scope": {
+    "test_n": 5255,
+    "batch": 1,
+    "shuffle": false,
+    "ppl": "exp(mean sample token CE)",
+    "accuracy": "sample micro; differences in pp",
+    "emo_loss": "sample mean"
+  },
+  "limitations": [
+    "Conditional on these checkpoints, not training seed variation.",
+    "Item resampling ignores potential dialogue dependence; intervals marginal and p unadjusted.",
+    "V10 vs T10 has multiple changed training settings; joint difference only.",
+    "V10 vs T11B is the intended single-config contrast; historical training source/environment incompletely recorded.",
+    "ppl_best is supplemental; Test results do not reselect the checkpoint."
+  ],
+  "analysis_script_sha256": "7b93492dc118932c02fcfc690c03ef79ec7152a2307c00c96be8e093ffff5ea8"
+}

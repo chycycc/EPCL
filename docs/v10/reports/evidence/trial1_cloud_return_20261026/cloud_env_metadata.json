@@ -1,0 +1,29 @@
+{
+  "python": "3.10.8 (main, Nov 24 2022, 14:13:03) [GCC 11.2.0]",
+  "platform": "Linux-5.15.0-101-generic-x86_64-with-glibc2.35",
+  "torch": "2.1.2+cu121",
+  "numpy": "1.26.3",
+  "sklearn": "1.7.2",
+  "cuda_version": "12.1",
+  "cudnn_version": 8902,
+  "cuda_available": true,
+  "gpu_name": "NVIDIA GeForce RTX 4090 D",
+  "hardware_mode": "24G",
+  "experiment": "v10_trial1_sep_dec_head",
+  "recorded_before_training": true,
+  "optimizer_zero_grad": [
+    {
+      "device": "cpu",
+      "signature": "(set_to_none: bool = True) -> None",
+      "grad_is_none": true,
+      "grad_is_zero_tensor": false
+    },
+    {
+      "device": "cuda:0",
+      "signature": "(set_to_none: bool = True) -> None",
+      "grad_is_none": true,
+      "grad_is_zero_tensor": false
+    }
+  ],
+  "runtime_contract_passed": true
+}
