@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "protocol_id": "classic_baselines_preparation_v1",
+  "protocol_id": "classic_baselines_preparation_v2",
   "scope_status": "approved_four_models",
   "training_recipe_status": "draft_pending_data_and_runtime_adapter_checks",
   "cloud_ready": false,
@@ -15,9 +15,10 @@
     "valid_shuffle": false,
     "test_shuffle": false,
     "test_batch_size": 1,
-    "tokenization_and_output_vocabulary_alignment": "required_before_cross_model_ppl_ranking",
+    "tokenization_and_output_vocabulary_alignment": "implemented_shared_CASE_tokens_and_24647_symbol_support_v1; native-worker CPU smoke passed; cloud verification pending",
+    "knowledge_policy": "Use preexisting CASE ED cached COMET and ConceptNet/VAD features with per-model layout adapters; standardized-data reproduction, not author-cache replay",
     "old_local_cem_cache_reusable_as_is": false,
-    "kemp_dataset_verified": false
+    "kemp_dataset_verified": "derived_shared_cache_schema_and_full_feature_alignment_verified; author_original_cache_not_used"
   },
   "evaluation": {
     "nll_definition": "target_nll_sum_exclude_pad_include_eos_no_auxiliary_no_smoothing",
@@ -30,7 +31,9 @@
     "generation_order": "canonical_test_order",
     "report_500_and_full_separately": true,
     "generation_metrics": ["dist_1", "dist_2", "unique", "avg_len", "empty_n"],
-    "normalization_status": "must freeze the common exported-text tokenizer before cloud generation",
+    "normalization_status": "unicode_NFKC_strip_TreebankWordTokenizer_preserve_case_v1 implemented",
+    "common_search": "cumulative_log_probability_keep_finished_beams_v1; length_penalty=0; max_dec_step is generated tokens including EOS",
+    "historical_generation_reference": "Re-export CASE-EPCL under the same search and text protocol before final generation ranking; do not reuse old Distinct/Beam numbers directly",
     "missing_classifier_value": null,
     "test_data_may_select_checkpoints": false
   },
@@ -40,12 +43,10 @@
     "claim_scope": "cross_model_system_comparison_not_single_component_causal_ablation"
   },
   "remaining_before_training": [
-    "Align CEM and Multi-TRS inputs/targets to canonical sample tokens without mutating historical caches",
-    "Audit KEMP knowledge cache against canonical identities",
-    "Resolve target vocabulary, OOV mapping, EOS and pointer probability support; separate native PPL groups until then",
-    "Implement model-specific native-process artifact exporters and common text normalization",
     "Freeze effective per-model training recipes and seed handling including KEMP module-level seed resets",
     "Validate compatibility and checkpoint round trips on the actual confirmed cloud runtime",
-    "Record a CASE-EPCL reference environment fingerprint and compare every baseline environment"
+    "Record a CASE-EPCL reference environment fingerprint and compare every baseline environment",
+    "Validate pretrained GloVe initialization and training backward/update paths on that cloud runtime",
+    "Export CASE-EPCL comparison generations through the same common search/text protocol"
   ]
 }

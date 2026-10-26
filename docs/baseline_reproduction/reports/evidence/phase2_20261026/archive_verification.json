@@ -1,0 +1,8 @@
+{
+  "archive_sha256": "40cbb97d8d3c33f71aad2a981e5dc8d34fb6494d3fe355cffe9dc2be0e5ae256",
+  "members_verified": 110,
+  "all_archived_file_hashes_match": true,
+  "packaged_tool_tests_passed": 22,
+  "weights_included": false,
+  "formal_training_ready": false
+}

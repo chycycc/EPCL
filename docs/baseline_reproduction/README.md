@@ -2,8 +2,9 @@
 
 四模型范围已由用户确认：原版 CASE、原版 CEM、KEMP、Multi-TRS。训练均在与 CASE-EPCL 相同的云端环境执行。当前是无 GPU 准备阶段，尚未正式训练。
 
-- [复现方案 v1：范围、隔离边界与验收顺序](plans/01_classic_baselines_reproduction_plan.md)
+- [复现方案 v1.1：范围、隔离边界与验收顺序](plans/01_classic_baselines_reproduction_plan.md)
 - [源码与数据准备审计：2026-10-26](reports/01_source_and_data_preparation_audit.md)
+- [统一数据与四模型 CPU 推理验收](reports/02_shared_data_and_native_inference_acceptance.md)
 - [独立工具与实际可执行的准备命令](../../benchmarks/classic_baselines/README.md)
 - [固定源码来源与 SHA256](../../benchmarks/classic_baselines/sources.lock.json)
 - [机器可读准备协议](../../benchmarks/classic_baselines/protocol.json)

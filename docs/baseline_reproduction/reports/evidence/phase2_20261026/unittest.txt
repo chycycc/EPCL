@@ -1,0 +1,27 @@
+test_corpus_bigrams_do_not_cross_sentence_boundaries (test_contracts.ArtifactTests) ... ok
+test_ids_and_gold_labels_cannot_be_reordered (test_contracts.ArtifactTests) ... ok
+test_invalid_loss_and_padding_counts_rejected (test_contracts.ArtifactTests) ... ok
+test_micro_accuracy_and_missing_classifier (test_contracts.ArtifactTests) ... ok
+test_partial_generation_fails (test_contracts.ArtifactTests) ... ok
+test_sample_macro_and_token_micro_are_distinct (test_contracts.ArtifactTests) ... ok
+test_cache_reader_rejects_executable_globals (test_contracts.PreparationTests) ... ok
+test_cloud_environment_check_rejects_local_runtime (test_contracts.PreparationTests) ... ok
+test_evaluation_weights_survive_initialization (test_contracts.PreparationTests) ... ok
+test_parser_audit_does_not_execute_source (test_contracts.PreparationTests) ... ok
+test_patch_count_guard_prevents_silent_wrong_source (test_contracts.PreparationTests) ... ok
+test_tokenization_difference_changes_sample_fingerprint (test_contracts.PreparationTests) ... ok
+test_changed_bundle_file_is_rejected (test_native_contracts.BundleIntegrityTests) ... ok
+test_manifest_paths_cannot_escape_bundle (test_native_contracts.BundleIntegrityTests) ... ok
+test_cem_relation_layout_keeps_named_order_and_input_tokens (test_native_contracts.DataAdapterTests) ... ok
+test_invalid_concept_alignment_and_oov_are_rejected (test_native_contracts.DataAdapterTests) ... ok
+test_kemp_roles_are_renamed_without_adding_output_entries (test_native_contracts.DataAdapterTests) ... ok
+test_checkpoint_without_encoding_provenance_is_rejected_before_loading (test_native_contracts.NativeObservationTests) ... ok
+test_observation_restores_rng_and_auxiliary_frequency (test_native_contracts.NativeObservationTests) ... ok
+test_beam_keeps_finished_hypotheses_and_can_outperform_greedy (test_native_contracts.SearchTests) ... ok
+test_common_tokenizer_requires_no_punkt_and_preserves_case (test_native_contracts.SearchTests) ... ok
+test_greedy_ties_match_native_first_index_and_eos_counts_in_budget (test_native_contracts.SearchTests) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 1.689s
+
+OK

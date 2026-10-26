@@ -1,0 +1,14 @@
+{
+  "train": {
+    "empty_cem_xreact_after_native_filter_n": 0,
+    "first_empty_indices": []
+  },
+  "valid": {
+    "empty_cem_xreact_after_native_filter_n": 0,
+    "first_empty_indices": []
+  },
+  "test": {
+    "empty_cem_xreact_after_native_filter_n": 0,
+    "first_empty_indices": []
+  }
+}

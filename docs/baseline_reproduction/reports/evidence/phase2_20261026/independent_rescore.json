@@ -1,0 +1,14 @@
+{
+  "case_original": {
+    "independent_score_matches": true
+  },
+  "multi_trs": {
+    "independent_score_matches": true
+  },
+  "cem_original": {
+    "independent_score_matches": true
+  },
+  "kemp": {
+    "independent_score_matches": true
+  }
+}
