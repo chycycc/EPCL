@@ -1260,6 +1260,8 @@ class CASE(nn.Module):
         self.emo_dropout = nn.Dropout(0.3)
         if getattr(config, 'max_grad_norm', 0.0) > 0.0:
             print(f"[Gradient Clip] 成功启用全局梯度裁剪: max_grad_norm={config.max_grad_norm}")
+        else:
+            print(f"[Gradient Clip] 全局梯度裁剪已关闭: max_grad_norm={getattr(config, 'max_grad_norm', 0.0)} (不执行 clip_grad_norm_)")
         # [V4 Trial 8: MoP-DR] Router input dim = total_protos (32 when K=1, 64 when K=2)
         self.router_linear = nn.Linear(total_protos, config.emb_dim)
         self.concept_prior_attn = Attention(query_size=config.emb_dim,
@@ -2515,19 +2517,28 @@ class CASE(nn.Module):
             if (iter + 1) % accum_steps == 0:
                 opt = self.optimizer.optimizer if config.noam else self.optimizer
                 # [D8 修复] 梯度裁剪：在两任务梯度合并后、opt.step() 前执行；预留 AMP unscale
-                if getattr(config, 'max_grad_norm', 0.0) > 0.0:
-                    if self.scaler is not None:
-                        self.scaler.unscale_(opt)
-                    grad_norm = torch.nn.utils.clip_grad_norm_(self.parameters(), config.max_grad_norm)
-                    # [T11-B 监控约束 1] 逐 update 记录裁剪前总范数到 GPU 张量（禁止逐步 .item()
-                    # 造成 10000 次 Host-Device 同步）；取值严格位于 scaler.unscale_ 之后、opt.step 之前。
+                max_grad_norm = float(getattr(config, 'max_grad_norm', 0.0))
+                if self.scaler is not None:
+                    self.scaler.unscale_(opt)
+                if max_grad_norm > 0.0:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(self.parameters(), max_grad_norm)
+                else:
+                    # 关闭梯度裁剪时仅只读计算全局梯度 L2 总范数用于训练监控，不修改任何参数梯度
                     with torch.no_grad():
-                        if self._gn_n < self._gn_buf.size(0):
-                            self._gn_buf[self._gn_n] = grad_norm.detach()
-                            self._gn_n += 1
-                    if (iter + 1) == accum_steps or (iter + 1) % (accum_steps * 500) == 0:
-                        norm_val = grad_norm.item() if hasattr(grad_norm, 'item') else float(grad_norm)
-                        print(f"[Gradient Norm] Step {iter+1} (Update {(iter+1)//accum_steps}): Total Grad Norm={norm_val:.4f} (Clip={config.max_grad_norm})")
+                        grads = [p.grad.detach() for p in self.parameters() if p.grad is not None]
+                        grad_norm = (
+                            torch.norm(torch.stack([torch.norm(g, 2.0) for g in grads]), 2.0)
+                            if grads else torch.tensor(0.0, device=config.device)
+                        )
+                # [T11-B 监控约束 1] 逐 update 记录裁剪前总范数到 GPU 张量（禁止逐步 .item()
+                # 造成 10000 次 Host-Device 同步）；取值严格位于 scaler.unscale_ 之后、opt.step 之前。
+                with torch.no_grad():
+                    if self._gn_n < self._gn_buf.size(0):
+                        self._gn_buf[self._gn_n] = grad_norm.detach()
+                        self._gn_n += 1
+                if (iter + 1) == accum_steps or (iter + 1) % (accum_steps * 500) == 0:
+                    norm_val = grad_norm.item() if hasattr(grad_norm, 'item') else float(grad_norm)
+                    print(f"[Gradient Norm] Step {iter+1} (Update {(iter+1)//accum_steps}): Total Grad Norm={norm_val:.4f} (Clip={max_grad_norm})")
 
                 if self.scaler is not None:
                     self.scaler.step(opt)

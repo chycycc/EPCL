@@ -65,15 +65,12 @@ venv.bak/
 *.swo
 .DS_Store
 
-# AI Context Files
+# AI Context, Docs & Scratch Files
 .gemini
-# [修正] 原写法 `.agents/` 会排除整个目录，导致 `!.agents/rules/` 白名单失效
-# （git 规范：父目录被排除后，无法再重新包含其内部文件）。
-# 改为「排除目录内容 + 白名单放行 rules 子目录」，使审计铁律纳入版本控制。
-.agents/*
-!.agents/rules/
-!.agents/rules/**
-# docs/ (Un-ignored for tracking academic documentation)
+/.agent/
+/.agents/
+/docs/
+/scratch/
 
 # Data and Weights
 # [修正] 原写法 `data/`（无前导斜杠）会匹配任意层级的 data 目录，导致

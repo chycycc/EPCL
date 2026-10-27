@@ -173,6 +173,19 @@ PY
         [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
         EXTRA_FLAGS="--max_grad_norm 6.0 --arc_margin_ramp_steps $V10_ARC_RAMP --use_separate_dec_emo_head"
         ;;
+        v10_trial2_noclip)
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T2] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+         fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T2] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        V10_ARC_RAMP=2500
+        [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
+        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps $V10_ARC_RAMP"
+        ;;
 esac
 
 # 2. 建立独立日志与实验产出目录（按实验名前缀自适应 results/v10 与 results/v9）
@@ -211,7 +224,7 @@ def probe_zero_grad(device):
 def validate_zero_grad(info, mode, experiment):
     # V10 正式路径要求分类头不因默认清零语义进入 PCGrad shared_params。
     # 不改 zero_grad 参数；运行时不符时在训练前终止，保留元数据供定位。
-    return not (mode == "24G" and experiment == "v10_trial1_sep_dec_head"
+    return not (mode == "24G" and experiment.startswith("v10_trial")
                 and any(not p["grad_is_none"] for p in info["optimizer_zero_grad"]))
 
 info = {"python": sys.version, "platform": platform.platform(),
@@ -311,18 +324,20 @@ ${pythonpath} src/scripts/eval_pipeline.py \
 # 与本地验收共用真实打包函数；不依赖前缀初始化文件存在。
 package_artifacts() {
 mkdir -p "${DOWNLOAD_DIR}"
-if [ "${EXP_NAME}" = "v10_trial1_sep_dec_head" ]; then
-    for REQUIRED_FILE in env_metadata.json dec_emo_diagnostics.jsonl; do
-        if [ ! -s "${OUTPUT_DIR}/${REQUIRED_FILE}" ]; then
-            echo "[V10 T1] Missing required artifact: ${OUTPUT_DIR}/${REQUIRED_FILE}" >&2
+case "${EXP_NAME}" in
+    v10_trial*)
+        for REQUIRED_FILE in env_metadata.json dec_emo_diagnostics.jsonl; do
+            if [ ! -s "${OUTPUT_DIR}/${REQUIRED_FILE}" ]; then
+                echo "[V10] Missing required artifact: ${OUTPUT_DIR}/${REQUIRED_FILE}" >&2
+                return 1
+            fi
+        done
+        if ! compgen -G "${OUTPUT_DIR}/CASE_*_composite_best" > /dev/null || ! compgen -G "${OUTPUT_DIR}/CASE_*_ppl_best" > /dev/null; then
+            echo "[V10] Both composite_best and ppl_best checkpoints are required." >&2
             return 1
         fi
-    done
-    if ! compgen -G "${OUTPUT_DIR}/CASE_*_composite_best" > /dev/null || ! compgen -G "${OUTPUT_DIR}/CASE_*_ppl_best" > /dev/null; then
-        echo "[V10 T1] Both composite_best and ppl_best checkpoints are required." >&2
-        return 1
-    fi
-fi
+        ;;
+esac
 cp -f "${LOG_FILE}" "${DOWNLOAD_DIR}/" 2>/dev/null || true
 cp -f "${OUTPUT_DIR}/eval_metrics.json" "${DOWNLOAD_DIR}/" 2>/dev/null || true
 cp -f "${RESULTS_DIR}/${EXP_NAME}_eval.txt" "${DOWNLOAD_DIR}/" 2>/dev/null || true
