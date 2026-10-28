@@ -2,12 +2,12 @@
   "schema_version": 1,
   "protocol_id": "classic_baselines_preparation_v2",
   "scope_status": "approved_four_models",
-  "training_recipe_status": "draft_pending_data_and_runtime_adapter_checks",
+  "training_recipe_status": "pending_formal_recipe_freeze_after_cloud_smoke_pass",
   "cloud_ready": false,
   "cloud_inference_status": "passed_user_report_20261026_python3.10.8_torch2.1.2+cu121_RTX4090D",
   "bounded_training_smoke": {
     "entry": "run_training_smoke_queue.py",
-    "cloud_acceptance": "pending_new_execution_and_artifacts",
+    "cloud_acceptance": "passed_cloud_return_reviewed_20261028",
     "formal_training": false,
     "default_batch_size": 2,
     "actual_updates_including_resume_replay": {"case_original": 5, "multi_trs": 4, "cem_original": 4, "kemp": 4},
@@ -29,7 +29,7 @@
     "valid_shuffle": false,
     "test_shuffle": false,
     "test_batch_size": 1,
-    "tokenization_and_output_vocabulary_alignment": "implemented_shared_CASE_tokens_and_24647_symbol_support_v1; native-worker CPU smoke passed; cloud verification pending",
+    "tokenization_and_output_vocabulary_alignment": "implemented_shared_CASE_tokens_and_24647_symbol_support_v1; CPU_and_cloud_smoke_passed",
     "knowledge_policy": "Use preexisting CASE ED cached COMET and ConceptNet/VAD features with per-model layout adapters; standardized-data reproduction, not author-cache replay",
     "old_local_cem_cache_reusable_as_is": false,
     "kemp_dataset_verified": "derived_shared_cache_schema_and_full_feature_alignment_verified; author_original_cache_not_used"
@@ -41,9 +41,10 @@
     "generation_modes": ["greedy", "beam"],
     "beam_size": 5,
     "max_dec_step": 40,
-    "generation_counts": [500, 5255],
+    "generation_counts": [500],
     "generation_order": "canonical_test_order",
-    "report_500_and_full_separately": true,
+    "full_generation_policy": "Only after clear overall improvement or explicit user request, per audit rules v3",
+    "authoritative_metrics": "cloud eval_metrics.json",
     "generation_metrics": ["dist_1", "dist_2", "unique", "avg_len", "empty_n"],
     "normalization_status": "unicode_NFKC_strip_TreebankWordTokenizer_preserve_case_v1 implemented",
     "common_search": "cumulative_log_probability_keep_finished_beams_v1; length_penalty=0; max_dec_step is generated tokens including EOS",
@@ -53,14 +54,11 @@
   },
   "checkpoint_policy": {
     "baseline_primary": "native Valid PPL best with deterministic validation; exact aggregation, validation batch and effective stopping recipe must be frozen per model before cloud launch",
-    "case_epcl": "retain existing composite_best primary and ppl_best supplementary roles; no baseline tool changes their selection",
+    "case_epcl": "Report composite_best and ppl_best together with equal standing, per audit rules v3; retain their existing selection algorithms",
     "claim_scope": "cross_model_system_comparison_not_single_component_causal_ablation"
   },
   "remaining_before_training": [
-    "Freeze effective per-model training recipes and seed handling including KEMP module-level seed resets",
-    "Validate compatibility and checkpoint round trips on the actual confirmed cloud runtime",
-    "Record a CASE-EPCL reference environment fingerprint and compare every baseline environment",
-    "Validate pretrained GloVe initialization and training backward/update paths on that cloud runtime",
-    "Export CASE-EPCL comparison generations through the same common search/text protocol"
+    "Freeze effective per-model batch, training budget, validation/save frequency and early stopping",
+    "Provide the formal training entry point; use cloud N=500 for subsequent comparison generations"
   ]
 }
