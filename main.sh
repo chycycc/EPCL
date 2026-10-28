@@ -320,6 +320,7 @@ ${pythonpath} main.py \
   --composite_emo_loss_weight 5.0 \
   --min_save_step ${MIN_SAVE_STEP} \
   --patience ${PATIENCE} \
+  --skip_test \
   ${EXTRA_FLAGS} \
   --save_path ${OUTPUT_DIR} \
   --model_file_path ${OUTPUT_DIR} 2>&1 | tee -a ${LOG_FILE}
