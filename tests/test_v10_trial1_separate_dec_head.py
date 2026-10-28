@@ -466,12 +466,23 @@ class V10Trial1UnitTests(unittest.TestCase):
             out.mkdir()
             for f in ("env_metadata.json", "dec_emo_diagnostics.jsonl", "CASE_1_2.0000_composite_best", "CASE_1_2.0000_ppl_best"):
                 (out / f).write_text("fixture: " + f + "\n", encoding="utf-8")
+            for f in ("eval_metrics.json", "eval_metrics_ppl.json"):
+                (out / f).write_text("{}\n", encoding="utf-8")
+            for f in ("run.log", "v10_trial1_sep_dec_head_eval.txt", "v10_trial1_sep_dec_head_eval_ppl.txt"):
+                (Path(tmp) / f).write_text("fixture\n", encoding="utf-8")
             res = self.run_main_sh_function("ARTIFACT_PACKAGING", "package_artifacts", OUTPUT_DIR=out,
-                                           DOWNLOAD_DIR=download, LOG_FILE=Path(tmp) / "absent.log",
+                                           DOWNLOAD_DIR=download, LOG_FILE=Path(tmp) / "run.log",
                                            RESULTS_DIR=Path(tmp), EXP_NAME="v10_trial1_sep_dec_head")
             self.assertEqual(res.returncode, 0, res.stderr)
-            for f in ("env_metadata.json", "dec_emo_diagnostics.jsonl"):
+            for f in ("env_metadata.json", "dec_emo_diagnostics.jsonl", "eval_metrics.json", "eval_metrics_ppl.json",
+                      "CASE_1_2.0000_composite_best", "CASE_1_2.0000_ppl_best"):
                 self.assertEqual((download / f).read_bytes(), (out / f).read_bytes())
+            (out / "eval_metrics_ppl.json").unlink()
+            res = self.run_main_sh_function("ARTIFACT_PACKAGING", "package_artifacts", OUTPUT_DIR=out,
+                                           DOWNLOAD_DIR=download, LOG_FILE=Path(tmp) / "run.log",
+                                           RESULTS_DIR=Path(tmp), EXP_NAME="v10_trial1_sep_dec_head")
+            self.assertNotEqual(res.returncode, 0)
+            self.assertIn("Missing required result", res.stderr)
             for f, count in (("source_sha256.txt", 9), ("checkpoint_sha256.txt", 2)):
                 lines = (download / f).read_text(encoding="utf-8").splitlines()
                 self.assertEqual(len(lines), count)

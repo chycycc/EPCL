@@ -693,7 +693,70 @@ def evaluate_generation_diversity(model, vocab, test_set, num_samples):
     }
 
 
-def main():
+def same_checkpoint_model(first, second):
+    """同一步的完整模型状态（包括 buffers）相同才允许复用评测；无需比较优化器。"""
+    if os.path.basename(first).split("_")[1] != os.path.basename(second).split("_")[1]:
+        return False
+    left = torch.load(first, map_location="cpu")
+    right = torch.load(second, map_location="cpu")
+    if "iter" not in left or left["iter"] != right.get("iter"):
+        return False
+    for key in ("prefix_attention_mode", "prefix_norm_mode", "dec_emo_head_mode"):
+        if left.get(key) != right.get(key):
+            return False
+    return (left["model"].keys() == right["model"].keys()
+            and all(left["model"][key].dtype == right["model"][key].dtype
+                    and torch.equal(value, right["model"][key])
+                    for key, value in left["model"].items()))
+
+
+def evaluate_both(args):
+    """固定顺序评测双 Best，严格按标签加载，不执行目录清理或 Test 选点。"""
+    model_dir = args.model_path or args.save_dir
+    assert model_dir and os.path.isdir(model_dir), "--eval_target both requires a checkpoint directory"
+    checkpoints = {}
+    for role in ("composite", "ppl"):
+        matches = glob.glob(os.path.join(model_dir, f"CASE_*_{role}_best"))
+        assert len(matches) == 1, f"Expected exactly one {role}_best checkpoint: {matches}"
+        checkpoints[role] = matches[0]
+    composite_args = argparse.Namespace(**vars(args))
+    composite_args.eval_target = "composite"
+    composite_args.model_path = checkpoints["composite"]
+    composite_args.metrics_path = args.metrics_path or os.path.join(model_dir, "eval_metrics.json")
+    ppl_args = argparse.Namespace(**vars(composite_args))
+    ppl_args.eval_target = "ppl"
+    ppl_args.model_path = checkpoints["ppl"]
+    stem, ext = os.path.splitext(composite_args.metrics_path)
+    ppl_args.metrics_path = stem + "_ppl" + ext
+    stem, ext = os.path.splitext(args.results_path)
+    ppl_args.results_path = stem + "_ppl" + ext
+    stem, ext = os.path.splitext(args.plot_path)
+    ppl_args.plot_path = stem + "_ppl" + ext
+
+    composite_metrics = main(composite_args)
+    if same_checkpoint_model(checkpoints["composite"], checkpoints["ppl"]):
+        # main 返回后模型已释放；复用本次刚完成的评测，不读取历史指标。
+        reused = dict(composite_metrics)
+        reused["checkpoint"] = checkpoints["ppl"]
+        reused["checkpoint_role"] = "ppl"
+        reused["reused_from"] = {
+            "checkpoint": checkpoints["composite"],
+            "metrics_path": composite_args.metrics_path,
+            "reason": "same_step_and_identical_model_state",
+        }
+        with open(composite_args.results_path, encoding="utf-8") as f:
+            report = f.read().replace(checkpoints["composite"], checkpoints["ppl"])
+        with open(ppl_args.results_path, "w", encoding="utf-8") as f:
+            f.write(report + f"\n评测复用自: {checkpoints['composite']}（同一步、完整模型状态相同）\n")
+        with open(ppl_args.metrics_path + ".tmp", "w", encoding="utf-8") as f:
+            json.dump(reused, f, indent=2, ensure_ascii=False)
+        os.replace(ppl_args.metrics_path + ".tmp", ppl_args.metrics_path)
+        print(f"[Dual Best] ppl_best reuses composite_best evaluation: {ppl_args.metrics_path}")
+    else:
+        main(ppl_args)
+
+
+def main(args=None):
     parser = argparse.ArgumentParser(description="CASE-EPCL 统一全自动评测与学术验证流水线")
     parser.add_argument("--model_path", type=str, default=None, help="模型权重文件路径或保存目录 (若传目录或文件名不存在，自动识别最优权重)")
     parser.add_argument("--save_dir", type=str, default=None, help="权重保存目录 (兼容旧接口)")
@@ -712,13 +775,18 @@ def main():
     parser.add_argument("--use_sparse_emo_bias", action="store_true", default=False, help="[V8.2] 是否启用自适应稀疏情感词表偏置")
     parser.add_argument("--emo_vocab_topk_ratio", type=float, default=0.15, help="[V8.2] 稀疏偏置保留前 K%% 亲和词比例")
     parser.add_argument("--bias_min_scale", type=float, default=0.15, help="偏置退火最低下限缩放比")
-    parser.add_argument("--eval_target", type=str, default="auto", choices=["auto", "composite", "ppl"], help="评测目标黄金权重选择偏好: auto (优先复合最优), composite (复合评分最优), ppl (纯PPL最优)")
+    parser.add_argument("--eval_target", type=str, default="auto", choices=["auto", "composite", "ppl", "both"], help="评测目标: auto/composite/ppl；both 串行评测双 Best，同状态复用")
+    parser.add_argument("--metrics_path", type=str, default=None, help="JSON 输出路径；默认权重目录/eval_metrics.json，both 的第二份增加 _ppl 后缀")
     parser.add_argument("--plot_path", type=str, default="results/v9/manifold.png", help="流形图保存路径")
     parser.add_argument("--results_path", type=str, default="results/v9/results.txt", help="评测结果文本保存路径")
     parser.add_argument("--exp_name", type=str, default=None, help="实验代号标识 (用于报告与图标题)")
-    args, unknown = parser.parse_known_args()
-    if unknown:
-        print(f"[*] [Eval Pipeline] 忽略未定义参数: {unknown}")
+    if args is None:
+        args, unknown = parser.parse_known_args()
+        if unknown:
+            print(f"[*] [Eval Pipeline] 忽略未定义参数: {unknown}")
+
+    if args.eval_target == "both":
+        return evaluate_both(args)
 
     print(f"[Evaluation Status] skip_test_eval={args.skip_test_eval} | "
           f"skip_manifold={args.skip_manifold} | skip_generation={args.skip_generation}")
@@ -790,7 +858,7 @@ def main():
     if not best_ckpt or not os.path.exists(best_ckpt):
         print(f"[!] 未找到任何有效模型权重文件，流程终止。")
         print(f"    提示: 可使用 --model_path 指定权重文件路径或保存目录。")
-        return
+        raise FileNotFoundError("No valid evaluation checkpoint found")
 
     # 2. 载入模型与测试集
     model, vocab, test_set = load_v8_model(
@@ -876,62 +944,62 @@ def main():
     summary_lines.append("=" * 70)
     summary_text = "\n".join(summary_lines)
 
-    try:
-        with open(args.results_path, "a", encoding="utf-8") as f:
-            f.write("\n" + summary_text + "\n")
-        print(f"[+] 学术评测报告已追加至: {args.results_path}")
-    except Exception as e:
-        print(f"[!] 追加保存评测报告失败: {e}")
+    with open(args.results_path, "w", encoding="utf-8") as f:
+        f.write(summary_text + "\n")
+    print(f"[+] 学术评测报告已保存: {args.results_path}")
 
-    # 同时在权重所在目录保存 JSON 结构化元数据 (含 NaN/Inf 容错清洗与原子写入保护)
-    try:
-        def sanitize_metric_values(obj):
-            if isinstance(obj, dict):
-                return {k: sanitize_metric_values(v) for k, v in obj.items()}
-            elif isinstance(obj, list):
-                return [sanitize_metric_values(v) for v in obj]
-            elif isinstance(obj, (float, np.floating)):
-                val = float(obj)
-                if math.isnan(val) or math.isinf(val):
-                    return None
-                return round(val, 6)
-            elif isinstance(obj, (int, np.integer)):
-                return int(obj)
-            return obj
+    # 独立 JSON 输出；写入失败直接退出，避免打包旧指标。
+    def sanitize_metric_values(obj):
+        if isinstance(obj, dict):
+            return {k: sanitize_metric_values(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [sanitize_metric_values(v) for v in obj]
+        elif isinstance(obj, (float, np.floating)):
+            val = float(obj)
+            if math.isnan(val) or math.isinf(val):
+                return None
+            return round(val, 6)
+        elif isinstance(obj, (int, np.integer)):
+            return int(obj)
+        return obj
 
-        model_dir = os.path.dirname(best_ckpt)
-        json_path = os.path.join(model_dir, "eval_metrics.json")
-        tmp_json_path = json_path + ".tmp"
-        combined_metrics = {
-            "checkpoint": best_ckpt,
-            "eval_time": time.strftime('%Y-%m-%d %H:%M:%S'),
-            "evaluation_protocol": {
-                "test": {"status": "skipped" if args.skip_test_eval else "computed",
-                         "dataset_n": len(test_set.dataset),
-                         "evaluated_n": 0 if args.skip_test_eval else test_metrics.get("_scope", {}).get("n_samples", None),
-                         "batch_size": test_set.batch_size,
-                         "ppl_aggregation": "macro: exp(mean per-batch token CE)"},
-                "manifold": {"status": "skipped" if args.skip_manifold else "computed",
-                             # [口径补全 / 铁律 III] 原仅有 status，现补记规模与分块，保持三阶段口径对称。
-                             "evaluated_n": 0 if args.skip_manifold else manifold_metrics.get("_scope", {}).get("n_samples", None),
-                             "batch_size": manifold_metrics.get("_scope", {}).get("batch_size", None)},
-                "generation": {"status": "skipped" if args.skip_generation else "computed",
-                               # [口径修正 / 铁律 III] 原为 min(args.gen_samples, len(test_set.dataset))，
-                               # 在 --gen_samples<=0（全量语义）时会错记为 0；改为从函数内实际计数取值。
-                               "evaluated_n": 0 if (args.skip_generation or not gen_metrics) else gen_metrics.get("_scope", {}).get("n_samples", None),
-                               "batch_size": 1},
-            },
-            "test_metrics": test_metrics,
-            "manifold_metrics": manifold_metrics,
-            "generation_metrics": gen_metrics
-        }
-        clean_metrics = sanitize_metric_values(combined_metrics)
-        with open(tmp_json_path, "w", encoding="utf-8") as f:
-            json.dump(clean_metrics, f, indent=2, ensure_ascii=False)
-        os.replace(tmp_json_path, json_path)
-        print(f"[+] 结构化指标元数据已原子保存: {json_path}")
-    except Exception as e:
-        print(f"[!] 保存 JSON 元数据失败: {e}")
+    model_dir = os.path.dirname(best_ckpt)
+    json_path = args.metrics_path or os.path.join(model_dir, "eval_metrics.json")
+    os.makedirs(os.path.dirname(os.path.abspath(json_path)), exist_ok=True)
+    tmp_json_path = json_path + ".tmp"
+    combined_metrics = {
+        "checkpoint": best_ckpt,
+        "checkpoint_role": args.eval_target,
+        "reused_from": None,
+        "evaluation_seed": 13,
+        "eval_time": time.strftime('%Y-%m-%d %H:%M:%S'),
+        "evaluation_protocol": {
+            "test": {"status": "skipped" if args.skip_test_eval else "computed",
+                     "dataset_n": len(test_set.dataset),
+                     "evaluated_n": 0 if args.skip_test_eval else test_metrics.get("_scope", {}).get("n_samples", None),
+                     "batch_size": test_set.batch_size,
+                     "ppl_aggregation": "macro: exp(mean per-batch token CE)"},
+            "manifold": {"status": "skipped" if args.skip_manifold else "computed",
+                         # [口径补全 / 铁律 III] 原仅有 status，现补记规模与分块，保持三阶段口径对称。
+                         "evaluated_n": 0 if args.skip_manifold else manifold_metrics.get("_scope", {}).get("n_samples", None),
+                         "batch_size": manifold_metrics.get("_scope", {}).get("batch_size", None)},
+            "generation": {"status": "skipped" if args.skip_generation else "computed",
+                           # [口径修正 / 铁律 III] 原为 min(args.gen_samples, len(test_set.dataset))，
+                           # 在 --gen_samples<=0（全量语义）时会错记为 0；改为从函数内实际计数取值。
+                           "evaluated_n": 0 if (args.skip_generation or not gen_metrics) else gen_metrics.get("_scope", {}).get("n_samples", None),
+                           "batch_size": 1,
+                           "max_dec_step": 40},
+        },
+        "test_metrics": test_metrics,
+        "manifold_metrics": manifold_metrics,
+        "generation_metrics": gen_metrics
+    }
+    clean_metrics = sanitize_metric_values(combined_metrics)
+    with open(tmp_json_path, "w", encoding="utf-8") as f:
+        json.dump(clean_metrics, f, indent=2, ensure_ascii=False)
+    os.replace(tmp_json_path, json_path)
+    print(f"[+] 结构化指标元数据已原子保存: {json_path}")
+    return clean_metrics
 
 
 if __name__ == "__main__":

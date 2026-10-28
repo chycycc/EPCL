@@ -326,11 +326,15 @@ ${pythonpath} main.py \
   --model_file_path ${OUTPUT_DIR} 2>&1 | tee -a ${LOG_FILE}
 
 echo "======================================================================"
-echo "[*] 训练完成！自动启动全量学术指标自动化审计..."
+echo "[*] 训练完成！串行评测双 Best：全量 Test + 前 500 条生成，跳过流形分析。"
 echo "======================================================================"
 
 ${pythonpath} src/scripts/eval_pipeline.py \
   --model_path ${OUTPUT_DIR} \
+  --eval_target both \
+  --metrics_path "${OUTPUT_DIR}/eval_metrics.json" \
+  --skip_manifold \
+  --gen_samples 500 \
   --results_path "${RESULTS_DIR}/${EXP_NAME}_eval.txt" \
   --plot_path "${RESULTS_DIR}/${EXP_NAME}_manifold.png" \
   --batch_size ${BATCH_SIZE} \
@@ -356,11 +360,19 @@ case "${EXP_NAME}" in
         fi
         ;;
 esac
-cp -f "${LOG_FILE}" "${DOWNLOAD_DIR}/" 2>/dev/null || true
-cp -f "${OUTPUT_DIR}/eval_metrics.json" "${DOWNLOAD_DIR}/" 2>/dev/null || true
-cp -f "${RESULTS_DIR}/${EXP_NAME}_eval.txt" "${DOWNLOAD_DIR}/" 2>/dev/null || true
-cp -f "${RESULTS_DIR}/${EXP_NAME}_manifold.png" "${DOWNLOAD_DIR}/" 2>/dev/null || true
-cp -f "${RESULTS_DIR}/${EXP_NAME}_results.txt" "${DOWNLOAD_DIR}/" 2>/dev/null || true
+for REQUIRED_RESULT in \
+    "${OUTPUT_DIR}/eval_metrics.json" \
+    "${OUTPUT_DIR}/eval_metrics_ppl.json" \
+    "${RESULTS_DIR}/${EXP_NAME}_eval.txt" \
+    "${RESULTS_DIR}/${EXP_NAME}_eval_ppl.txt"; do
+    if [ ! -s "${REQUIRED_RESULT}" ]; then
+        echo "[Evaluation] Missing required result: ${REQUIRED_RESULT}" >&2
+        return 1
+    fi
+    cp -f "${REQUIRED_RESULT}" "${DOWNLOAD_DIR}/" || return 1
+done
+cp -f "${LOG_FILE}" "${DOWNLOAD_DIR}/" || return 1
+cp -f "${OUTPUT_DIR}"/CASE_*_composite_best "${OUTPUT_DIR}"/CASE_*_ppl_best "${DOWNLOAD_DIR}/" || return 1
 for INIT_FILE in proto_prefix_init.npz prefix_init_metadata.json prefix_diagnostics.jsonl dec_emo_diagnostics.jsonl env_metadata.json; do
     if [ -f "${OUTPUT_DIR}/${INIT_FILE}" ]; then
         cp -f "${OUTPUT_DIR}/${INIT_FILE}" "${DOWNLOAD_DIR}/"
@@ -384,7 +396,7 @@ package_artifacts
 echo "======================================================================"
 echo "[*] 全部完成！产出文件已汇总至:"
 echo "    ${DOWNLOAD_DIR}/"
-echo "    包含: ${EXP_NAME}.log, eval_metrics.json, *_eval.txt, *_manifold.png, *_results.txt"
+echo "    包含: ${EXP_NAME}.log, eval_metrics{,_ppl}.json, *_eval{,_ppl}.txt, 两种 Best 权重及元数据"
 echo "======================================================================"
 ls -lh "${DOWNLOAD_DIR}/"
 
