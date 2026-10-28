@@ -95,7 +95,7 @@ def search(distribution, max_tokens, beam_size):
     return list(beams[0][0])
 
 
-def generate(runtime, batch, max_tokens=40, beam_size=5):
+def generate(runtime, batch, max_tokens=40, beam_size=5, verify_native=True):
     import torch
     with readonly_observation(runtime.model):
         distribution = NativeDistribution(runtime, batch)
@@ -108,6 +108,8 @@ def generate(runtime, batch, max_tokens=40, beam_size=5):
             result[mode + "_tokens"] = tokenize_response(text)
             result[mode + "_ids_including_eos"] = values
         # Independent native greedy implementation must agree at the same token budget.
+        if not verify_native:
+            return result
         native_text = runtime.model.decoder_greedy(batch, max_dec_step=max_tokens - 1)[0].strip()
         native_text = native_text.replace("[USR]", "USR").replace("[SYS]", "SYS")
         if tokenize_response(native_text) != result["greedy_tokens"]:

@@ -2,8 +2,24 @@
   "schema_version": 1,
   "protocol_id": "classic_baselines_preparation_v2",
   "scope_status": "approved_four_models",
-  "training_recipe_status": "pending_formal_recipe_freeze_after_cloud_smoke_pass",
-  "cloud_ready": false,
+  "training_recipe_status": "frozen_20261028_configs_directory",
+  "cloud_ready": true,
+  "formal_training_started": false,
+  "formal_entry": "train.sh <model> [--resume|--evaluate-only]",
+  "formal_recipe": {
+    "batch_size": 16,
+    "valid_batch_size": 16,
+    "accum_steps": 1,
+    "precision": "fp32",
+    "case_pretrain_epochs": 4,
+    "valid_interval": 2000,
+    "selection_start_step": 14000,
+    "patience": 3,
+    "max_main_steps": 30000,
+    "valid_selection_aggregation": "exp_mean_batch_token_ce",
+    "tie_policy": "save_and_reset_patience",
+    "train_shuffle": "per_epoch_torch_randperm_seed_plus_epoch_keep_tail_batch"
+  },
   "cloud_inference_status": "passed_user_report_20261026_python3.10.8_torch2.1.2+cu121_RTX4090D",
   "bounded_training_smoke": {
     "entry": "run_training_smoke_queue.py",
@@ -53,12 +69,9 @@
     "test_data_may_select_checkpoints": false
   },
   "checkpoint_policy": {
-    "baseline_primary": "native Valid PPL best with deterministic validation; exact aggregation, validation batch and effective stopping recipe must be frozen per model before cloud launch",
+    "baseline_primary": "ppl_best.pt selected by deterministic Valid exp_mean_batch_token_ce, batch=16; first candidate at main step 14000",
     "case_epcl": "Report composite_best and ppl_best together with equal standing, per audit rules v3; retain their existing selection algorithms",
     "claim_scope": "cross_model_system_comparison_not_single_component_causal_ablation"
   },
-  "remaining_before_training": [
-    "Freeze effective per-model batch, training budget, validation/save frequency and early stopping",
-    "Provide the formal training entry point; use cloud N=500 for subsequent comparison generations"
-  ]
+  "remaining_before_training": []
 }

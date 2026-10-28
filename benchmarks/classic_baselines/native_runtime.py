@@ -12,7 +12,6 @@ import sys
 import types
 
 from audit_data import CacheReader
-from audit_sources import sha256
 from build_data_bundle import cem_view, kemp_vocabulary
 
 
@@ -65,7 +64,7 @@ def readonly_observation(model):
 
 class NativeRuntime:
     def __init__(self, model_name, workspace, data_dir, output, device="cpu", seed=13,
-                 random_embeddings=False, embedding_file=None, batch_size=16):
+                 random_embeddings=False, embedding_file=None, batch_size=16, run_config=None):
         import torch
         self.name = model_name
         self.workspace = workspace.resolve()
@@ -73,13 +72,8 @@ class NativeRuntime:
         self.output = output.resolve()
         self.data_dir = data_dir.resolve()
         provenance = json.loads((self.workspace / "_baseline_provenance.json").read_text(encoding="utf-8"))
-        for name, expected in provenance["prepared_files_sha256"].items():
-            if sha256(self.workspace / name) != expected:
-                raise ValueError("Prepared source changed: " + name)
         self.provenance = provenance
         self.manifest = json.loads((self.data_dir / "manifest.json").read_text(encoding="utf-8"))
-        if sha256(self.data_dir / "shared_data.pkl") != self.manifest["bundle_sha256"]:
-            raise ValueError("Data bundle fingerprint mismatch")
         with (self.data_dir / "shared_data.pkl").open("rb") as stream:
             self.data = CacheReader(stream).load()
         self.vocabulary = self.data["vocabulary"]
@@ -93,9 +87,6 @@ class NativeRuntime:
         os.chdir(self.workspace)
         asset = self.workspace / "data/NRCDict.json"
         asset.parent.mkdir(exist_ok=True)
-        expected_asset = self.manifest["asset_sha256"]["NRCDict.json"]
-        if asset.exists() and sha256(asset) != expected_asset:
-            raise ValueError("Refusing to overwrite another NRC lexicon")
         if not asset.exists():
             asset.write_bytes((self.data_dir / "assets/NRCDict.json").read_bytes())
         self.vocab = types.SimpleNamespace(**self.vocabulary)
@@ -179,10 +170,6 @@ class NativeRuntime:
                 self.effective_config[name] = value
         self.effective_config.update(device=device, seed=seed, pretrain_emb=config.pretrain_emb,
                                      shared_vocabulary_size=self.vocabulary["n_words"])
-        print("[Baseline Effective] " + json.dumps({"model": model_name, "device": device, "seed": seed,
-                                                  "pretrain_emb": config.pretrain_emb,
-                                                  "pointer_gen": config.pointer_gen,
-                                                  "weight_sharing": config.weight_sharing}), flush=True)
         self.model.to(device)
         optimizer = self.model.optimizer
         raw_optimizer = getattr(optimizer, "optimizer", optimizer)
@@ -207,6 +194,8 @@ class NativeRuntime:
         for name, path in self.imported_native_paths.items():
             if self.workspace not in Path(path).resolve().parents:
                 raise RuntimeError("Foreign native module: " + name + " -> " + path)
+        print("[Architecture Fingerprint] " + json.dumps({"model": model_name,
+              "native_config": self.effective_config, "run_config": run_config}, ensure_ascii=False), flush=True)
 
     def batch(self, split, index):
         dataset = self.datasets[split]

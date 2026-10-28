@@ -75,11 +75,8 @@ def protocol(runtime, glove_sha256):
             "trained": True, "scope": "training_smoke_only", "formal_training": False}
 
 
-def restore(runtime, checkpoint, glove_sha256):
-    # Check provenance BEFORE modifying the new model or optimizer.
-    if checkpoint.get("baseline_protocol") != protocol(runtime, glove_sha256):
-        raise ValueError("Training checkpoint provenance/scope mismatch")
-    saved = checkpoint["training_state"]
+def restore_weights(runtime, saved):
+    """Restore registered weights and native mutable criterion/frequency state."""
     model = runtime.model
     modules = dict(model.named_modules())
     for name, values in saved["auxiliary"]["modules"].items():
@@ -88,6 +85,12 @@ def restore(runtime, checkpoint, glove_sha256):
     if saved["auxiliary"]["word_freq"] is not None:
         model.word_freq = saved["auxiliary"]["word_freq"].copy()
     model.load_state_dict(saved["model"], strict=True)
+
+
+def restore_state(runtime, saved):
+    """Resume actual training; version management belongs to Git (rules v3)."""
+    restore_weights(runtime, saved)
+    model = runtime.model
     optimizer = model.optimizer
     raw = getattr(optimizer, "optimizer", optimizer)
     raw.load_state_dict(saved["optimizer"])
@@ -101,6 +104,15 @@ def restore(runtime, checkpoint, glove_sha256):
     torch.set_rng_state(rng["torch"])
     if rng["cuda"]:
         torch.cuda.set_rng_state_all(rng["cuda"])
+    return saved["completed_updates"]
+
+
+def restore(runtime, checkpoint, glove_sha256):
+    # Legacy v2 smoke API retained for its historical tests and artifacts.
+    if checkpoint.get("baseline_protocol") != protocol(runtime, glove_sha256):
+        raise ValueError("Training checkpoint provenance/scope mismatch")
+    saved = checkpoint["training_state"]
+    restore_state(runtime, saved)
     actual = capture(runtime, saved["completed_updates"])
     if fingerprint(actual) != fingerprint(saved):
         raise ValueError("Full training state did not restore bitwise")

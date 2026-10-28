@@ -1,8 +1,10 @@
 # 四模型基线复现准备工具
 
-本目录独立于 CASE-EPCL 生产训练链路。范围为原版 CASE、原版 CEM、KEMP、Multi-TRS；云端目标配置见 [cloud_target.json](cloud_target.json)，准备协议见 [protocol.json](protocol.json)。正式训练配方尚未冻结，`cloud_ready=false`。
+本目录独立于 CASE-EPCL 生产训练链路。范围为原版 CASE、原版 CEM、KEMP、Multi-TRS。四模型云端烟测已通过，正式配方与入口已就绪，命令见 [FORMAL_TRAINING.md](FORMAL_TRAINING.md)。
 
 ## 目录边界
+
+- `train_baseline.py`、`train.sh`、`configs/`：独立正式训练、续训与训练后评测。有效配置输出单行 Architecture Fingerprint，版本通过 Git 记录。
 
 - `vendor/`：按 [sources.lock.json](sources.lock.json) 固定 commit 的官方源码，已忽略；只读核验，不放模型权重或数据。
 - `workspace/`：从官方源码复制的独立工作副本，已忽略；每个模型有自己的顶层 `src` 或 `code`、配置和 `_baseline_provenance.json`。

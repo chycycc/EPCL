@@ -1,0 +1,19 @@
+{
+  "model": "kemp",
+  "seed": 13,
+  "batch_size": 16,
+  "valid_batch_size": 16,
+  "accum_steps": 1,
+  "precision": "fp32",
+  "pretrain_epochs": 0,
+  "noam_warmup": 8000,
+  "valid_interval": 2000,
+  "selection_start_step": 14000,
+  "patience": 3,
+  "max_main_steps": 30000,
+  "checkpoint_interval": 2000,
+  "log_interval": 100,
+  "generation_n": 500,
+  "max_dec_step": 40,
+  "beam_size": 5
+}
