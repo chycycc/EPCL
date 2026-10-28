@@ -186,6 +186,23 @@ PY
         [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps $V10_ARC_RAMP"
         ;;
+    v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
+        # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T3] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T3] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        SEED=2
+        V10_ARC_RAMP=2500
+        [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
+        V10_CLIP=6.0
+        [ "$EXP_NAME" = "v10_trial3_noclip_seed2" ] && V10_CLIP=0.0
+        EXTRA_FLAGS="--max_grad_norm $V10_CLIP --arc_margin_ramp_steps $V10_ARC_RAMP"
+        ;;
 esac
 
 # 2. 建立独立日志与实验产出目录（按实验名前缀自适应 results/v10 与 results/v9）
