@@ -243,6 +243,11 @@ def get_args():
     parser.add_argument("--emo_loss_ramp_shape", type=str, default="linear",
                         choices=["linear", "bell"],
                         help="[V8.2 F] 动态情感损失权重变化形状 (linear: 单调递增, bell: 钟形余弦先升后降)")
+    parser.add_argument("--use_main_emo_ce_anneal", action="store_true", default=False,
+                        help="[V10 T4] 仅训练时余弦衰减主分类CE，不衰减EPCL或辅助CE")
+    parser.add_argument("--main_emo_ce_anneal_start", type=int, default=5000)
+    parser.add_argument("--main_emo_ce_anneal_end", type=int, default=8500)
+    parser.add_argument("--main_emo_ce_anneal_min_weight", type=float, default=0.2)
     parser.add_argument("--use_composite_score", action="store_true", default=False,
                         help="[V8.1/V8.2 D] 是否启用验证集复合评分遴选检查点")
     parser.add_argument("--composite_acc_weight", type=float, default=20.0,

@@ -1388,6 +1388,16 @@ class CASE(nn.Module):
         self.emo_loss_ramp_max = getattr(config, 'emo_loss_ramp_max', 1.5)
         self.emo_loss_ramp_shape = getattr(config, 'emo_loss_ramp_shape', 'linear')
         
+        # [V10 T4] 主分类CE独立调度；不改变EPCL和解码辅助分类系数。
+        self.use_main_emo_ce_anneal = getattr(config, 'use_main_emo_ce_anneal', False)
+        self.main_emo_ce_anneal_start = getattr(config, 'main_emo_ce_anneal_start', 5000)
+        self.main_emo_ce_anneal_end = getattr(config, 'main_emo_ce_anneal_end', 8500)
+        self.main_emo_ce_anneal_min_weight = getattr(config, 'main_emo_ce_anneal_min_weight', 0.2)
+        if self.use_main_emo_ce_anneal:
+            assert 0 <= self.main_emo_ce_anneal_start < self.main_emo_ce_anneal_end
+            assert 0.0 <= self.main_emo_ce_anneal_min_weight <= 1.0
+            assert not getattr(config, 'use_cosine_anneal', False), "T4 main CE schedule cannot combine with joint CE/EPCL annealing"
+
         # 注册稀疏偏置掩码缓冲区 (默认全 1，启用稀疏后由 update_adaptive_vocab_mask 动态校准)
         self.register_buffer("emo_vocab_mask", torch.ones(self.vocab_size))
         
@@ -1472,6 +1482,23 @@ class CASE(nn.Module):
         if direct_checkpoint is not None:
             self.print_proto_prefix_gate_status(stage="checkpoint_restored")
             self.print_dec_emo_head_status(stage="checkpoint_restored")
+
+        print("[Architecture Fingerprint] " + json.dumps({
+            "use_main_emo_ce_anneal": self.use_main_emo_ce_anneal,
+            "main_emo_ce_anneal_start": self.main_emo_ce_anneal_start,
+            "main_emo_ce_anneal_end": self.main_emo_ce_anneal_end,
+            "main_emo_ce_anneal_min_weight": self.main_emo_ce_anneal_min_weight,
+            "main_emo_ce_anneal_scope": "train_only",
+        }))
+
+    def main_emo_ce_weight(self, step, train):
+        """Additional main-CE multiplier; evaluation always uses raw CE."""
+        if not train or not self.use_main_emo_ce_anneal or step < self.main_emo_ce_anneal_start:
+            return 1.0
+        progress = min(1.0, (step - self.main_emo_ce_anneal_start) /
+                       float(self.main_emo_ce_anneal_end - self.main_emo_ce_anneal_start))
+        minimum = self.main_emo_ce_anneal_min_weight
+        return minimum + (1.0 - minimum) * 0.5 * (1.0 + math.cos(math.pi * progress))
 
     def freeze_emo_head(self, step, best_state=None, best_step=None):
         """[V5 Trial 4b / V8 Trial 4: ACF-BCF] 冻结/软退火情感分类头，支持回滚至验证集历史最佳泛化权重并将退火起点锚定至 step"""
@@ -2321,6 +2348,9 @@ class CASE(nn.Module):
                             # [V8.2 D] 原始线性单调递增
                             emo_w = 1.0 + (ramp_max - 1.0) * progress
                         emotion_loss = emo_w * emotion_loss
+
+                if train and self.use_main_emo_ce_anneal:
+                    emotion_loss = self.main_emo_ce_weight(iter, train=True) * emotion_loss
 
                 pred_emotion = np.argmax(emotion_logits.detach().cpu().numpy(), axis=1)
                 emotion_acc = accuracy_score(batch["program_label"].detach().cpu().numpy(), pred_emotion)
