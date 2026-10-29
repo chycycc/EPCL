@@ -28,7 +28,7 @@ class DualBestEvaluationTests(unittest.TestCase):
         generation["_scope"] = {"n_samples": 500}
         test_set = SimpleNamespace(dataset=range(5255), batch_size=1)
         argv = ["eval_pipeline.py", "--model_path", str(root), "--eval_target", "both",
-                "--skip_manifold", "--results_path", str(root / "eval.txt"),
+                "--skip_manifold", "--lambda_epcl", "0.03", "--results_path", str(root / "eval.txt"),
                 "--metrics_path", str(root / "metrics.json")]
         with contextlib.ExitStack() as stack:
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
@@ -40,6 +40,7 @@ class DualBestEvaluationTests(unittest.TestCase):
             if fail_write:
                 stack.enter_context(patch.object(pipeline.os, "replace", side_effect=OSError("disk full")))
             pipeline.main()
+        self.assertEqual(pipeline.config.lambda_epcl, 0.03)
         self.assertEqual(forward.call_count, 1 if same_state else 2)
         self.assertEqual(decode.call_count, forward.call_count)
         manifold.assert_not_called()
@@ -54,6 +55,8 @@ class DualBestEvaluationTests(unittest.TestCase):
             self.assertTrue(second["checkpoint"].endswith("ppl_best"))
             self.assertIsNone(second["reused_from"])
             self.assertEqual(second["evaluation_protocol"]["test"]["evaluated_n"], 5255)
+            self.assertEqual(second["evaluation_protocol"]["routing"],
+                             {"lambda_epcl": 0.03, "beam": "prototype_routing_v1"})
             for name, role in (("eval.txt", "composite_best"), ("eval_ppl.txt", "ppl_best")):
                 self.assertIn(role, (Path(tmp) / name).read_text(encoding="utf-8"))
 

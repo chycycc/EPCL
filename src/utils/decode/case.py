@@ -351,7 +351,18 @@ class Translator(object):
             
             fine_emotion = react_batch_enc[:, 0]
             emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
-            emo_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
+            static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
+            # Match teacher forcing / Greedy: ED also uses prototype routing.
+            if self.model.dataset == "ED":
+                projected_features = self.model.epcl_criterion.projection_head(fine_emotion)
+                proj_norm = (projected_features if getattr(self.model.epcl_criterion, "use_erp", False)
+                             else torch.nn.functional.normalize(projected_features, p=2, dim=1))
+                proto_norm = torch.nn.functional.normalize(self.model.epcl_criterion.current_prototypes, p=2, dim=1)
+                route_prob = torch.softmax(torch.matmul(proj_norm, proto_norm.T) / 0.1, dim=-1)
+                route_gate = torch.sigmoid(self.model.router_linear(route_prob))
+                emo_gate = config.lambda_epcl * route_gate + (1 - config.lambda_epcl) * static_gate
+            else:
+                emo_gate = static_gate
             emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * fine_emotion
             
             # [V8.1 路线 A] 解码端情感词表偏置投影更新 (基于 KEMP)

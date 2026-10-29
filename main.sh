@@ -333,6 +333,7 @@ ${pythonpath} src/scripts/eval_pipeline.py \
   --model_path ${OUTPUT_DIR} \
   --eval_target both \
   --metrics_path "${OUTPUT_DIR}/eval_metrics.json" \
+  --lambda_epcl 0.03 \
   --skip_manifold \
   --gen_samples 500 \
   --results_path "${RESULTS_DIR}/${EXP_NAME}_eval.txt" \

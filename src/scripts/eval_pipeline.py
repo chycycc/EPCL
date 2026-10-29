@@ -771,6 +771,8 @@ def main(args=None):
     parser.add_argument("--cls_anchor", type=str, default="default", help="分类头挂载锚点 (default/fine_emotion/emotion_enc)")
     parser.add_argument("--use_arc_margin", action="store_true", default=False, help="是否启用 Arc-EPCL")
     parser.add_argument("--arc_margin", type=float, default=0.30, help="Arc-EPCL 边际")
+    parser.add_argument("--lambda_epcl", type=float, default=config.lambda_epcl,
+                        help="与训练对齐的 EPCL 系数，同时用于生成端原型路由")
     parser.add_argument("--use_emo_bias", action="store_true", default=False, help="[V8.1 路线 A] 是否启用词表层情感偏置注入")
     parser.add_argument("--use_sparse_emo_bias", action="store_true", default=False, help="[V8.2] 是否启用自适应稀疏情感词表偏置")
     parser.add_argument("--emo_vocab_topk_ratio", type=float, default=0.15, help="[V8.2] 稀疏偏置保留前 K%% 亲和词比例")
@@ -788,6 +790,8 @@ def main(args=None):
     if args.eval_target == "both":
         return evaluate_both(args)
 
+    config.lambda_epcl = args.lambda_epcl
+    print(f"[Evaluation Routing] lambda_epcl={config.lambda_epcl} | beam=prototype_routing_v1")
     print(f"[Evaluation Status] skip_test_eval={args.skip_test_eval} | "
           f"skip_manifold={args.skip_manifold} | skip_generation={args.skip_generation}")
 
@@ -974,6 +978,7 @@ def main(args=None):
         "evaluation_seed": 13,
         "eval_time": time.strftime('%Y-%m-%d %H:%M:%S'),
         "evaluation_protocol": {
+            "routing": {"lambda_epcl": config.lambda_epcl, "beam": "prototype_routing_v1"},
             "test": {"status": "skipped" if args.skip_test_eval else "computed",
                      "dataset_n": len(test_set.dataset),
                      "evaluated_n": 0 if args.skip_test_eval else test_metrics.get("_scope", {}).get("n_samples", None),
