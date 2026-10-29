@@ -1,6 +1,6 @@
 # V10 Trial 4 事前方案：后期主分类 CE 余弦衰减（seed=13）
 
-日期：2026-10-29。依据审计铁律 v3。已实现，CPU单步sanity与Shell语法检查通过；云端基线待补评登记，尚未训练。
+日期：2026-10-29。依据审计铁律 v3。已实现，CPU单步sanity与Shell语法检查通过；已取消训练前基线补评，可直接启动；尚未训练。
 
 ## 1. 要回答的问题
 
@@ -20,16 +20,16 @@ noclip底座的主分类Valid CE在约5000步后升高，而生成PPL仍在下�
 
 ## 3. 判定规则（事前登记，单种子筛选）
 
-- 训练前在同一云端环境补评Trial2双Best，composite为`CASE_7499_37.2898_composite_best`；结果独立保存至`results/v10/trial4_baseline_noclip/`并登记基线数值，保留原归档，无需重训。
-- 双方统一修正评测：lambda_epcl=0.03、beam=prototype_routing_v1；Test5255/batch1/shuffle=False，顺序生成500/batch1/max_dec_step40，核采样作辅助；沿用skip_test、skip_manifold和串行双Best流程。
-- 以Valid选出的composite、云端JSON两位报告值裁决：**PPL不高于基线、Acc不低于基线，且至少一项严格改善**，记为单种子候选；否则判负、保留原noclip配置。不拿本地参考32.30/41.83%或Trial3双种子均值作硬门槛。
-- 同表并列双Best的PPL、Acc、EMO_loss及Greedy/Beam Dist-2、Unique；ppl不用于反挑。对比共同Valid步数的原始CE，判断后期恶化是否缓解；通过不等于跨种子有效或回复更具体。
+- 2026-10-29经用户确认取消Trial2双Best补评。基线直接复用`results/v10/trial3_eval_routing_corrected/v10_trial2_noclip/eval_metrics_local_aligned.json`（composite7499）：PPL32.30、Acc41.83%、EMO_loss2.3545。
+- T4云端仍按修正口径评测双Best：lambda_epcl=0.03、beam=prototype_routing_v1，Test5255/batch1/shuffle=False，顺序生成500/batch1/max_dec_step40；沿用skip_test、skip_manifold，核采样作辅助。
+- 回传后仅对T4 composite做一次与基线同环境、同修正口径的本地Test前向（不生成、不提取流形），独立保存至`results/v10/trial4_local_test/`，标注用户授权本地补评；原云端结果保留。这是本轮明确授权的数据源例外。
+- 以双方本地JSON两位报告值裁决：**PPL≤32.30且Acc≥41.83%，并至少一项严格改善**，记为单种子候选；否则判负、保留原noclip配置。不混用云端数值或Trial3双种子均值。
+- 同表并列云端双Best的PPL、Acc、EMO_loss及Greedy/Beam Dist-2、Unique，本地质量裁决单列；生成指标标明环境与来源，跨环境差值只作参考；ppl不用于反挑。对比共同Valid步数的原始CE，判断后期恶化是否缓解；通过不等于跨种子有效或回复更具体。
 - 硬指标判负即封盘，不追加bootstrap或全量生成；本轮只跑seed13一组，不同时开展B/C及其他超参搜索。
 
 ## 4. 云端命令
 
 ```bash
-python src/scripts/eval_pipeline.py --model_path results/cloud_archive/v10_trial2_noclip --eval_target both --metrics_path results/v10/trial4_baseline_noclip/eval_metrics.json --results_path results/v10/trial4_baseline_noclip/eval.txt --save_path results/v10/trial4_baseline_noclip --lambda_epcl 0.03 --max_grad_norm 0 --use_arc_margin --arc_margin_ramp_steps 2500 --skip_manifold --gen_samples 500 --batch_size 32 --gpu 0
 bash main.sh 24G v10_trial4_main_ce_anneal
 ```
-以上先补评（双Best置于model_path目录），登记基线后再启动训练；核对架构指纹中的开关及5000/8500/0.2。回传至`results/cloud_archive/v10_trial4_main_ce_anneal/`，结果只写`docs/v10/reports/v10_trial4_audit.md`（≤55行）并同步总账。
+直接启动训练，无Trial2补评前置任务；核对架构指纹中的开关及5000/8500/0.2。回传至`results/cloud_archive/v10_trial4_main_ce_anneal/`，结果只写`docs/v10/reports/v10_trial4_audit.md`（≤55行）并同步总账。
