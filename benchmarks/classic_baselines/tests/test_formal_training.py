@@ -12,6 +12,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import train_baseline as training
 from training_state import capture
+from training_display import named_metrics, format_row
 from test_training_smoke import Noam
 
 
@@ -45,6 +46,18 @@ def runtime():
 
 
 class FormalTrainingTests(unittest.TestCase):
+    def test_native_metric_names_and_accuracy_units(self):
+        metrics = named_metrics("case_original", "main", [4, .1, 1, 3, 20, 0, 0, 1.2, .625])
+        self.assertEqual(metrics["ctx_loss"], 3)
+        self.assertEqual(metrics["ppl"], 20)
+        self.assertEqual(metrics["emo_loss"], 1.2)
+        row = {"phase": "main", "main_step": 14000, "completed_updates": 24064,
+               "native_returns": [4, .1, 1, 3, 20, 0, 0, 1.2, .625], "lr": .0003}
+        self.assertIn("EMO_acc=62.50%", format_row("case_original", row))
+        for model in ("multi_trs", "cem_original", "kemp"):
+            self.assertEqual(named_metrics(model, "main", [3, 20, 1.2, .5, "", {}]),
+                             {"loss": 3, "ppl": 20, "bce": 1.2, "accuracy": .5})
+
     def test_native_eligibility_and_three_misses_with_tie_reset(self):
         recipe = {"selection_start_step": 14000}
         p = {"best_ppl": float("inf"), "bad_validations": 0}

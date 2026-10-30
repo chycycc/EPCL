@@ -1,5 +1,7 @@
 # 四模型正式训练
 
+2026-10-30 日志更新：控制台采用进度条与具名指标，增加 TensorBoard；当前运行日志可只读实时转换，见 [LOGGING_UPDATE.md](LOGGING_UPDATE.md)。
+
 配方确定日期：2026-10-28。四模型依次为 CASE、Multi-TRS、CEM、KEMP；采用各自原生结构与损失，是统一数据下的系统比较。正式路径遵循规则 v3：Git 记录代码版本，初始化输出一行 `[Architecture Fingerprint]`，直接运行训练与评测。
 
 ## 已确定的配方

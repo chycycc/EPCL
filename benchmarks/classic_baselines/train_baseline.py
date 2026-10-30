@@ -13,11 +13,13 @@ os.environ.setdefault("MKL_NUM_THREADS", "1")
 
 import torch
 from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
 
 from native_runtime import NativeRuntime, readonly_observation
 from native_generation import generate
 from score_records import likelihood, diversity, read_jsonl
 from training_state import capture, restore_state, restore_weights
+from training_display import named_metrics, TrainingDisplay
 
 HERE = Path(__file__).resolve().parent
 
@@ -90,16 +92,21 @@ def valid_ppl(runtime, batch_size):
     model = runtime.model
     was_training = model.training
     model.eval()
-    losses, samples = [], 0
+    losses, samples, native_rows = [], 0, []
     with readonly_observation(model):
-        for batch in ordered_loader(runtime, "valid", batch_size):
+        for batch in tqdm(ordered_loader(runtime, "valid", batch_size), desc=f"{runtime.name} valid",
+                          unit="batch", mininterval=1, dynamic_ncols=True, leave=False):
             result = model.train_one_batch(batch, 0, train=False)
             ce = float(result[3] if runtime.name == "case_original" else result[0])
             assert math.isfinite(ce), "Nonfinite Valid CE"
             losses.append(ce)
+            native_rows.append(named_metrics(runtime.name, "main", result))
             samples += int(batch["target_batch"].size(0))
     model.train(was_training)
-    return {"ppl": math.exp(math.fsum(losses) / len(losses)), "n": samples,
+    ppl = math.exp(math.fsum(losses) / len(losses))
+    native_metrics = {key: math.fsum(row[key] for row in native_rows) / len(native_rows) for key in native_rows[0]}
+    native_metrics["ppl"] = ppl
+    return {"ppl": ppl, "native_metrics": native_metrics, "n": samples,
             "batches": len(losses), "batch_size": batch_size, "shuffle": False,
             "aggregation": "exp_mean_batch_token_ce"}
 
@@ -141,6 +148,7 @@ def fit(runtime, recipe, output, version, resume=None):
     stream = TrainStream(runtime, recipe["batch_size"], recipe["seed"], stream_state)
     model = runtime.model
     model.train()
+    display = TrainingDisplay(runtime.name, recipe, output, progress, len(runtime.datasets["train"]))
 
     def persist(improved=False):
         state = capture(runtime, progress["completed_updates"])
@@ -167,13 +175,15 @@ def fit(runtime, recipe, output, version, resume=None):
         values = result if isinstance(result, tuple) else (result,)
         numeric = [float(v) for v in values if isinstance(v, numbers.Real)]
         assert all(math.isfinite(v) for v in numeric), "Nonfinite native training result"
+        native_metrics = named_metrics(runtime.name, progress["phase"], values)
+        display.update(progress, native_metrics, model.optimizer._rate)
         if progress["completed_updates"] % recipe["log_interval"] == 0:
             row = {"phase": progress["phase"], "main_step": progress["main_step"],
                    "completed_updates": progress["completed_updates"], "native_returns": numeric,
                    "noam_step": model.optimizer._step, "lr": model.optimizer._rate,
-                   "epoch": stream.epoch, "samples_in_epoch": stream.offset}
+                   "epoch": stream.epoch, "samples_in_epoch": stream.offset, "native_metrics": native_metrics}
             append_json(output / "train.jsonl", row)
-            print("[Train] " + json.dumps(row), flush=True)
+            display.record(row)
         if pretrain:
             if progress["completed_updates"] % recipe["checkpoint_interval"] == 0:
                 persist()
@@ -191,8 +201,9 @@ def fit(runtime, recipe, output, version, resume=None):
                    "eligible": step >= recipe["selection_start_step"], "saved_best": improved,
                    "bad_validations": progress["bad_validations"]}
             append_json(output / "valid.jsonl", row)
-            print("[Valid] " + json.dumps(row), flush=True)
+            display.record(row)
             persist(improved)
+    display.close()
     write_json(output / "training_result.json", {**progress, "recipe": recipe, "git_commit": version,
                "budget_truncated": progress["stop_reason"] == "budget_limit"})
     return progress
@@ -210,7 +221,8 @@ def evaluate_best(runtime, output, recipe, version):
     records, generated = [], []
     with (output / "test_records.jsonl").open("w", encoding="utf-8") as test_stream, \
             (output / "generation_500.jsonl").open("w", encoding="utf-8") as gen_stream:
-        for index, batch in enumerate(ordered_loader(runtime, "test", 1)):
+        for index, batch in enumerate(tqdm(ordered_loader(runtime, "test", 1), desc=f"{runtime.name} test",
+                                           unit="sample", mininterval=1, dynamic_ncols=True)):
             gold = canonical[index]
             record = {"sample_id": gold["sample_id"], "emotion_gold": gold["emotion"], **runtime.teacher_record(batch)}
             records.append(record)
