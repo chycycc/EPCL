@@ -250,6 +250,14 @@ def get_args():
     parser.add_argument("--main_emo_ce_anneal_start", type=int, default=5000)
     parser.add_argument("--main_emo_ce_anneal_end", type=int, default=8500)
     parser.add_argument("--main_emo_ce_anneal_min_weight", type=float, default=0.2)
+    parser.add_argument("--use_emo_group_lr", action="store_true", default=False,
+                        help="[V10 T6] 启用情绪专用支路参数组独立余弦学习率固结调度（规避 Adam 标量损失缩放抵消）")
+    parser.add_argument("--emo_lr_anneal_start", type=int, default=5000,
+                        help="[V10 T6] 情绪专用支路相对学习率余弦固结起始步数 (默认 5000)")
+    parser.add_argument("--emo_lr_anneal_end", type=int, default=6500,
+                        help="[V10 T6] 情绪专用支路相对学习率余弦固结结束步数 (默认 6500)")
+    parser.add_argument("--emo_lr_min_scale", type=float, default=0.05,
+                        help="[V10 T6] 情绪专用支路相对学习率固结下限比例 (默认 0.05)")
     parser.add_argument("--use_composite_score", action="store_true", default=False,
                         help="[V8.1/V8.2 D] 是否启用验证集复合评分遴选检查点")
     parser.add_argument("--composite_acc_weight", type=float, default=20.0,

@@ -44,6 +44,15 @@ from src.utils.constants import ESC_MAP_EMO, ESC_MAP_STRATEGY, ED_MAP_EMO
 
 from sklearn.metrics import accuracy_score
 
+EMO_GROUP_LR_MODE = "decoupled_emo_branch_v1"
+EMO_GROUP_LR_PREFIXES = (
+    "react_encoder.",
+    "react_ctx_encoder.",
+    "react_linear.",
+    "emotion_linear.",
+    "epcl_criterion.",
+)
+
 
 # ================= V7 Architecture: 高维解缠残差投影头 (ERP) =================
 class ExpandedResidualProjector(nn.Module):
@@ -1339,6 +1348,8 @@ class CASE(nn.Module):
             config.use_proto_prefix_norm = checkpoint_prefix_norm(direct_checkpoint)
             config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(direct_checkpoint)
             config.use_pcg_pcam = checkpoint_pcg_pcam(direct_checkpoint)
+            if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
+                config.use_emo_group_lr = True
             if config.use_pcg_pcam:
                 config.use_pcam = True
             if config.use_proto_prefix_norm:
@@ -1433,6 +1444,18 @@ class CASE(nn.Module):
             assert 0.0 <= self.main_emo_ce_anneal_min_weight <= 1.0
             assert not getattr(config, 'use_cosine_anneal', False), "T4 main CE schedule cannot combine with joint CE/EPCL annealing"
 
+        # [V10 T6] 情绪专用支路参数组独立余弦学习率固结调度（保持梯度图与损失标量不变，规避 Adam 二阶矩尺度抵消）
+        self.use_emo_group_lr = bool(getattr(config, "use_emo_group_lr", False))
+        self.emo_lr_anneal_start = int(getattr(config, "emo_lr_anneal_start", 5000))
+        self.emo_lr_anneal_end = int(getattr(config, "emo_lr_anneal_end", 6500))
+        self.emo_lr_min_scale = float(getattr(config, "emo_lr_min_scale", 0.05))
+        if self.use_emo_group_lr:
+            assert self.dataset == "ED", "use_emo_group_lr 仅支持 EmpatheticDialogues (dataset='ED')"
+            assert 0 <= self.emo_lr_anneal_start < self.emo_lr_anneal_end, "emo_lr_anneal_start 必须小于 emo_lr_anneal_end"
+            assert 0.0 < self.emo_lr_min_scale <= 1.0, "emo_lr_min_scale 必须在 (0.0, 1.0] 范围内"
+            assert not self.use_main_emo_ce_anneal, "T6 参数组学习率固结与 T4 主分类损失标量退火互斥"
+            assert not getattr(config, "use_cosine_anneal", False), "T6 参数组学习率固结与联合损失退火互斥"
+
         # 注册稀疏偏置掩码缓冲区 (默认全 1，启用稀疏后由 update_adaptive_vocab_mask 动态校准)
         self.register_buffer("emo_vocab_mask", torch.ones(self.vocab_size))
         
@@ -1473,14 +1496,34 @@ class CASE(nn.Module):
         # self.criterion_bcs_fine = nn.BCELoss(reduction="none")
         self.criterion_ce = nn.CrossEntropyLoss()
         self.criterion_bow = nn.NLLLoss(ignore_index=config.PAD_idx, reduction='mean')
+        if self.use_emo_group_lr:
+            main_params = []
+            emo_params = []
+            for name, param in self.named_parameters():
+                if name.startswith(EMO_GROUP_LR_PREFIXES):
+                    emo_params.append(param)
+                else:
+                    main_params.append(param)
+            assert len(emo_params) > 0 and len(main_params) > 0, "use_emo_group_lr 参数分组不能为空"
+            assert len(main_params) + len(emo_params) == len(list(self.parameters())), "use_emo_group_lr 参数分组总数不守恒"
+            optim_params = [
+                {"params": main_params, "group_role": "main"},
+                {"params": emo_params, "group_role": "emo_branch"},
+            ]
+            self.emo_branch_param_count = sum(p.numel() for p in emo_params)
+            self.main_branch_param_count = sum(p.numel() for p in main_params)
+        else:
+            optim_params = self.parameters()
+            self.emo_branch_param_count = 0
+            self.main_branch_param_count = sum(p.numel() for p in self.parameters())
         
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=config.lr)
+        self.optimizer = torch.optim.Adam([dict(g) for g in optim_params] if self.use_emo_group_lr else self.parameters(), lr=config.lr)
         if config.noam:
             self.optimizer = NoamOpt(
                 config.hidden_dim,
                 1,
                 config.warmup,
-                torch.optim.Adam(self.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9),
+                torch.optim.Adam([dict(g) for g in optim_params] if self.use_emo_group_lr else self.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9),
             )
         
         if model_file_path is not None:
@@ -1528,6 +1571,12 @@ class CASE(nn.Module):
             "pcam_mode": PCG_PCAM_MODE if self.use_pcg_pcam else ("legacy_pcam" if self.use_pcam else "none"),
             "pcam_memory_slots": (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) + 2) if self.use_pcg_pcam else (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) if self.use_pcam else 0),
             "pcam_mem_scale": round(math.sqrt(float(config.hidden_dim)), 4) if self.use_pcg_pcam else 1.0,
+            "use_emo_group_lr": self.use_emo_group_lr,
+            "emo_lr_anneal_start": self.emo_lr_anneal_start,
+            "emo_lr_anneal_end": self.emo_lr_anneal_end,
+            "emo_lr_min_scale": self.emo_lr_min_scale,
+            "emo_branch_params": self.emo_branch_param_count,
+            "main_branch_params": self.main_branch_param_count,
         }))
 
     def main_emo_ce_weight(self, step, train):
@@ -1537,6 +1586,18 @@ class CASE(nn.Module):
         progress = min(1.0, (step - self.main_emo_ce_anneal_start) /
                        float(self.main_emo_ce_anneal_end - self.main_emo_ce_anneal_start))
         minimum = self.main_emo_ce_anneal_min_weight
+        return minimum + (1.0 - minimum) * 0.5 * (1.0 + math.cos(math.pi * progress))
+
+    def emo_lr_scale(self, step, train):
+        """计算情绪专用支路参数组相对于主干学习率的余弦固结缩放因子（仅训练期生效）。"""
+        if not train or not self.use_emo_group_lr or step < self.emo_lr_anneal_start:
+            return 1.0
+        progress = min(
+            1.0,
+            (step - self.emo_lr_anneal_start)
+            / float(self.emo_lr_anneal_end - self.emo_lr_anneal_start),
+        )
+        minimum = self.emo_lr_min_scale
         return minimum + (1.0 - minimum) * 0.5 * (1.0 + math.cos(math.pi * progress))
 
     def freeze_emo_head(self, step, best_state=None, best_step=None):
@@ -1823,6 +1884,7 @@ class CASE(nn.Module):
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
             "dec_emo_head_mode": DEC_EMO_HEAD_MODE if getattr(self, "use_separate_dec_emo_head", False) else "shared",
             "pcam_mode": PCG_PCAM_MODE if getattr(self, "use_pcg_pcam", False) else ("legacy_pcam" if getattr(self, "use_pcam", False) else "none"),
+            "emo_group_lr_mode": EMO_GROUP_LR_MODE if getattr(self, "use_emo_group_lr", False) else "single_group",
         }
         if tag:
             ckpt_name = "CASE_{}_{:.4f}_{}".format(iter, running_avg_ppl, tag)
@@ -2624,6 +2686,13 @@ class CASE(nn.Module):
                     norm_val = grad_norm.item() if hasattr(grad_norm, 'item') else float(grad_norm)
                     print(f"[Gradient Norm] Step {iter+1} (Update {(iter+1)//accum_steps}): Total Grad Norm={norm_val:.4f} (Clip={max_grad_norm})")
 
+                if self.use_emo_group_lr and iter >= self.emo_lr_anneal_start:
+                    emo_scale_step = self.emo_lr_scale(iter, train=True)
+                    main_lr_step = opt.param_groups[0]["lr"]
+                    for pg in opt.param_groups:
+                        if pg.get("group_role") == "emo_branch":
+                            pg["lr"] = main_lr_step * emo_scale_step
+
                 if self.scaler is not None:
                     self.scaler.step(opt)
                     self.scaler.update()
@@ -2664,7 +2733,11 @@ class CASE(nn.Module):
                     decayed_lr = base_lr * decay_factor
 
                 for pg in self.optimizer.optimizer.param_groups:
-                    pg["lr"] = decayed_lr
+                    if self.use_emo_group_lr and pg.get("group_role") == "emo_branch":
+                        emo_scale_next = self.emo_lr_scale(iter, train=True)
+                        pg["lr"] = decayed_lr * emo_scale_next if emo_scale_next != 1.0 else decayed_lr
+                    else:
+                        pg["lr"] = decayed_lr
 
             # [PCAM gamma 监控] 每个 check_iter 周期打印一次
             if self.use_pcam and hasattr(self, 'pcam') and hasattr(self.pcam, 'gamma'):
@@ -2677,6 +2750,15 @@ class CASE(nn.Module):
                         print(f"[PCAM Monitor] Step {iter + 1}: gamma={gamma_val:.4f}, tanh(gamma)={math.tanh(gamma_val):.4f}, prior_scale={prior_w}, ctx_slot_bias={ctx_b}")
                     else:
                         print(f"[PCAM Monitor] Step {iter + 1}: gamma={gamma_val:.4f}, tanh(gamma)={math.tanh(gamma_val):.4f}")
+
+            if self.use_emo_group_lr:
+                check_interval = getattr(config, 'check_iter', 500)
+                if (iter + 1) % check_interval == 0:
+                    opt_ref = self.optimizer.optimizer if config.noam else self.optimizer
+                    main_lr_val = opt_ref.param_groups[0]["lr"]
+                    emo_lr_val = opt_ref.param_groups[1]["lr"] if len(opt_ref.param_groups) > 1 else main_lr_val
+                    emo_scale_val = self.emo_lr_scale(iter, train=True)
+                    print(f"[Emo Group LR Monitor] Step {iter + 1}: main_lr={main_lr_val:.6e}, emo_lr={emo_lr_val:.6e}, emo_scale={emo_scale_val:.4f}")
         
         return (
             bow_loss.item(),

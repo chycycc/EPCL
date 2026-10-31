@@ -214,6 +214,21 @@ PY
         [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
         EXTRA_FLAGS="--max_grad_norm 6.0 --arc_margin_ramp_steps $V10_ARC_RAMP --use_pcg_pcam"
         ;;
+    v10_trial6_emo_group_lr)
+        if [ "$ENV_MODE" != "24G" ]; then
+            echo "[V10 T6] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            exit 1
+        fi
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T6] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T6] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_emo_group_lr --emo_lr_anneal_start 5000 --emo_lr_anneal_end 6500 --emo_lr_min_scale 0.05"
+        ;;
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
         if [ -n "$EXTRA_FLAGS" ]; then
