@@ -212,7 +212,7 @@ PY
         fi
         V10_ARC_RAMP=2500
         [ "$ENV_MODE" = "4G" ] && V10_ARC_RAMP=20000
-        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps $V10_ARC_RAMP --use_pcg_pcam"
+        EXTRA_FLAGS="--max_grad_norm 6.0 --arc_margin_ramp_steps $V10_ARC_RAMP --use_pcg_pcam"
         ;;
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
