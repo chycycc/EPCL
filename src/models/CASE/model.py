@@ -37,6 +37,8 @@ from src.utils.prefix_runtime import (
     checkpoint_separate_dec_emo_head,
     isolated_rng,
     compute_dec_emo_head_divergence,
+    PCG_PCAM_MODE,
+    checkpoint_pcg_pcam,
 )
 from src.utils.constants import ESC_MAP_EMO, ESC_MAP_STRATEGY, ED_MAP_EMO
 
@@ -535,7 +537,7 @@ class PrototypeConditionedAttentionModule(nn.Module):
     - 引入平滑温度系数 tau_attn (默认 1.5)，抑制条件概率分布过度锐化;
     - 引入可学习标量 gamma (初始化为 0.0)，通过 tanh(gamma) 实现严格的冷启动残差保护。
     """
-    def __init__(self, d_model=300, num_heads=2, dropout=0.1, gate_bias=-1.0, tau_attn=1.5):
+    def __init__(self, d_model=300, num_heads=2, dropout=0.1, gate_bias=-1.0, tau_attn=1.5, use_pcg_pcam=False):
         super(PrototypeConditionedAttentionModule, self).__init__()
         self.d_model = d_model
         self.num_heads = num_heads
@@ -558,6 +560,13 @@ class PrototypeConditionedAttentionModule(nn.Module):
 
         # 显式冷启动平滑残差标量，初始化为 0.0 (tanh(0.0) = 0.0)
         self.gamma = nn.Parameter(torch.zeros(1))
+        self.use_pcg_pcam = bool(use_pcg_pcam)
+        self.mem_scale = math.sqrt(float(d_model))
+        if self.use_pcg_pcam:
+            # 一维确定性参数（不消耗全局随机数，且不被 main.py 二维 xavier_uniform_ 覆盖）
+            # softplus(log(e - 1)) == 1.0，使初始原型对数后验先验权重严格为 1.0
+            self.route_beta = nn.Parameter(torch.full((num_heads,), math.log(math.e - 1.0)))
+            self.ctx_slot_bias = nn.Parameter(torch.zeros(num_heads * 2))
 
         self.layer_norm = nn.LayerNorm(d_model)
 
@@ -570,7 +579,7 @@ class PrototypeConditionedAttentionModule(nn.Module):
         nn.init.xavier_uniform_(self.out_proj.weight)
         nn.init.zeros_(self.out_proj.bias)
 
-    def forward(self, dec_output, prototypes):
+    def forward(self, dec_output, prototypes, ctx_slots=None, route_log_prior=None):
         """
         前向传播:
         dec_output: [bsz, seq_len, d_model] 解码器输出隐状态
@@ -582,6 +591,18 @@ class PrototypeConditionedAttentionModule(nn.Module):
         # 1. 计算 Query
         q = self.q_proj(dec_output) * self.scaling
         q = q.view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  # [bsz, heads, seq_len, head_dim]
+
+        if self.use_pcg_pcam:
+            assert ctx_slots is not None and route_log_prior is not None, "PCG-PCAM 必须同时提供 ctx_slots 与 route_log_prior"
+            assert prototypes.dim() == 2, f"PCG-PCAM 期望二维全局原型矩阵，实际维度={prototypes.dim()}"
+            n_base_protos, proto_dim = prototypes.size()
+            assert proto_dim == self.d_model, f"原型维度 {proto_dim} 与 d_model {self.d_model} 不一致"
+            assert ctx_slots.shape == (bsz, 2, self.d_model), f"ctx_slots 形状异常: {tuple(ctx_slots.shape)} != {(bsz, 2, self.d_model)}"
+            assert route_log_prior.shape == (bsz, n_base_protos), f"route_log_prior 形状异常: {tuple(route_log_prior.shape)} != {(bsz, n_base_protos)}"
+            # 将 32 个全局原型与样本级情境槽 [concept_enc, cs_enc] 统一缩放至半径 sqrt(d_model) 的同尺度超球面
+            proto_mem = (F.normalize(prototypes, p=2, dim=-1, eps=1e-6) * self.mem_scale).unsqueeze(0).expand(bsz, -1, -1)
+            ctx_mem = F.normalize(ctx_slots, p=2, dim=-1, eps=1e-6) * self.mem_scale
+            prototypes = torch.cat([proto_mem, ctx_mem], dim=1)
 
         # 2. 计算 Key, Value (自适应 2D / 3D 原型)
         if prototypes.dim() == 2:
@@ -595,6 +616,11 @@ class PrototypeConditionedAttentionModule(nn.Module):
 
         # 3. 计算注意力权重 [bsz, heads, seq_len, k_protos]
         attn_weights = torch.matmul(q, k.transpose(-2, -1))
+        if self.use_pcg_pcam:
+            prior_scale = F.softplus(self.route_beta).view(1, self.num_heads, 1, 1)
+            proto_bias = prior_scale * route_log_prior.unsqueeze(1).unsqueeze(2)
+            ctx_bias = self.ctx_slot_bias.view(1, self.num_heads, 1, 2).expand(bsz, -1, 1, -1)
+            attn_weights = attn_weights + torch.cat([proto_bias, ctx_bias], dim=-1)
         attn_probs = F.softmax(attn_weights, dim=-1)
         attn_probs = self.attn_dropout(attn_probs)
 
@@ -1312,6 +1338,9 @@ class CASE(nn.Module):
             direct_checkpoint = torch.load(model_file_path, map_location="cpu")
             config.use_proto_prefix_norm = checkpoint_prefix_norm(direct_checkpoint)
             config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(direct_checkpoint)
+            config.use_pcg_pcam = checkpoint_pcg_pcam(direct_checkpoint)
+            if config.use_pcg_pcam:
+                config.use_pcam = True
             if config.use_proto_prefix_norm:
                 config.use_proto_prefix = config.use_proto_prefix_gate = True
                 prefix_keys = [k for k in direct_checkpoint["model"] if k.endswith("prefix_embed")]
@@ -1344,13 +1373,19 @@ class CASE(nn.Module):
         
         # [V6/V9 Architecture] 原型交叉记忆注意力 (PCAM) 模块初始化
         self.use_pcam = getattr(config, 'use_pcam', False)
+        self.use_pcg_pcam = bool(getattr(config, 'use_pcg_pcam', False))
+        if self.use_pcg_pcam:
+            assert self.use_pcam, "启用 --use_pcg_pcam 必须同时启用 --use_pcam"
+            assert self.dataset == "ED", "PCG-PCAM 仅支持 EmpatheticDialogues (dataset='ED')"
+            assert not getattr(config, 'use_cchp', False), "PCG-PCAM 与 --use_cchp 互斥"
         if self.use_pcam:
             self.pcam = PrototypeConditionedAttentionModule(
                 d_model=config.hidden_dim,
                 num_heads=getattr(config, 'pcam_heads', 2),
                 dropout=getattr(config, 'pcam_dropout', 0.1),
                 gate_bias=getattr(config, 'pcam_gate_bias', -1.0),
-                tau_attn=getattr(config, 'pcam_tau_attn', 1.5)
+                tau_attn=getattr(config, 'pcam_tau_attn', 1.5),
+                use_pcg_pcam=self.use_pcg_pcam,
             )
             print(f"[V6/V9 Architecture] 成功启用原型交叉记忆注意力模块 (PCAM): heads={getattr(config, 'pcam_heads', 2)}, dropout={getattr(config, 'pcam_dropout', 0.1)}, gate_bias={getattr(config, 'pcam_gate_bias', -1.0)}, tau_attn={getattr(config, 'pcam_tau_attn', 1.5)}")
             if hasattr(self.pcam, 'gamma'):
@@ -1489,6 +1524,10 @@ class CASE(nn.Module):
             "main_emo_ce_anneal_end": self.main_emo_ce_anneal_end,
             "main_emo_ce_anneal_min_weight": self.main_emo_ce_anneal_min_weight,
             "main_emo_ce_anneal_scope": "train_only",
+            "use_pcg_pcam": self.use_pcg_pcam,
+            "pcam_mode": PCG_PCAM_MODE if self.use_pcg_pcam else ("legacy_pcam" if self.use_pcam else "none"),
+            "pcam_memory_slots": (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) + 2) if self.use_pcg_pcam else (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) if self.use_pcam else 0),
+            "pcam_mem_scale": round(math.sqrt(float(config.hidden_dim)), 4) if self.use_pcg_pcam else 1.0,
         }))
 
     def main_emo_ce_weight(self, step, train):
@@ -1717,7 +1756,7 @@ class CASE(nn.Module):
             universal=config.universal,
         )
 
-    def apply_pcam(self, dec_output, ctx_repr=None):
+    def apply_pcam(self, dec_output, ctx_repr=None, ctx_slots=None, route_log_prior=None, protos_override=None):
         """
         [V6/V7 Architecture: PCAM] 统一对解码器输出隐状态注入原型交叉记忆
         dec_output: [bsz, seq_len, d_model] 解码器输出隐状态
@@ -1729,6 +1768,9 @@ class CASE(nn.Module):
                 protos, _ = self.epcl_criterion.cchp(ctx_repr=ctx_repr)
             else:
                 protos = self.epcl_criterion.current_prototypes
+            if getattr(self, "use_pcg_pcam", False):
+                protos = protos_override if protos_override is not None else self.epcl_criterion.current_prototypes.detach()
+                return self.pcam(dec_output, protos, ctx_slots=ctx_slots, route_log_prior=route_log_prior)
             return self.pcam(dec_output, protos)
         return dec_output
 
@@ -1780,6 +1822,7 @@ class CASE(nn.Module):
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
             "dec_emo_head_mode": DEC_EMO_HEAD_MODE if getattr(self, "use_separate_dec_emo_head", False) else "shared",
+            "pcam_mode": PCG_PCAM_MODE if getattr(self, "use_pcg_pcam", False) else ("legacy_pcam" if getattr(self, "use_pcam", False) else "none"),
         }
         if tag:
             ckpt_name = "CASE_{}_{:.4f}_{}".format(iter, running_avg_ppl, tag)
@@ -2220,16 +2263,20 @@ class CASE(nn.Module):
             static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
             
             # [MoP-DR] Prototype dynamic routing (compatible with K*C prototypes)
+            pcam_protos_snapshot = None
+            route_log_prior = None
             if self.dataset == "ED":
                 projected_features = self.epcl_criterion.projection_head(fine_emotion)
                 if getattr(self.epcl_criterion, "use_erp", False):
                     proj_norm = projected_features
                 else:
                     proj_norm = F.normalize(projected_features, p=2, dim=1)
+                pcam_protos_snapshot = self.epcl_criterion.current_prototypes.detach().clone() if self.use_pcg_pcam else None
                 proto_norm = F.normalize(self.epcl_criterion.current_prototypes.detach(), p=2, dim=1)
                 proto_logits = torch.matmul(proj_norm, proto_norm.T) / 0.1  # [B, K*C]
                 
                 P_route = F.softmax(proto_logits, dim=-1)  # [B, K*C]
+                route_log_prior = F.log_softmax(proto_logits, dim=-1) if self.use_pcg_pcam else None
                 route_gate = torch.sigmoid(self.router_linear(P_route))
                 current_lambda = config.lambda_epcl * (iter / config.epcl_warmup) if (iter < config.epcl_warmup and train) else config.lambda_epcl
                 emo_gate = current_lambda * route_gate + (1 - current_lambda) * static_gate
@@ -2402,7 +2449,14 @@ class CASE(nn.Module):
         
             # [V6/V7 PCAM] 原型交叉记忆注意力注入
             ctx_repr_for_pcam = enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None
-            pre_logit = self.apply_pcam(pre_logit, ctx_repr=ctx_repr_for_pcam)
+            pcam_ctx_slots = torch.stack([concept_enc, cs_enc], dim=1) if self.use_pcg_pcam else None
+            pre_logit = self.apply_pcam(
+                pre_logit,
+                ctx_repr=ctx_repr_for_pcam,
+                ctx_slots=pcam_ctx_slots,
+                route_log_prior=route_log_prior,
+                protos_override=pcam_protos_snapshot,
+            )
 
             ## compute output dist
             logit = self.generator(
@@ -2617,7 +2671,12 @@ class CASE(nn.Module):
                 check_interval = getattr(config, 'check_iter', 500)
                 if (iter + 1) % check_interval == 0:
                     gamma_val = self.pcam.gamma.item()
-                    print(f"[PCAM Monitor] Step {iter + 1}: gamma={gamma_val:.4f}, tanh(gamma)={math.tanh(gamma_val):.4f}")
+                    if self.use_pcg_pcam:
+                        prior_w = [round(v, 4) for v in F.softplus(self.pcam.route_beta.detach()).cpu().tolist()]
+                        ctx_b = [round(v, 4) for v in self.pcam.ctx_slot_bias.detach().cpu().tolist()]
+                        print(f"[PCAM Monitor] Step {iter + 1}: gamma={gamma_val:.4f}, tanh(gamma)={math.tanh(gamma_val):.4f}, prior_scale={prior_w}, ctx_slot_bias={ctx_b}")
+                    else:
+                        print(f"[PCAM Monitor] Step {iter + 1}: gamma={gamma_val:.4f}, tanh(gamma)={math.tanh(gamma_val):.4f}")
         
         return (
             bow_loss.item(),
@@ -2778,6 +2837,7 @@ class CASE(nn.Module):
             proto_norm = F.normalize(self.epcl_criterion.current_prototypes, p=2, dim=1)
             proto_logits = torch.matmul(proj_norm, proto_norm.T) / 0.1  # [B, K*C]
             # [MoP-DR] Greedy decode routing (K*C compatible)
+            route_log_prior = F.log_softmax(proto_logits, dim=-1) if self.use_pcg_pcam else None
             P_route = F.softmax(proto_logits, dim=-1)  # [B, K*C]
             
             route_gate = torch.sigmoid(self.router_linear(P_route))
@@ -2834,7 +2894,12 @@ class CASE(nn.Module):
                 )
 
             # [V6/V7 PCAM] 原型交叉记忆注意力注入
-            out = self.apply_pcam(out, ctx_repr=enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None)
+            out = self.apply_pcam(
+                out,
+                ctx_repr=enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None,
+                ctx_slots=torch.stack([concept_enc, cs_enc], dim=1) if self.use_pcg_pcam else None,
+                route_log_prior=route_log_prior if (self.use_pcg_pcam and self.dataset == "ED") else None,
+            )
 
             prob = self.generator(
                 out, attn_dist, enc_batch_extend_vocab, extra_zeros, attn_dist_db=None
@@ -2995,6 +3060,7 @@ class CASE(nn.Module):
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
         # 4. 原型路由 (MoP-DR)
+        route_log_prior = None
         if self.dataset == "ED":
             projected_features = self.epcl_criterion.projection_head(fine_emotion)
             if getattr(self.epcl_criterion, "use_erp", False):
@@ -3003,6 +3069,7 @@ class CASE(nn.Module):
                 proj_norm = F.normalize(projected_features, p=2, dim=1)
             proto_norm = F.normalize(self.epcl_criterion.current_prototypes, p=2, dim=1)
             proto_logits = torch.matmul(proj_norm, proto_norm.T) / 0.1
+            route_log_prior = F.log_softmax(proto_logits, dim=-1) if self.use_pcg_pcam else None
             P_route = F.softmax(proto_logits, dim=-1)
             route_gate = torch.sigmoid(self.router_linear(P_route))
             emo_gate = config.lambda_epcl * route_gate + (1 - config.lambda_epcl) * static_gate
@@ -3059,7 +3126,12 @@ class CASE(nn.Module):
                 )
 
             # [V6/V7 PCAM] 原型交叉记忆注意力注入
-            out = self.apply_pcam(out, ctx_repr=enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None)
+            out = self.apply_pcam(
+                out,
+                ctx_repr=enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None,
+                ctx_slots=torch.stack([concept_enc, cs_enc], dim=1) if self.use_pcg_pcam else None,
+                route_log_prior=route_log_prior if (self.use_pcg_pcam and self.dataset == "ED") else None,
+            )
 
             prob = self.generator(
                 out, attn_dist, enc_batch_extend_vocab, extra_zeros, attn_dist_db=None

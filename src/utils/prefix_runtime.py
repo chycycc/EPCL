@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader, Subset
 
 PREFIX_NORM_MODE = "shared_gamma_std_no_beta_v1"
 DEC_EMO_HEAD_MODE = "separate_linear_v1"
+PCG_PCAM_MODE = "posterior_context_guided_v1"
 FROZEN_INIT_SHA256 = {
     "proto": "f061c61c9499c202e82586018cf6755364683c434ca013eafe6ec8b20d414169",
     "random": "c079bcb310653061f3c704140eda6d367dffdaf3d309178066b571a355c0de94",
@@ -43,6 +44,31 @@ def checkpoint_separate_dec_emo_head(checkpoint):
         return True
     if mode == DEC_EMO_HEAD_MODE:
         raise RuntimeError("Checkpoint dec_emo_head_mode='separate_linear_v1' missing dec_emotion_linear weights")
+    return False
+
+
+def checkpoint_pcg_pcam(checkpoint):
+    """识别并交叉校验检查点中的 PCG-PCAM 拓扑与元数据（铁律 IV）。"""
+    state = checkpoint.get("model", checkpoint)
+    pcg_keys = {k for k in state if k in ("pcam.route_beta", "pcam.ctx_slot_bias")}
+    mode = checkpoint.get("pcam_mode")
+    if mode not in (None, "none", "legacy_pcam", PCG_PCAM_MODE):
+        raise RuntimeError("未知的检查点 pcam_mode: " + str(mode))
+    if pcg_keys:
+        expected_keys = {"pcam.route_beta", "pcam.ctx_slot_bias"}
+        if pcg_keys != expected_keys:
+            raise RuntimeError("PCG-PCAM 参数键不完整: " + str(sorted(pcg_keys)))
+        if mode in ("none", "legacy_pcam"):
+            raise RuntimeError(f"检查点 pcam_mode={mode!r} 与 PCG-PCAM 权重键冲突")
+        rb = state["pcam.route_beta"]
+        cb = state["pcam.ctx_slot_bias"]
+        if not (isinstance(rb, torch.Tensor) and isinstance(cb, torch.Tensor)
+                and rb.ndim == 1 and cb.ndim == 1 and cb.numel() == 2 * rb.numel()
+                and torch.isfinite(rb).all() and torch.isfinite(cb).all()):
+            raise RuntimeError("PCG-PCAM 参数张量维度异常或包含非有限值")
+        return True
+    if mode == PCG_PCAM_MODE:
+        raise RuntimeError("检查点声明 pcam_mode='posterior_context_guided_v1' 但缺失 PCG-PCAM 权重")
     return False
 
 

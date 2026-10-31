@@ -267,15 +267,20 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
                 raise RuntimeError("Checkpoint prefix metadata/weights disagree; refusing topology fallback")
         config.use_proto_prefix_gate = bool(gate_keys)
         config.use_proto_prefix_norm = checkpoint_prefix_norm(state_preview)
-        from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head
+        from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head, checkpoint_pcg_pcam
         config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(state_preview)
+        config.use_pcg_pcam = checkpoint_pcg_pcam(state_preview)
+        if config.use_pcg_pcam:
+            config.use_pcam = True
         print(f"    [自适应拓扑] use_proto_prefix_norm={config.use_proto_prefix_norm}")
         print(f"    [自适应拓扑] use_proto_prefix_gate={config.use_proto_prefix_gate}")
         print(f"    [自适应拓扑] use_separate_dec_emo_head={config.use_separate_dec_emo_head}")
+        print(f"    [自适应拓扑] use_pcg_pcam={config.use_pcg_pcam}")
         del state_preview
     else:
         config.emotion_head_type = getattr(config, "emotion_head_type", "linear")
         config.use_pcam = getattr(config, "use_pcam", False)
+        config.use_pcg_pcam = getattr(config, "use_pcg_pcam", False)
         config.use_erp = use_erp
         config.use_separate_dec_emo_head = getattr(config, "use_separate_dec_emo_head", False)
 

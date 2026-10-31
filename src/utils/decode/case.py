@@ -43,7 +43,8 @@ class Translator(object):
             return beamed_tensor
 
         def collate_active_info(
-            src_seq, encoder_db, src_enc, inst_idx_to_position_map, active_inst_idx_list
+            src_seq, encoder_db, src_enc, inst_idx_to_position_map, active_inst_idx_list,
+            pcam_ctx_slots=None, pcam_route_log_prior=None,
         ):
             # Sentences which are still active are collected,
             # so the decoder will not run on completed sentences.
@@ -61,6 +62,14 @@ class Translator(object):
             )
 
             active_encoder_db = None
+            active_pcam_ctx_slots = (
+                collect_active_part(pcam_ctx_slots, active_inst_idx, n_prev_active_inst, n_bm)
+                if pcam_ctx_slots is not None else None
+            )
+            active_pcam_route_log_prior = (
+                collect_active_part(pcam_route_log_prior, active_inst_idx, n_prev_active_inst, n_bm)
+                if pcam_route_log_prior is not None else None
+            )
 
             active_inst_idx_to_position_map = get_inst_idx_to_tensor_position_map(
                 active_inst_idx_list
@@ -71,6 +80,8 @@ class Translator(object):
                 active_encoder_db,
                 active_src_enc,
                 active_inst_idx_to_position_map,
+                active_pcam_ctx_slots,
+                active_pcam_route_log_prior,
             )
 
         def beam_decode_step(
@@ -91,6 +102,8 @@ class Translator(object):
             concept_enc_outputs=None,
             concept_enc_mask=None,
             no_repeat_ngram_size=0,
+            pcam_ctx_slots=None,
+            pcam_route_log_prior=None,
         ):
             """ Decode and update beam status, and then return active beam idx """
 
@@ -128,6 +141,8 @@ class Translator(object):
                 cs_enc_mask=None,
                 concept_enc_outputs=None,
                 concept_enc_mask=None,
+                pcam_ctx_slots=None,
+                pcam_route_log_prior=None,
             ):
                 ## masking
                 mask_trg = dec_seq.data.eq(config.PAD_idx).unsqueeze(1)
@@ -143,7 +158,12 @@ class Translator(object):
                 # [V6/V7 PCAM] 原型交叉记忆注意力注入
                 if hasattr(self.model, "apply_pcam"):
                     ctx_repr = enc_output[:, 0, :] if enc_output is not None else None
-                    dec_output = self.model.apply_pcam(dec_output, ctx_repr=ctx_repr)
+                    dec_output = self.model.apply_pcam(
+                        dec_output,
+                        ctx_repr=ctx_repr,
+                        ctx_slots=pcam_ctx_slots,
+                        route_log_prior=pcam_route_log_prior,
+                    )
 
                 db_dist = None
 
@@ -194,6 +214,8 @@ class Translator(object):
                 cs_enc_mask=cs_enc_mask,
                 concept_enc_outputs=concept_enc_outputs,
                 concept_enc_mask=concept_enc_mask,
+                pcam_ctx_slots=pcam_ctx_slots,
+                pcam_route_log_prior=pcam_route_log_prior,
             )
 
             # Update the beam with predicted word prob information and collect incomplete instances
@@ -353,12 +375,15 @@ class Translator(object):
             emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
             static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
             # Match teacher forcing / Greedy: ED also uses prototype routing.
+            route_log_prior = None
             if self.model.dataset == "ED":
                 projected_features = self.model.epcl_criterion.projection_head(fine_emotion)
                 proj_norm = (projected_features if getattr(self.model.epcl_criterion, "use_erp", False)
                              else torch.nn.functional.normalize(projected_features, p=2, dim=1))
                 proto_norm = torch.nn.functional.normalize(self.model.epcl_criterion.current_prototypes, p=2, dim=1)
-                route_prob = torch.softmax(torch.matmul(proj_norm, proto_norm.T) / 0.1, dim=-1)
+                proto_logits = torch.matmul(proj_norm, proto_norm.T) / 0.1
+                route_prob = torch.softmax(proto_logits, dim=-1)
+                route_log_prior = F.log_softmax(proto_logits, dim=-1) if getattr(self.model, "use_pcg_pcam", False) else None
                 route_gate = torch.sigmoid(self.model.router_linear(route_prob))
                 emo_gate = config.lambda_epcl * route_gate + (1 - config.lambda_epcl) * static_gate
             else:
@@ -399,6 +424,12 @@ class Translator(object):
             n_inst, len_s, d_h = src_enc.size()
             src_seq = enc_batch.repeat(1, n_bm).view(n_inst * n_bm, len_s)
             src_enc = src_enc.repeat(1, n_bm, 1).view(n_inst * n_bm, len_s, d_h)
+            if getattr(self.model, "use_pcg_pcam", False):
+                pcam_ctx_slots = torch.stack([concept_enc, cs_enc], dim=1).repeat(1, n_bm, 1).view(n_inst * n_bm, 2, d_h)
+                pcam_route_log_prior = route_log_prior.repeat(1, n_bm).view(n_inst * n_bm, -1)
+            else:
+                pcam_ctx_slots = None
+                pcam_route_log_prior = None
 
             # -- Prepare beams
             inst_dec_beams = [Beam(n_bm, device=self.device) for _ in range(n_inst)]
@@ -430,6 +461,8 @@ class Translator(object):
                     concept_enc_outputs=src_concept_outputs,
                     concept_enc_mask=src_concept_mask.unsqueeze(1),
                     no_repeat_ngram_size=no_repeat_ngram_size,
+                    pcam_ctx_slots=pcam_ctx_slots,
+                    pcam_route_log_prior=pcam_route_log_prior,
                 )
 
                 if not active_inst_idx_list:
@@ -440,12 +473,16 @@ class Translator(object):
                     encoder_db,
                     src_enc,
                     inst_idx_to_position_map,
+                    pcam_ctx_slots,
+                    pcam_route_log_prior,
                 ) = collate_active_info(
                     src_seq,
                     encoder_db,
                     src_enc,
                     inst_idx_to_position_map,
                     active_inst_idx_list,
+                    pcam_ctx_slots=pcam_ctx_slots,
+                    pcam_route_log_prior=pcam_route_log_prior,
                 )
 
         batch_hyp, batch_scores = collect_hypothesis_and_scores(inst_dec_beams, 1)

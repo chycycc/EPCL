@@ -105,9 +105,13 @@ def safe_load_checkpoint(checkpoint_path, batch_size=32):
             raise RuntimeError("Checkpoint prefix metadata/weights disagree; refusing topology fallback")
     config.use_proto_prefix_gate = bool(gate_keys)
     config.use_proto_prefix_norm = checkpoint_prefix_norm(state)
-    from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head
+    from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head, checkpoint_pcg_pcam
     config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(state)
+    config.use_pcg_pcam = checkpoint_pcg_pcam(state)
+    if config.use_pcg_pcam:
+        config.use_pcam = True
     print(f"    [拓扑识别] use_proto_prefix_norm={config.use_proto_prefix_norm}")
+    print(f"    [拓扑识别] use_pcg_pcam={config.use_pcg_pcam}")
     print(f"    [拓扑识别] use_proto_prefix_gate={config.use_proto_prefix_gate}")
     print(f"    [拓扑识别] use_separate_dec_emo_head={config.use_separate_dec_emo_head}")
     config.use_erp = any("erp." in k for k in raw_keys)
