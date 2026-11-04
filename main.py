@@ -197,6 +197,16 @@ def train(model, train_set, dev_set):
 
                 model.train()
 
+                # [V10 T7] 快照仅写盘：不调用 save_model（避免改动 best_paths/best_path），不消耗 RNG
+                snap_from = int(getattr(config, "save_snapshots_from", 0))
+                if snap_from > 0 and n_iter >= snap_from:
+                    snap_dir = os.path.join(config.save_path, "snapshots")
+                    os.makedirs(snap_dir, exist_ok=True)
+                    torch.save({"iter": n_iter, "valid_ppl": ppl_val, "valid_emo_loss": emo_loss_val,
+                                "model": model.state_dict()},
+                               os.path.join(snap_dir, f"SNAP_{n_iter}"))
+                    print(f"[Snapshot] Step {n_iter}: 已写入快照 SNAP_{n_iter} (Valid PPL={ppl_val:.4f}, EMO_loss={emo_loss_val:.4f})")
+
                 # [V8.1 路线 B / V8.2 D] 验证集保存判定（支持复合评分：acc 模式或帕累托 emo_loss 模式）
                 if getattr(config, 'use_composite_score', False):
                     composite_mode = getattr(config, 'composite_mode', 'acc')

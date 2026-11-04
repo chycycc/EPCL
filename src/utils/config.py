@@ -258,6 +258,10 @@ def get_args():
                         help="[V10 T6] 情绪专用支路相对学习率余弦固结结束步数 (默认 6500)")
     parser.add_argument("--emo_lr_min_scale", type=float, default=0.05,
                         help="[V10 T6] 情绪专用支路相对学习率固结下限比例 (默认 0.05)")
+    parser.add_argument("--use_pcmg_head", action="store_true", default=False,
+                        help="[V10 T7] 原型校准多粒度情绪头：话语/子句 xReact 凸组合 + 线性/原型余弦 logits 凸组合")
+    parser.add_argument("--save_snapshots_from", type=int, default=0,
+                        help="[V10 T7] 自该步起每次验证后将纯模型权重快照写入 save_path/snapshots/（0=关闭；只写盘，不影响训练）")
     parser.add_argument("--use_composite_score", action="store_true", default=False,
                         help="[V8.1/V8.2 D] 是否启用验证集复合评分遴选检查点")
     parser.add_argument("--composite_acc_weight", type=float, default=20.0,

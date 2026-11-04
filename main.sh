@@ -229,6 +229,21 @@ PY
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_emo_group_lr --emo_lr_anneal_start 5000 --emo_lr_anneal_end 6500 --emo_lr_min_scale 0.05"
         ;;
+    v10_trial7_pcmg_head)
+        if [ "$ENV_MODE" != "24G" ]; then
+            echo "[V10 T7] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            exit 1
+        fi
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T7] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T7] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499"
+        ;;
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
         if [ -n "$EXTRA_FLAGS" ]; then
@@ -386,6 +401,19 @@ ${pythonpath} src/scripts/eval_pipeline.py \
   --use_arc_margin \
   ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
 
+if [ "${EXP_NAME}" = "v10_trial7_pcmg_head" ]; then
+    echo "======================================================================"
+    echo "[*] [V10 T7] 执行训练后快照权重平均 (SWA) 与泛化评测..."
+    echo "======================================================================"
+    ${pythonpath} src/scripts/avg_snapshots.py --run_dir ${OUTPUT_DIR} \
+      --composite_ckpt $(ls ${OUTPUT_DIR}/CASE_*_composite_best) --out_dir ${OUTPUT_DIR}/avg ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
+    ${pythonpath} src/scripts/eval_pipeline.py --model_path $(ls ${OUTPUT_DIR}/avg/CASE_avg_*) \
+      --eval_target composite --metrics_path "${OUTPUT_DIR}/eval_metrics_swa.json" --lambda_epcl 0.03 \
+      --skip_manifold --gen_samples 500 --results_path "${RESULTS_DIR}/${EXP_NAME}_eval_swa.txt" \
+      --plot_path "${RESULTS_DIR}/${EXP_NAME}_manifold_swa.png" --batch_size ${BATCH_SIZE} --gpu ${GPU_ID} \
+      --use_arc_margin ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
+fi
+
 # BEGIN_ARTIFACT_PACKAGING
 # 与本地验收共用真实打包函数；不依赖前缀初始化文件存在。
 package_artifacts() {
@@ -417,6 +445,22 @@ for REQUIRED_RESULT in \
 done
 cp -f "${LOG_FILE}" "${DOWNLOAD_DIR}/" || return 1
 cp -f "${OUTPUT_DIR}"/CASE_*_composite_best "${OUTPUT_DIR}"/CASE_*_ppl_best "${DOWNLOAD_DIR}/" || return 1
+if [ "${EXP_NAME}" = "v10_trial7_pcmg_head" ]; then
+    for SWA_RESULT in "${OUTPUT_DIR}/eval_metrics_swa.json" "${RESULTS_DIR}/${EXP_NAME}_eval_swa.txt"; do
+        if [ -f "${SWA_RESULT}" ]; then
+            cp -f "${SWA_RESULT}" "${DOWNLOAD_DIR}/" || return 1
+        fi
+    done
+    if [ -d "${OUTPUT_DIR}/avg" ]; then
+        mkdir -p "${DOWNLOAD_DIR}/avg"
+        if [ -f "${OUTPUT_DIR}/avg/avg_selection.json" ]; then
+            cp -f "${OUTPUT_DIR}/avg/avg_selection.json" "${DOWNLOAD_DIR}/avg/"
+        fi
+        if compgen -G "${OUTPUT_DIR}/avg/CASE_avg_*" > /dev/null; then
+            cp -f "${OUTPUT_DIR}"/avg/CASE_avg_* "${DOWNLOAD_DIR}/avg/"
+        fi
+    fi
+fi
 for INIT_FILE in proto_prefix_init.npz prefix_init_metadata.json prefix_diagnostics.jsonl dec_emo_diagnostics.jsonl env_metadata.json; do
     if [ -f "${OUTPUT_DIR}/${INIT_FILE}" ]; then
         cp -f "${OUTPUT_DIR}/${INIT_FILE}" "${DOWNLOAD_DIR}/"

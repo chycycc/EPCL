@@ -45,6 +45,10 @@ from src.utils.constants import ESC_MAP_EMO, ESC_MAP_STRATEGY, ED_MAP_EMO
 from sklearn.metrics import accuracy_score
 
 EMO_GROUP_LR_MODE = "decoupled_emo_branch_v1"
+# [V10 T7] 原型校准多粒度情绪头 (PCMG) 固定常数，来源：verify_t7_training.py Arm 3
+PCMG_SPLIT_LAMBDA = 0.15
+PCMG_PROTO_WEIGHT = 0.25
+PCMG_PROTO_TAU = 0.20
 EMO_GROUP_LR_PREFIXES = (
     "react_encoder.",
     "react_ctx_encoder.",
@@ -1456,6 +1460,15 @@ class CASE(nn.Module):
             assert not self.use_main_emo_ce_anneal, "T6 参数组学习率固结与 T4 主分类损失标量退火互斥"
             assert not getattr(config, "use_cosine_anneal", False), "T6 参数组学习率固结与联合损失退火互斥"
 
+        # [V10 T7] 原型校准多粒度情绪头
+        self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
+        if self.use_pcmg_head:
+            assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
+            assert getattr(config, "emotion_head_type", "linear") == "linear", "use_pcmg_head 仅支持线性分类头"
+            assert not getattr(config, "use_erp", False), "use_pcmg_head 要求 L2 归一化投影（不兼容 ERP）"
+            assert getattr(config, "epcl_anchor", "fine_emotion") == "fine_emotion" and \
+                getattr(config, "cls_anchor", "default") in ("default", "fine_emotion"), "use_pcmg_head 要求分类与 EPCL 锚点均为 fine_emotion"
+
         # 注册稀疏偏置掩码缓冲区 (默认全 1，启用稀疏后由 update_adaptive_vocab_mask 动态校准)
         self.register_buffer("emo_vocab_mask", torch.ones(self.vocab_size))
         
@@ -1577,7 +1590,23 @@ class CASE(nn.Module):
             "emo_lr_min_scale": self.emo_lr_min_scale,
             "emo_branch_params": self.emo_branch_param_count,
             "main_branch_params": self.main_branch_param_count,
+            "use_pcmg_head": self.use_pcmg_head,
+            "pcmg_split_lambda": PCMG_SPLIT_LAMBDA if self.use_pcmg_head else 0.0,
+            "pcmg_proto_weight": PCMG_PROTO_WEIGHT if self.use_pcmg_head else 0.0,
+            "pcmg_proto_tau": PCMG_PROTO_TAU if self.use_pcmg_head else 0.0,
         }))
+
+    def aggregate_fine_emotion(self, react_batch_enc, batch):
+        """[V10 T7] 话语级 xReact 与子句级 xReact 掩码均值的凸组合；关闭开关时返回原话语级表征。"""
+        utt = react_batch_enc[:, 0]
+        if not self.use_pcmg_head or react_batch_enc.size(1) == 1:
+            return utt
+        mask = batch["uttr_split_react_mask"].float().unsqueeze(-1)
+        assert mask.size(1) == react_batch_enc.size(1) - 1, "子句掩码与 xReact 子句数不一致"
+        count = mask.sum(dim=1)
+        split_mean = (react_batch_enc[:, 1:] * mask).sum(dim=1) / count.clamp(min=1.0)
+        split_mean = torch.where(count > 0, split_mean, utt)
+        return (1.0 - PCMG_SPLIT_LAMBDA) * utt + PCMG_SPLIT_LAMBDA * split_mean
 
     def main_emo_ce_weight(self, step, train):
         """Additional main-CE multiplier; evaluation always uses raw CE."""
@@ -2320,7 +2349,7 @@ class CASE(nn.Module):
             # assert fine_mask.size(1) == react_batch_enc.size(1)
             # fine_emotion, _ = self.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
         
-            fine_emotion = react_batch_enc[:, 0]
+            fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
             emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
             static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
             
@@ -2417,6 +2446,10 @@ class CASE(nn.Module):
             if self.dataset == "ED":
                 # [V8 Trial 4] 分类头挂载至 cls_emotion_feat（支持与生成端双锚点解耦）
                 emotion_logits = self.emotion_linear(self.emo_dropout(cls_emotion_feat))
+                if self.use_pcmg_head:
+                    # [V10 T7] 线性 logits 与原型余弦 logits 凸组合（原型为 detach 的 MCP 缓冲）
+                    emotion_logits = (1.0 - PCMG_PROTO_WEIGHT) * emotion_logits + \
+                        PCMG_PROTO_WEIGHT * torch.matmul(proj_norm, proto_norm.T) / PCMG_PROTO_TAU
                 emotion_loss_raw = self.criterion_ce(emotion_logits, batch["program_label"])
                 
                 # [V8.1 路线 B] 多任务辅助损失时序平滑余弦退火 (Soft Loss Annealing)
@@ -2906,7 +2939,7 @@ class CASE(nn.Module):
         # assert fine_mask.size(1) == react_batch_enc.size(1)
         # fine_emotion, _ = self.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
         
-        fine_emotion = react_batch_enc[:, 0]
+        fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
         emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
@@ -3137,7 +3170,7 @@ class CASE(nn.Module):
                                split_want_emotion,
                                split_effect_emotion), dim=1)
         assert react_enc.size(1) == cs_num
-        fine_emotion = react_batch_enc[:, 0]
+        fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
         emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         

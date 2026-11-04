@@ -371,7 +371,7 @@ class Translator(object):
             # assert fine_mask.size(1) == react_batch_enc.size(1)
             # fine_emotion, _ = self.model.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
             
-            fine_emotion = react_batch_enc[:, 0]
+            fine_emotion = self.model.aggregate_fine_emotion(react_batch_enc, src_seq)
             emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
             static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
             # Match teacher forcing / Greedy: ED also uses prototype routing.
