@@ -5,7 +5,7 @@ No native model parameters, losses, gradients or saved state are changed.
 """
 import unicodedata
 
-from native_runtime import readonly_observation
+from native_runtime import readonly_observation, evaluation_routing
 
 
 def tokenize_response(text):
@@ -33,7 +33,7 @@ class NativeDistribution:
             raise Ready()
         decoder.forward, generator.forward = decoder_capture, generator_capture
         try:
-            with readonly_observation(self.model):
+            with readonly_observation(self.model), evaluation_routing(runtime):
                 self.model.decoder_greedy(batch, max_dec_step=0)
         except Ready:
             pass
@@ -49,8 +49,8 @@ class NativeDistribution:
         if not generated:
             return self.first_log_prob[0]
         ids = torch.tensor([[3] + list(generated)], dtype=torch.long, device=self.runtime.device)
-        if self.runtime.name == "kemp":
-            initial = self.decoder_kwargs["inputs"][:, :1]
+        if self.runtime.name in ("kemp", "empdg"):
+            initial = (self.decoder_kwargs["inputs"] if "inputs" in self.decoder_kwargs else self.decoder_args[0])[:, :1]
             embedded = torch.cat((initial, self.model.embedding(ids[:, 1:])), dim=1)
         else:
             embedded = self.model.embedding(ids)
@@ -62,7 +62,8 @@ class NativeDistribution:
         if "mask" in kwargs:
             kwargs["mask"] = (kwargs["mask"][0], ids.eq(1).unsqueeze(1))
         else:
-            args[2] = (args[2][0], ids.eq(1).unsqueeze(1))
+            mask_index = 3 if self.runtime.name == "mime" else 2
+            args[mask_index] = (args[mask_index][0], ids.eq(1).unsqueeze(1))
         output = self.decoder_forward(*args, **kwargs)
         generator_args = list(self.generator_args)
         generator_args[0] = output[0]
@@ -97,7 +98,7 @@ def search(distribution, max_tokens, beam_size):
 
 def generate(runtime, batch, max_tokens=40, beam_size=5, verify_native=True):
     import torch
-    with readonly_observation(runtime.model):
+    with readonly_observation(runtime.model), evaluation_routing(runtime):
         distribution = NativeDistribution(runtime, batch)
         ids = {"greedy": search(distribution, max_tokens, 1), "beam": search(distribution, max_tokens, beam_size)}
         result = {}

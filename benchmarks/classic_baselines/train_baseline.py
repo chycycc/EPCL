@@ -15,7 +15,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 
-from native_runtime import NativeRuntime, readonly_observation
+from native_runtime import NativeRuntime, readonly_observation, evaluation_routing
 from native_generation import generate
 from score_records import likelihood, diversity, read_jsonl
 from training_state import capture, restore_state, restore_weights
@@ -93,7 +93,7 @@ def valid_ppl(runtime, batch_size):
     was_training = model.training
     model.eval()
     losses, samples, native_rows = [], 0, []
-    with readonly_observation(model):
+    with readonly_observation(model), evaluation_routing(runtime):
         for batch in tqdm(ordered_loader(runtime, "valid", batch_size), desc=f"{runtime.name} valid",
                           unit="batch", mininterval=1, dynamic_ncols=True, leave=False):
             result = model.train_one_batch(batch, 0, train=False)

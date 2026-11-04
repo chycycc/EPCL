@@ -64,7 +64,9 @@ def capture(runtime, completed_updates):
                     "torch": torch.get_rng_state().clone(),
                     "cuda": cpu_copy(torch.cuda.get_rng_state_all()) if runtime.device.startswith("cuda") else []},
             "completed_updates": completed_updates, "training": model.training,
-            "pretrain": bool(getattr(runtime.config, "pretrain", False))}
+            "pretrain": bool(getattr(runtime.config, "pretrain", False)),
+            "native_config_state": {"oracle": runtime.config.oracle}
+                if runtime.name in ("moel", "mime") else {}}
 
 
 def protocol(runtime, glove_sha256):
@@ -97,6 +99,8 @@ def restore_state(runtime, saved):
     for key, value in saved["noam"].items():
         setattr(optimizer, key, value)
     runtime.config.pretrain = saved["pretrain"]
+    for key, value in saved.get("native_config_state", {}).items():
+        setattr(runtime.config, key, value)
     model.train(saved["training"])
     rng = saved["rng"]
     random.setstate(rng["python"])

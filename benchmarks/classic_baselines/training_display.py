@@ -39,6 +39,9 @@ class TrainingDisplay:
         self.model, self.recipe = model, recipe
         self.pretrain_steps = ((train_n + recipe["batch_size"] - 1) // recipe["batch_size"]) * recipe["pretrain_epochs"]
         self.writer = SummaryWriter(str(output / "tensorboard"), purge_step=progress["completed_updates"] + 1)
+        self.native_writer = SummaryWriter(str(output / "native_tensorboard"), purge_step=progress["completed_updates"] + 1)
+        self.native_log = (output / "native_metrics.log").open("a", encoding="utf-8", buffering=1)
+        self.native_log.write("EVAL\tStep\tLoss\tPPL\tBCE\tAccuracy\n")
         self.bar = None
         self.phase = None
 
@@ -59,11 +62,22 @@ class TrainingDisplay:
             if name not in ("str_loss", "str_acc"):
                 self.writer.add_scalar(f"{phase}/{name}", value, progress["completed_updates"])
         self.writer.add_scalar("lr", lr, progress["completed_updates"])
+        # Author-style SummaryWriter groups retained alongside the suite's tags.
+        for name, value in metrics.items():
+            self.native_writer.add_scalars(name, {name + "_train": value}, current - 1)
+        self.native_writer.add_scalars("lr", {"learning_rata": lr}, current - 1)
 
     def record(self, row):
         from tqdm.auto import tqdm
         tqdm.write(format_row(self.model, row))
+        metrics = row["native_metrics"]
+        phase = "train" if "native_returns" in row else "valid"
+        self.native_log.write(phase + "\t" + str(row["main_step"]) + "\t" + "\t".join(
+            str(metrics.get(key, "")) for key in ("loss", "ppl", "bce", "accuracy")) + "\n")
         if "native_returns" not in row:
+            for name, value in metrics.items():
+                self.native_writer.add_scalars(name, {name + "_valid": value}, row["main_step"] - 1)
+            self.native_writer.flush()
             for name, value in row.get("native_metrics", {"ppl": row["ppl"]}).items():
                 if name not in ("str_loss", "str_acc"):
                     self.writer.add_scalar("valid/" + name, value, row["completed_updates"])
@@ -73,3 +87,5 @@ class TrainingDisplay:
         if self.bar is not None:
             self.bar.close()
         self.writer.close()
+        self.native_writer.close()
+        self.native_log.close()

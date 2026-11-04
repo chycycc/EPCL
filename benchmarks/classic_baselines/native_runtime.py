@@ -62,6 +62,19 @@ def readonly_observation(model):
             torch.cuda.set_rng_state_all(cuda)
 
 
+@contextlib.contextmanager
+def evaluation_routing(runtime):
+    """MOEL evaluates predicted experts, never ground-truth oracle routing."""
+    oracle = getattr(runtime.config, "oracle", False)
+    if runtime.name == "moel":
+        runtime.config.oracle = False
+    try:
+        yield
+    finally:
+        if runtime.name == "moel":
+            runtime.config.oracle = oracle
+
+
 class NativeRuntime:
     def __init__(self, model_name, workspace, data_dir, output, device="cpu", seed=13,
                  random_embeddings=False, embedding_file=None, batch_size=16, run_config=None):
@@ -110,7 +123,7 @@ class NativeRuntime:
             self.model = CASE(self.vocab, emotion_num=32, strategy_num=8, is_eval=False)
             self.classifier = self.model.emotion_linear
             self.Dataset, self.collate = Dataset, None
-        elif model_name in ("cem_original", "multi_trs"):
+        elif model_name in ("cem_original", "multi_trs", "moel", "mime", "empdg"):
             sys.argv = argv + ["--seed", str(seed)] + (["--cuda"] if device.startswith("cuda") else [])
             from src.utils import config
             from src.utils.data.loader import Dataset, collate_fn
@@ -121,10 +134,23 @@ class NativeRuntime:
                 from src.models.CEM.model import CEM
                 self.model = CEM(self.vocab, decoder_number=32, is_eval=False)
                 self.classifier = self.model.emo_lin
-            else:
+            elif model_name == "multi_trs":
                 from src.models.Transformer.model import Transformer
                 self.model = Transformer(self.vocab, decoder_number=32, is_multitask=True, is_eval=False)
                 self.classifier = self.model.decoder_key
+            elif model_name == "moel":
+                from src.models.MOEL.model import MOEL
+                self.model = MOEL(self.vocab, decoder_number=32, is_eval=False)
+                self.classifier = self.model.decoder_key
+            elif model_name == "mime":
+                from src.models.MIME.model import MIME
+                self.model = MIME(self.vocab, decoder_number=32, is_eval=False)
+                # Native logits are s_weight(q_h) @ emoji_embedding.weight.T.
+                self.classifier = self.model.s_weight
+            else:
+                from src.models.EMPDG.model import EMPDG
+                self.model = EMPDG(self.vocab, decoder_number=32, is_eval=False)
+                self.classifier = self.model.identify_new
             self.Dataset, self.collate = Dataset, collate_fn
         elif model_name == "kemp":
             # Parse the upstream function without importing its executable training main.
@@ -187,7 +213,7 @@ class NativeRuntime:
             if model_name == "kemp":
                 self.datasets[split] = self.Dataset(data, self.kemp_vocab[0], config)
             else:
-                view = cem_view(data) if model_name in ("cem_original", "multi_trs") else data
+                view = cem_view(data) if model_name in ("cem_original", "multi_trs", "moel", "mime", "empdg") else data
                 self.datasets[split] = self.Dataset(view, self.vocab)
         self.imported_native_paths = {name: str(module.__file__) for name, module in sys.modules.items()
                                       if (name.startswith("src.") or name.startswith("code.")) and getattr(module, "__file__", None)}
@@ -207,12 +233,14 @@ class NativeRuntime:
         captured = {}
         def store(name):
             def hook(module, args, output):
+                if name == "emotion_logits" and self.name == "mime":
+                    output = output @ self.model.emoji_embedding.weight.T
                 captured[name] = output.detach()
             return hook
         hooks = [self.model.generator.register_forward_hook(store("log_prob")),
                  self.classifier.register_forward_hook(store("emotion_logits"))]
         try:
-            with readonly_observation(self.model):
+            with readonly_observation(self.model), evaluation_routing(self):
                 native = self.model.train_one_batch(batch, 0, train=False)
                 target = batch["target_batch"]
                 log_prob = captured["log_prob"]

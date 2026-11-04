@@ -2,9 +2,9 @@
 set -euo pipefail
 
 tool_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-model="${1:?Usage: bash train.sh case_original|multi_trs|cem_original|kemp [--resume|--evaluate-only]}"
+model="${1:?Usage: bash train.sh case_original|multi_trs|cem_original|kemp|moel|mime|empdg [--resume|--evaluate-only]}"
 shift
-case "$model" in case_original|multi_trs|cem_original|kemp) ;; *) exit 2 ;; esac
+case "$model" in case_original|multi_trs|cem_original|kemp|moel|mime|empdg) ;; *) exit 2 ;; esac
 bundle_root="${BASELINE_BUNDLE_ROOT:-$(dirname "$tool_dir")}"
 run_dir="${BASELINE_RUN_DIR:-$bundle_root/runs/formal_$model}"
 mkdir -p "$(dirname "$run_dir")"
