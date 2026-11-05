@@ -1352,6 +1352,8 @@ class CASE(nn.Module):
             config.use_proto_prefix_norm = checkpoint_prefix_norm(direct_checkpoint)
             config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(direct_checkpoint)
             config.use_pcg_pcam = checkpoint_pcg_pcam(direct_checkpoint)
+            config.use_pcmg_head = direct_checkpoint.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
+            config.use_emotion_routing = direct_checkpoint.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
             if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
                 config.use_emo_group_lr = True
             if config.use_pcg_pcam:
@@ -1462,6 +1464,8 @@ class CASE(nn.Module):
 
         # [V10 T7] 原型校准多粒度情绪头
         self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
+        self.use_emotion_routing = bool(getattr(config, "use_emotion_routing", False))
+        assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
             assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
             assert getattr(config, "emotion_head_type", "linear") == "linear", "use_pcmg_head 仅支持线性分类头"
@@ -1591,6 +1595,7 @@ class CASE(nn.Module):
             "emo_branch_params": self.emo_branch_param_count,
             "main_branch_params": self.main_branch_param_count,
             "use_pcmg_head": self.use_pcmg_head,
+            "use_emotion_routing": self.use_emotion_routing,
             "pcmg_split_lambda": PCMG_SPLIT_LAMBDA if self.use_pcmg_head else 0.0,
             "pcmg_proto_weight": PCMG_PROTO_WEIGHT if self.use_pcmg_head else 0.0,
             "pcmg_proto_tau": PCMG_PROTO_TAU if self.use_pcmg_head else 0.0,
@@ -1908,6 +1913,8 @@ class CASE(nn.Module):
             "current_loss": running_avg_ppl,
             "model": self.state_dict(),
             "tag": tag,
+            "use_pcmg_head": self.use_pcmg_head,
+            "use_emotion_routing": self.use_emotion_routing,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
@@ -2350,7 +2357,8 @@ class CASE(nn.Module):
             # fine_emotion, _ = self.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
         
             fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
-            emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
+            gen_emotion = react_batch_enc[:, 0] if self.use_emotion_routing else fine_emotion
+            emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
             
             # [MoP-DR] Prototype dynamic routing (compatible with K*C prototypes)
@@ -2374,7 +2382,7 @@ class CASE(nn.Module):
             else:
                 emo_gate = static_gate
             
-            emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * fine_emotion
+            emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * gen_emotion
             
             # [V8.1 / V8.2 / V8.2 C] 解码端情感词表偏置投影更新 (结合动态时序预热门控、自适应拓扑稀疏掩码与后程平滑余弦衰减)
             if self.use_emo_bias:
@@ -2940,7 +2948,8 @@ class CASE(nn.Module):
         # fine_emotion, _ = self.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
         
         fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
-        emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
+        gen_emotion = react_batch_enc[:, 0] if self.use_emotion_routing else fine_emotion
+        emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
         if self.dataset == "ED":
@@ -2960,7 +2969,7 @@ class CASE(nn.Module):
         else:
             emo_gate = static_gate
             
-        emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * fine_emotion
+        emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * gen_emotion
         
         # [V8.1 / V8.2 / V8.2 C] 解码端情感词表偏置投影更新 (基于 KEMP + 拓扑稀疏掩码 + 时序平滑衰减)
         if self.use_emo_bias:
@@ -3171,7 +3180,8 @@ class CASE(nn.Module):
                                split_effect_emotion), dim=1)
         assert react_enc.size(1) == cs_num
         fine_emotion = self.aggregate_fine_emotion(react_batch_enc, batch)
-        emotion_emb = self.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
+        gen_emotion = react_batch_enc[:, 0] if self.use_emotion_routing else fine_emotion
+        emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
         # 4. 原型路由 (MoP-DR)
@@ -3191,7 +3201,7 @@ class CASE(nn.Module):
         else:
             emo_gate = static_gate
             
-        emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * fine_emotion
+        emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * gen_emotion
         
         # [V8.1 / V8.2 / V8.2 C] 解码端情感词表偏置投影更新 (基于 KEMP + 拓扑稀疏掩码 + 时序平滑衰减)
         if self.use_emo_bias:

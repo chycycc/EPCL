@@ -229,20 +229,23 @@ PY
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_emo_group_lr --emo_lr_anneal_start 5000 --emo_lr_anneal_end 6500 --emo_lr_min_scale 0.05"
         ;;
-    v10_trial7_pcmg_head)
+    v10_trial7_pcmg_head|v10_trial8_emotion_routing)
         if [ "$ENV_MODE" != "24G" ]; then
-            echo "[V10 T7] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            echo "[V10 PCMG] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
             exit 1
         fi
         if [ -n "$EXTRA_FLAGS" ]; then
-            echo "[V10 T7] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            echo "[V10 PCMG] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
             exit 1
         fi
         if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
-            echo "[V10 T7] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            echo "[V10 PCMG] Output already exists: $EXP_NAME; refusing to overwrite." >&2
             exit 1
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499"
+        if [ "$EXP_NAME" = "v10_trial8_emotion_routing" ]; then
+            EXTRA_FLAGS="$EXTRA_FLAGS --use_emotion_routing"
+        fi
         ;;
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
@@ -383,6 +386,20 @@ ${pythonpath} main.py \
   --save_path ${OUTPUT_DIR} \
   --model_file_path ${OUTPUT_DIR} 2>&1 | tee -a ${LOG_FILE}
 
+# SWA的前向配置与训练一致；T8必须先完成Valid选点，再进行Test。
+AVG_FORWARD_FLAGS=(--dataset "$DATASET" --seed "$SEED" --batch_size "$BATCH_SIZE" --gpu "$GPU_ID"
+  --use_mcp --mcp_momentum 0.96 --lambda_epcl 0.03 --alpha_uni 0.8
+  --use_arc_margin --arc_margin 0.30 --arc_mode cos --epcl_anchor fine_emotion --cls_anchor default
+  --use_pcam --pcam_heads 2 --pcam_dropout 0.1 --pcam_gate_bias -1.0 --pcam_tau_attn 1.5)
+T8_SWA_CKPT=""
+if [ "$EXP_NAME" = "v10_trial8_emotion_routing" ]; then
+    COMPOSITE_FILES=("${OUTPUT_DIR}"/CASE_*_composite_best)
+    "${pythonpath}" src/scripts/avg_snapshots.py --run_dir "${OUTPUT_DIR}" \
+      --composite_ckpt "${COMPOSITE_FILES[0]}" --out_dir "${OUTPUT_DIR}/avg" \
+      --protect_emotion_modules "${AVG_FORWARD_FLAGS[@]}" ${EXTRA_FLAGS} 2>&1 | tee -a "${LOG_FILE}"
+    T8_SWA_CKPT=$("${pythonpath}" -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["selected_checkpoint"] if d["selected_role"] == "swa" else "")' "${OUTPUT_DIR}/avg/avg_selection.json")
+fi
+
 echo "======================================================================"
 echo "[*] 训练完成！串行评测双 Best：全量 Test + 前 500 条生成，跳过流形分析。"
 echo "======================================================================"
@@ -406,12 +423,19 @@ if [ "${EXP_NAME}" = "v10_trial7_pcmg_head" ]; then
     echo "[*] [V10 T7] 执行训练后快照权重平均 (SWA) 与泛化评测..."
     echo "======================================================================"
     ${pythonpath} src/scripts/avg_snapshots.py --run_dir ${OUTPUT_DIR} \
-      --composite_ckpt $(ls ${OUTPUT_DIR}/CASE_*_composite_best) --out_dir ${OUTPUT_DIR}/avg ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
+      --composite_ckpt $(ls ${OUTPUT_DIR}/CASE_*_composite_best) --out_dir ${OUTPUT_DIR}/avg "${AVG_FORWARD_FLAGS[@]}" ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
     ${pythonpath} src/scripts/eval_pipeline.py --model_path $(ls ${OUTPUT_DIR}/avg/CASE_avg_*) \
       --eval_target composite --metrics_path "${OUTPUT_DIR}/eval_metrics_swa.json" --lambda_epcl 0.03 \
       --skip_manifold --gen_samples 500 --results_path "${RESULTS_DIR}/${EXP_NAME}_eval_swa.txt" \
       --plot_path "${RESULTS_DIR}/${EXP_NAME}_manifold_swa.png" --batch_size ${BATCH_SIZE} --gpu ${GPU_ID} \
       --use_arc_margin ${EXTRA_FLAGS} 2>&1 | tee -a ${LOG_FILE}
+fi
+
+if [ -n "$T8_SWA_CKPT" ]; then
+    "${pythonpath}" src/scripts/eval_pipeline.py --model_path "$T8_SWA_CKPT" \
+      --eval_target composite --metrics_path "${OUTPUT_DIR}/eval_metrics_swa.json" --lambda_epcl 0.03 \
+      --skip_manifold --gen_samples 500 --results_path "${RESULTS_DIR}/${EXP_NAME}_eval_swa.txt" \
+      --batch_size "${BATCH_SIZE}" --gpu "${GPU_ID}" --use_arc_margin ${EXTRA_FLAGS} 2>&1 | tee -a "${LOG_FILE}"
 fi
 
 # BEGIN_ARTIFACT_PACKAGING
@@ -459,6 +483,15 @@ if [ "${EXP_NAME}" = "v10_trial7_pcmg_head" ]; then
         if compgen -G "${OUTPUT_DIR}/avg/CASE_avg_*" > /dev/null; then
             cp -f "${OUTPUT_DIR}"/avg/CASE_avg_* "${DOWNLOAD_DIR}/avg/"
         fi
+    fi
+fi
+if [ "${EXP_NAME}" = "v10_trial8_emotion_routing" ]; then
+    mkdir -p "${DOWNLOAD_DIR}/avg"
+    cp -f "${OUTPUT_DIR}/avg/avg_selection.json" "${DOWNLOAD_DIR}/avg/" || return 1
+    if [ -n "$T8_SWA_CKPT" ]; then
+        cp -f "$T8_SWA_CKPT" "${DOWNLOAD_DIR}/avg/" || return 1
+        cp -f "${OUTPUT_DIR}/eval_metrics_swa.json" \
+          "${RESULTS_DIR}/${EXP_NAME}_eval_swa.txt" "${DOWNLOAD_DIR}/" || return 1
     fi
 fi
 for INIT_FILE in proto_prefix_init.npz prefix_init_metadata.json prefix_diagnostics.jsonl dec_emo_diagnostics.jsonl env_metadata.json; do

@@ -372,7 +372,8 @@ class Translator(object):
             # fine_emotion, _ = self.model.fine_emotion_selfattn(react_batch_enc, fine_mask.eq(0))
             
             fine_emotion = self.model.aggregate_fine_emotion(react_batch_enc, src_seq)
-            emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, fine_emotion), dim=-1))
+            gen_emotion = react_batch_enc[:, 0] if self.model.use_emotion_routing else fine_emotion
+            emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
             # Match teacher forcing / Greedy: ED also uses prototype routing.
             route_log_prior = None
@@ -388,7 +389,7 @@ class Translator(object):
                 emo_gate = config.lambda_epcl * route_gate + (1 - config.lambda_epcl) * static_gate
             else:
                 emo_gate = static_gate
-            emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * fine_emotion
+            emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * gen_emotion
             
             # [V8.1 路线 A] 解码端情感词表偏置投影更新 (基于 KEMP)
             if getattr(self.model, 'use_emo_bias', False):

@@ -270,6 +270,8 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
         from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head, checkpoint_pcg_pcam
         config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(state_preview)
         config.use_pcg_pcam = checkpoint_pcg_pcam(state_preview)
+        config.use_pcmg_head = state_preview.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
+        config.use_emotion_routing = state_preview.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
         if config.use_pcg_pcam:
             config.use_pcam = True
         print(f"    [自适应拓扑] use_proto_prefix_norm={config.use_proto_prefix_norm}")
