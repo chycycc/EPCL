@@ -272,6 +272,7 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
         config.use_pcg_pcam = checkpoint_pcg_pcam(state_preview)
         config.use_pcmg_head = state_preview.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
         config.use_emotion_routing = state_preview.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
+        config.use_masked_react_pool = state_preview.get("use_masked_react_pool", False)
         if config.use_pcg_pcam:
             config.use_pcam = True
         print(f"    [自适应拓扑] use_proto_prefix_norm={config.use_proto_prefix_norm}")
@@ -789,6 +790,10 @@ def main(args=None):
     parser.add_argument("--plot_path", type=str, default="results/v9/manifold.png", help="流形图保存路径")
     parser.add_argument("--results_path", type=str, default="results/v9/results.txt", help="评测结果文本保存路径")
     parser.add_argument("--exp_name", type=str, default=None, help="实验代号标识 (用于报告与图标题)")
+    parser.add_argument("--use_pcmg_head", action="store_true",
+                        help="Restore PCMG for legacy T7 checkpoints lacking architecture metadata")
+    parser.add_argument("--lexical_expert", type=str, default=None,
+                        help="Frozen first-utterance lexical expert directory; enables masked pooling")
     if args is None:
         args, unknown = parser.parse_known_args()
         if unknown:
@@ -797,6 +802,7 @@ def main(args=None):
     if args.eval_target == "both":
         return evaluate_both(args)
 
+    config.use_pcmg_head = args.use_pcmg_head
     config.lambda_epcl = args.lambda_epcl
     print(f"[Evaluation Routing] lambda_epcl={config.lambda_epcl} | beam=prototype_routing_v1")
     print(f"[Evaluation Status] skip_test_eval={args.skip_test_eval} | "
@@ -884,6 +890,21 @@ def main(args=None):
         emo_vocab_topk_ratio=args.emo_vocab_topk_ratio,
         bias_min_scale=args.bias_min_scale
     )
+
+    if args.lexical_expert:
+        from src.utils.lexical_readout import LexicalEmotionReadout
+        assert model.use_pcmg_head and not model.use_emotion_routing
+        model.lexical_readout = LexicalEmotionReadout(args.lexical_expert)
+        model.use_masked_react_pool = True
+        print("[Architecture Fingerprint] " + json.dumps({
+            "stage": "frozen_lexical_attached", "use_lexical_readout": True,
+            "use_pcmg_head": model.use_pcmg_head,
+            "use_emotion_routing": model.use_emotion_routing, "use_masked_react_pool": True,
+            "lexical_expert": args.lexical_expert,
+            "alpha": model.lexical_readout.metadata["alpha"],
+            "T_base": model.lexical_readout.metadata["T_base"],
+            "T_lexical": model.lexical_readout.metadata["T_lexical"],
+        }))
 
     # 3. 全量测试集指标度量
     if not args.skip_test_eval:
@@ -1001,6 +1022,13 @@ def main(args=None):
                            "evaluated_n": 0 if (args.skip_generation or not gen_metrics) else gen_metrics.get("_scope", {}).get("n_samples", None),
                            "batch_size": 1,
                            "max_dec_step": 40},
+        },
+        "lexical_readout": {
+            "enabled": bool(args.lexical_expert), "artifact": args.lexical_expert,
+            "use_masked_react_pool": model.use_masked_react_pool,
+            "recipe": ({key: model.lexical_readout.metadata[key]
+                        for key in ("format", "alpha", "T_base", "T_lexical")}
+                       if model.lexical_readout is not None else None),
         },
         "test_metrics": test_metrics,
         "manifold_metrics": manifold_metrics,

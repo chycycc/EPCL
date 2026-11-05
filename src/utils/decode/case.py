@@ -345,7 +345,7 @@ class Translator(object):
             react_emb = self.model.embedding(react_batch)
             react_batch_outputs = self.model.react_encoder(react_emb, react_batch_mask)
             # react_batch_enc, _ = self.model.react_selfattn(react_batch_outputs, react_batch_mask.squeeze(1))
-            react_batch_enc = torch.mean(react_batch_outputs, dim=1)
+            react_batch_enc = self.model.pool_react_tokens(react_batch_outputs, react_batch)
             react_batch_enc = react_batch_enc.view(bsz, react_uttr_num, -1)
             react_batch_enc = self.model.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
                                                         enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 

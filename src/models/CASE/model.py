@@ -1354,6 +1354,7 @@ class CASE(nn.Module):
             config.use_pcg_pcam = checkpoint_pcg_pcam(direct_checkpoint)
             config.use_pcmg_head = direct_checkpoint.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
             config.use_emotion_routing = direct_checkpoint.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
+            config.use_masked_react_pool = direct_checkpoint.get("use_masked_react_pool", False)
             if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
                 config.use_emo_group_lr = True
             if config.use_pcg_pcam:
@@ -1463,8 +1464,10 @@ class CASE(nn.Module):
             assert not getattr(config, "use_cosine_anneal", False), "T6 参数组学习率固结与联合损失退火互斥"
 
         # [V10 T7] 原型校准多粒度情绪头
+        self.lexical_readout = None
         self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
         self.use_emotion_routing = bool(getattr(config, "use_emotion_routing", False))
+        self.use_masked_react_pool = bool(getattr(config, "use_masked_react_pool", False))
         assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
             assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
@@ -1596,10 +1599,18 @@ class CASE(nn.Module):
             "main_branch_params": self.main_branch_param_count,
             "use_pcmg_head": self.use_pcmg_head,
             "use_emotion_routing": self.use_emotion_routing,
+            "use_masked_react_pool": self.use_masked_react_pool,
             "pcmg_split_lambda": PCMG_SPLIT_LAMBDA if self.use_pcmg_head else 0.0,
             "pcmg_proto_weight": PCMG_PROTO_WEIGHT if self.use_pcmg_head else 0.0,
             "pcmg_proto_tau": PCMG_PROTO_TAU if self.use_pcmg_head else 0.0,
         }))
+
+    def pool_react_tokens(self, outputs, tokens):
+        """Pool real xReact tokens; legacy checkpoints retain their original mean."""
+        if not self.use_masked_react_pool:
+            return outputs.mean(dim=1)
+        valid = tokens.ne(config.PAD_idx).unsqueeze(-1)
+        return (outputs * valid).sum(dim=1) / valid.sum(dim=1).clamp(min=1)
 
     def aggregate_fine_emotion(self, react_batch_enc, batch):
         """[V10 T7] 话语级 xReact 与子句级 xReact 掩码均值的凸组合；关闭开关时返回原话语级表征。"""
@@ -1915,6 +1926,7 @@ class CASE(nn.Module):
             "tag": tag,
             "use_pcmg_head": self.use_pcmg_head,
             "use_emotion_routing": self.use_emotion_routing,
+            "use_masked_react_pool": self.use_masked_react_pool,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
@@ -2317,7 +2329,7 @@ class CASE(nn.Module):
             react_emb = self.embedding(react_batch)
             react_batch_outputs = self.react_encoder(react_emb, react_batch_mask)
             # react_batch_enc, _ = self.react_selfattn(react_batch_outputs, react_batch_mask.squeeze(1))
-            react_batch_enc = torch.mean(react_batch_outputs, dim=1)
+            react_batch_enc = self.pool_react_tokens(react_batch_outputs, react_batch)
             react_batch_enc = react_batch_enc.view(bsz, react_uttr_num, -1)
             react_batch_enc = self.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
                                                                 enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 
@@ -2458,6 +2470,9 @@ class CASE(nn.Module):
                     # [V10 T7] 线性 logits 与原型余弦 logits 凸组合（原型为 detach 的 MCP 缓冲）
                     emotion_logits = (1.0 - PCMG_PROTO_WEIGHT) * emotion_logits + \
                         PCMG_PROTO_WEIGHT * torch.matmul(proj_norm, proto_norm.T) / PCMG_PROTO_TAU
+                if self.lexical_readout is not None:
+                    assert not train, "Frozen lexical readout is inference-only"
+                    emotion_logits = self.lexical_readout(emotion_logits, batch)
                 emotion_loss_raw = self.criterion_ce(emotion_logits, batch["program_label"])
                 
                 # [V8.1 路线 B] 多任务辅助损失时序平滑余弦退火 (Soft Loss Annealing)
@@ -2921,7 +2936,7 @@ class CASE(nn.Module):
         react_emb = self.embedding(react_batch)
         react_batch_outputs = self.react_encoder(react_emb, react_batch_mask)
         # react_batch_enc, _ = self.react_selfattn(react_batch_outputs, react_batch_mask.squeeze(1))
-        react_batch_enc = torch.mean(react_batch_outputs, dim=1)
+        react_batch_enc = self.pool_react_tokens(react_batch_outputs, react_batch)
         react_batch_enc = react_batch_enc.view(bsz, react_uttr_num, -1)
         react_batch_enc = self.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
                                                         enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 
@@ -3159,7 +3174,7 @@ class CASE(nn.Module):
         react_batch_mask = react_batch.data.eq(config.PAD_idx).unsqueeze(1)
         react_emb = self.embedding(react_batch)
         react_batch_outputs = self.react_encoder(react_emb, react_batch_mask)
-        react_batch_enc = torch.mean(react_batch_outputs, dim=1)
+        react_batch_enc = self.pool_react_tokens(react_batch_outputs, react_batch)
         react_batch_enc = react_batch_enc.view(bsz, react_uttr_num, -1)
         react_batch_enc = self.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
                                                         enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 

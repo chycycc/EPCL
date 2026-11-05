@@ -229,7 +229,7 @@ PY
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_emo_group_lr --emo_lr_anneal_start 5000 --emo_lr_anneal_end 6500 --emo_lr_min_scale 0.05"
         ;;
-    v10_trial7_pcmg_head|v10_trial8_emotion_routing)
+    v10_trial7_pcmg_head|v10_trial8_emotion_routing|v10_t7_masked_pool)
         if [ "$ENV_MODE" != "24G" ]; then
             echo "[V10 PCMG] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
             exit 1
@@ -245,6 +245,8 @@ PY
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499"
         if [ "$EXP_NAME" = "v10_trial8_emotion_routing" ]; then
             EXTRA_FLAGS="$EXTRA_FLAGS --use_emotion_routing"
+        elif [ "$EXP_NAME" = "v10_t7_masked_pool" ]; then
+            EXTRA_FLAGS="$EXTRA_FLAGS --use_masked_react_pool"
         fi
         ;;
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
