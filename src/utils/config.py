@@ -304,6 +304,13 @@ def get_args():
     # V10 Trial 1: 主情绪分类头与解码端辅助分类头解耦
     parser.add_argument("--use_separate_dec_emo_head", action="store_true", default=False,
                         help="[V10 T1] 解码端辅助情绪分类使用独立线性分类头 dec_emotion_linear（默认关闭，共享 emotion_linear）")
+    # V11 架构超参数: 主干 Dropout 泛化与解码器层数消融
+    parser.add_argument("--backbone_dropout", type=float, default=0.0,
+                        help="[V11] CASE 模型中 Transformer 主干 (make_encoder 与 decoder) 四类 dropout 统一比率 (默认 0.0)")
+    parser.add_argument("--dec_layers", type=int, default=None,
+                        help="[V11] 解码器 self.decoder 层数 (默认 None 表示沿用 config.hop)")
+    parser.add_argument("--pcam_inner_ln", action="store_true", default=False,
+                        help="[V11 Option B] 将 PCAM 的 LayerNorm 移入原型微扰分支内部: dec_output + tanh(gamma) * (gate * LayerNorm(h_proto))")
     parser.add_argument("--skip_test", action="store_true", default=False,
                         help="是否跳过训练收尾时的 5255 样本全量生成测试（用于快速 dry run 验证）")
     # V9 大批次训练生命周期与早停步数重标定

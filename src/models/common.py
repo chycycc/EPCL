@@ -300,7 +300,7 @@ class DecoderLayer(nn.Module):
         y = self.dropout(x + y)
 
         # Return encoder outputs as well to work with nn.Sequential
-        return y, encoder_outputs, attention_weight, mask
+        return y, encoder_outputs, attention_weight, mask, cs_enc_outputs, cs_enc_mask, concept_enc_outputs, concept_enc_mask
 
 
 class MultiExpertMultiHeadAttention(nn.Module):

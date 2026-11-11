@@ -582,6 +582,7 @@ class PrototypeConditionedAttentionModule(nn.Module):
             self.ctx_slot_bias = nn.Parameter(torch.zeros(num_heads * 2))
 
         self.layer_norm = nn.LayerNorm(d_model)
+        self.pcam_inner_ln = bool(getattr(config, "pcam_inner_ln", False))
 
         nn.init.xavier_uniform_(self.q_proj.weight)
         nn.init.zeros_(self.q_proj.bias)
@@ -645,7 +646,10 @@ class PrototypeConditionedAttentionModule(nn.Module):
         # 5. 通道自适应门控与冷启动残差融合
         gate_input = torch.cat([dec_output, h_proto], dim=-1)
         gate = torch.sigmoid(self.gate_linear(gate_input))
-        enhanced_output = self.layer_norm(dec_output + torch.tanh(self.gamma) * (gate * h_proto))
+        if self.pcam_inner_ln:
+            enhanced_output = dec_output + torch.tanh(self.gamma) * (gate * self.layer_norm(h_proto))
+        else:
+            enhanced_output = self.layer_norm(dec_output + torch.tanh(self.gamma) * (gate * h_proto))
         return enhanced_output
 # ==============================================================================
 
@@ -891,7 +895,7 @@ class Decoder(nn.Module):
                         .repeat(1, inputs.shape[1], 1)
                         .type_as(inputs.data)
                     )
-                    x, _, attn_dist, _ = self.dec(
+                    x, _, attn_dist, *_ = self.dec(
                         (x, encoder_output, [], (src_mask, dec_mask))
                     )
                 y = self.layer_norm(x)
@@ -900,7 +904,7 @@ class Decoder(nn.Module):
             x += self.timing_signal[:, : inputs.shape[1], :].type_as(inputs.data)
 
             # Run decoder
-            y, _, attn_dist, _ = self.dec((x, encoder_output, [], (src_mask, dec_mask), cs_enc_outputs, cs_enc_mask, concept_enc_outputs, concept_enc_mask))
+            y, _, attn_dist, *_ = self.dec((x, encoder_output, [], (src_mask, dec_mask), cs_enc_outputs, cs_enc_mask, concept_enc_outputs, concept_enc_mask))
 
             # Final layer normalization
             y = self.layer_norm(y)
@@ -1372,14 +1376,24 @@ class CASE(nn.Module):
         if self.use_proto_prefix_gate and not self.use_proto_prefix:
             raise ValueError('use_proto_prefix_gate requires use_proto_prefix')
         proto_init_tensor = self._build_proto_prefix_init() if self.use_proto_prefix else None
+        bb_dropout = float(getattr(config, "backbone_dropout", 0.0))
+        dec_layers = getattr(config, "dec_layers", None)
+        if dec_layers is None:
+            dec_layers = config.hop
+        else:
+            dec_layers = int(dec_layers)
         self.decoder = Decoder(
             config.emb_dim,
             hidden_size=config.hidden_dim,
-            num_layers=config.hop,
+            num_layers=dec_layers,
             num_heads=config.heads,
             total_key_depth=config.depth,
             total_value_depth=config.depth,
             filter_size=config.filter,
+            input_dropout=bb_dropout,
+            layer_dropout=bb_dropout,
+            attention_dropout=bb_dropout,
+            relu_dropout=bb_dropout,
             use_proto_prefix=self.use_proto_prefix,
             proto_prefix_len=self.proto_prefix_len,
             proto_init=proto_init_tensor,
@@ -1581,7 +1595,14 @@ class CASE(nn.Module):
             self.print_proto_prefix_gate_status(stage="checkpoint_restored")
             self.print_dec_emo_head_status(stage="checkpoint_restored")
 
+        actual_dec_layers = len(self.decoder.dec) if isinstance(self.decoder.dec, (nn.Sequential, nn.ModuleList)) else 1
+        actual_bb_dropout_p = float(self.decoder.input_dropout.p)
         print("[Architecture Fingerprint] " + json.dumps({
+            "backbone_dropout": float(getattr(config, "backbone_dropout", 0.0)),
+            "dec_layers": int(getattr(config, "dec_layers", None) if getattr(config, "dec_layers", None) is not None else config.hop),
+            "actual_backbone_dropout_p": actual_bb_dropout_p,
+            "actual_dec_layers": actual_dec_layers,
+            "pcam_inner_ln": bool(self.pcam.pcam_inner_ln) if hasattr(self, "pcam") and hasattr(self.pcam, "pcam_inner_ln") else False,
             "use_main_emo_ce_anneal": self.use_main_emo_ce_anneal,
             "main_emo_ce_anneal_start": self.main_emo_ce_anneal_start,
             "main_emo_ce_anneal_end": self.main_emo_ce_anneal_end,
@@ -1851,6 +1872,7 @@ class CASE(nn.Module):
         print(f"[V9 T12] 新增参数={prefix_params + gate_params} (prefix_embed={prefix_params}, gate={gate_params}) | 总参数={total_params:,}")
 
     def make_encoder(self, emb_dim):
+        bb_dropout = float(getattr(config, "backbone_dropout", 0.0))
         return Encoder(
             emb_dim,
             config.hidden_dim,
@@ -1859,6 +1881,10 @@ class CASE(nn.Module):
             total_key_depth=config.depth,
             total_value_depth=config.depth,
             filter_size=config.filter,
+            input_dropout=bb_dropout,
+            layer_dropout=bb_dropout,
+            attention_dropout=bb_dropout,
+            relu_dropout=bb_dropout,
             universal=config.universal,
         )
 
