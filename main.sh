@@ -249,17 +249,17 @@ PY
             EXTRA_FLAGS="$EXTRA_FLAGS --use_masked_react_pool"
         fi
         ;;
-    v11_d2_backbone_dropout)
+    v10_trial11_backbone_dropout|v11_d2_backbone_dropout)
         if [ "$ENV_MODE" != "24G" ]; then
-            echo "[V11 D2] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            echo "[V10 T11 / V11 D2] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
             exit 1
         fi
         if [ -n "$EXTRA_FLAGS" ]; then
-            echo "[V11 D2] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            echo "[V10 T11 / V11 D2] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
             exit 1
         fi
         if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
-            echo "[V11 D2] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            echo "[V10 T11 / V11 D2] Output already exists: $EXP_NAME; refusing to overwrite." >&2
             exit 1
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --backbone_dropout 0.1"
