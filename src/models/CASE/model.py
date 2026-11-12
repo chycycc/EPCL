@@ -1516,6 +1516,9 @@ class CASE(nn.Module):
         else:
             self.dec_emotion_linear = None
         self._last_eval_dec_emo_stats = None
+
+        # [V11 Fix 1 尺度对齐]
+        self.pcam_dec_emo_ln = bool(getattr(config, "pcam_dec_emo_ln", False))
         
         if config.weight_sharing:
             self.generator.proj.weight = self.embedding.lut.weight
@@ -1603,6 +1606,7 @@ class CASE(nn.Module):
             "actual_backbone_dropout_p": actual_bb_dropout_p,
             "actual_dec_layers": actual_dec_layers,
             "pcam_inner_ln": bool(self.pcam.pcam_inner_ln) if hasattr(self, "pcam") and hasattr(self.pcam, "pcam_inner_ln") else False,
+            "pcam_dec_emo_ln": self.pcam_dec_emo_ln,
             "use_main_emo_ce_anneal": self.use_main_emo_ce_anneal,
             "main_emo_ce_anneal_start": self.main_emo_ce_anneal_start,
             "main_emo_ce_anneal_end": self.main_emo_ce_anneal_end,
@@ -2633,7 +2637,14 @@ class CASE(nn.Module):
             if self.dataset == "ED":
                 mask_bool = mask_trg.squeeze(1) # [bsz, seq_len]
                 valid_lens = (~mask_bool).sum(dim=-1, keepdim=True).float().clamp(min=1.0)
-                pooled_dec = ((~mask_bool).unsqueeze(-1).float() * pre_logit).sum(dim=1) / valid_lens
+                
+                if self.pcam_dec_emo_ln:
+                    # [V11 Fix 1] 计算 pooled_dec 前对 pre_logit 做无参数 Token 级 LayerNorm 尺度对齐
+                    pre_logit_ln = F.layer_norm(pre_logit, (pre_logit.size(-1),), eps=1e-6)
+                    pooled_dec = ((~mask_bool).unsqueeze(-1).float() * pre_logit_ln).sum(dim=1) / valid_lens
+                else:
+                    pooled_dec = ((~mask_bool).unsqueeze(-1).float() * pre_logit).sum(dim=1) / valid_lens
+
                 dec_emo_head = (self.dec_emotion_linear
                                 if (getattr(self, "use_separate_dec_emo_head", False) and self.dec_emotion_linear is not None)
                                 else self.emotion_linear)
@@ -2653,6 +2664,8 @@ class CASE(nn.Module):
                             "batch_size": bsz_eval,
                             "ce_sum": ce_sum_eval,
                             "correct": correct_dec_eval,
+                            "cls_norm_sum": float(cls_emotion_feat.norm(p=2, dim=-1).sum().item()),
+                            "pooled_dec_norm_sum": float(pooled_dec.norm(p=2, dim=-1).sum().item()),
                         }
             else:
                 dec_emo_loss = torch.tensor(0.0, device=config.device)

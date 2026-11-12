@@ -311,6 +311,8 @@ def get_args():
                         help="[V11] 解码器 self.decoder 层数 (默认 None 表示沿用 config.hop)")
     parser.add_argument("--pcam_inner_ln", action="store_true", default=False,
                         help="[V11 Option B] 将 PCAM 的 LayerNorm 移入原型微扰分支内部: dec_output + tanh(gamma) * (gate * LayerNorm(h_proto))")
+    parser.add_argument("--pcam_dec_emo_ln", action="store_true", default=False,
+                        help="[V11 Fix 1] 计算 pooled_dec 前对 pre_logit 做无参数 Token 级 LayerNorm 尺度对齐")
     parser.add_argument("--skip_test", action="store_true", default=False,
                         help="是否跳过训练收尾时的 5255 样本全量生成测试（用于快速 dry run 验证）")
     # V9 大批次训练生命周期与早停步数重标定
