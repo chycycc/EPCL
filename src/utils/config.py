@@ -307,6 +307,8 @@ def get_args():
     # V11 架构超参数: 主干 Dropout 泛化与解码器层数消融
     parser.add_argument("--backbone_dropout", type=float, default=0.0,
                         help="[V11] CASE 模型中 Transformer 主干 (make_encoder 与 decoder) 四类 dropout 统一比率 (默认 0.0)")
+    parser.add_argument("--emo_branch_dropout", type=float, default=0.0,
+                        help="[V11 Long] 仅对情绪通路 (react_encoder 与 react_ctx_encoder) 生效的 dropout 比率 (默认 0.0)")
     parser.add_argument("--dec_layers", type=int, default=None,
                         help="[V11] 解码器 self.decoder 层数 (默认 None 表示沿用 config.hop)")
     parser.add_argument("--pcam_inner_ln", action="store_true", default=False,

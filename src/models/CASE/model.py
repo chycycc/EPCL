@@ -1221,9 +1221,10 @@ class CASE(nn.Module):
                                        mode="dot"
                                     )
         # Affection
-        self.react_encoder = self.make_encoder(config.emb_dim)
+        emo_drop = getattr(config, "emo_branch_dropout", None)
+        self.react_encoder = self.make_encoder(config.emb_dim, dropout=emo_drop)
         self.react_selfattn = SelfAttention(config.emb_dim, config.emb_dim)
-        self.react_ctx_encoder = self.make_encoder(2 * config.emb_dim)
+        self.react_ctx_encoder = self.make_encoder(2 * config.emb_dim, dropout=emo_drop)
         self.react_linear = nn.Linear(config.emb_dim, config.emb_dim)
         self.fine_emotion_selfattn = SelfAttention(config.emb_dim, config.emb_dim)
         self.emotion_gate = nn.Linear(config.emb_dim, 1)
@@ -1600,10 +1601,13 @@ class CASE(nn.Module):
 
         actual_dec_layers = len(self.decoder.dec) if isinstance(self.decoder.dec, (nn.Sequential, nn.ModuleList)) else 1
         actual_bb_dropout_p = float(self.decoder.input_dropout.p)
+        actual_emo_dropout_p = float(self.react_encoder.input_dropout.p)
         print("[Architecture Fingerprint] " + json.dumps({
             "backbone_dropout": float(getattr(config, "backbone_dropout", 0.0)),
+            "emo_branch_dropout": float(getattr(config, "emo_branch_dropout", 0.0)),
             "dec_layers": int(getattr(config, "dec_layers", None) if getattr(config, "dec_layers", None) is not None else config.hop),
             "actual_backbone_dropout_p": actual_bb_dropout_p,
+            "actual_emo_branch_dropout_p": actual_emo_dropout_p,
             "actual_dec_layers": actual_dec_layers,
             "pcam_inner_ln": bool(self.pcam.pcam_inner_ln) if hasattr(self, "pcam") and hasattr(self.pcam, "pcam_inner_ln") else False,
             "pcam_dec_emo_ln": self.pcam_dec_emo_ln,
@@ -1875,8 +1879,8 @@ class CASE(nn.Module):
         gate_params = sum(p.numel() for n, p in self.named_parameters() if n.endswith("prefix_gate"))
         print(f"[V9 T12] 新增参数={prefix_params + gate_params} (prefix_embed={prefix_params}, gate={gate_params}) | 总参数={total_params:,}")
 
-    def make_encoder(self, emb_dim):
-        bb_dropout = float(getattr(config, "backbone_dropout", 0.0))
+    def make_encoder(self, emb_dim, dropout=None):
+        bb_dropout = float(getattr(config, "backbone_dropout", 0.0)) if dropout is None else float(dropout)
         return Encoder(
             emb_dim,
             config.hidden_dim,

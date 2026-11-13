@@ -1090,6 +1090,8 @@ def evaluate(model, data, ty="valid", max_dec_step=30):
     dec_emo_ce_sum = 0.0
     dec_emo_correct_sum = 0
     dec_emo_sample_count = 0
+    dec_emo_cls_norm_sum = 0.0
+    dec_emo_pooled_norm_sum = 0.0
     
     pbar = tqdm(enumerate(data), total=len(data))
 
@@ -1107,6 +1109,8 @@ def evaluate(model, data, ty="valid", max_dec_step=30):
                     dec_emo_ce_sum += float(stats["ce_sum"])
                     dec_emo_correct_sum += int(stats["correct"])
                     dec_emo_sample_count += int(stats["batch_size"])
+                    dec_emo_cls_norm_sum += float(stats["cls_norm_sum"])
+                    dec_emo_pooled_norm_sum += float(stats["pooled_dec_norm_sum"])
             else:
                 # loss, ppl, bce_prog, acc_prog = model.train_one_batch(batch, 0, train=False)
                 raise ValueError(config.model + " Error!")
@@ -1194,6 +1198,8 @@ def evaluate(model, data, ty="valid", max_dec_step=30):
             "dec_emo_ce_batch_macro": float(np.mean(dec_emo_ce_batches)),
             "dec_emo_acc_sample_micro": float(dec_emo_correct_sum / dec_emo_sample_count),
             "dec_emo_correct": int(dec_emo_correct_sum),
+            "cls_norm_mean": float(dec_emo_cls_norm_sum / dec_emo_sample_count),
+            "pooled_dec_norm_mean": float(dec_emo_pooled_norm_sum / dec_emo_sample_count),
             "head_divergence": div_info,
         }
         save_dir = getattr(config, "save_path", None)

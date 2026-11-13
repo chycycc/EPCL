@@ -309,6 +309,21 @@ PY
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --pcam_dec_emo_ln"
         ;;
+    v10_trial13_emo_branch_dropout)
+        if [ "$ENV_MODE" != "24G" ]; then
+            echo "[V10 T13] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            exit 1
+        fi
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T13] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T13] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1"
+        ;;
 
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
