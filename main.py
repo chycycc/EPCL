@@ -203,7 +203,8 @@ def train(model, train_set, dev_set):
                     snap_dir = os.path.join(config.save_path, "snapshots")
                     os.makedirs(snap_dir, exist_ok=True)
                     torch.save({"iter": n_iter, "valid_ppl": ppl_val, "valid_emo_loss": emo_loss_val,
-                                "model": model.state_dict()},
+                                "model": model.state_dict(),
+                                "use_fine_mim_valid_neg": getattr(model, "use_fine_mim_valid_neg", False)},
                                os.path.join(snap_dir, f"SNAP_{n_iter}"))
                     print(f"[Snapshot] Step {n_iter}: 已写入快照 SNAP_{n_iter} (Valid PPL={ppl_val:.4f}, EMO_loss={emo_loss_val:.4f})")
 

@@ -1360,6 +1360,7 @@ class CASE(nn.Module):
             config.use_pcmg_head = direct_checkpoint.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
             config.use_emotion_routing = direct_checkpoint.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
             config.use_masked_react_pool = direct_checkpoint.get("use_masked_react_pool", False)
+            config.use_fine_mim_valid_neg = direct_checkpoint.get("use_fine_mim_valid_neg", False)
             if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
                 config.use_emo_group_lr = True
             if config.use_pcg_pcam:
@@ -1483,6 +1484,7 @@ class CASE(nn.Module):
         self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
         self.use_emotion_routing = bool(getattr(config, "use_emotion_routing", False))
         self.use_masked_react_pool = bool(getattr(config, "use_masked_react_pool", False))
+        self.use_fine_mim_valid_neg = bool(getattr(config, "use_fine_mim_valid_neg", False))
         assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
             assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
@@ -1629,6 +1631,7 @@ class CASE(nn.Module):
             "use_pcmg_head": self.use_pcmg_head,
             "use_emotion_routing": self.use_emotion_routing,
             "use_masked_react_pool": self.use_masked_react_pool,
+            "use_fine_mim_valid_neg": self.use_fine_mim_valid_neg,
             "pcmg_split_lambda": PCMG_SPLIT_LAMBDA if self.use_pcmg_head else 0.0,
             "pcmg_proto_weight": PCMG_PROTO_WEIGHT if self.use_pcmg_head else 0.0,
             "pcmg_proto_tau": PCMG_PROTO_TAU if self.use_pcmg_head else 0.0,
@@ -1961,6 +1964,7 @@ class CASE(nn.Module):
             "use_pcmg_head": self.use_pcmg_head,
             "use_emotion_routing": self.use_emotion_routing,
             "use_masked_react_pool": self.use_masked_react_pool,
+            "use_fine_mim_valid_neg": self.use_fine_mim_valid_neg,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
@@ -2066,7 +2070,35 @@ class CASE(nn.Module):
         mim_loss = cs_loss + concept_loss
         return mim_loss
     
-    def fine_grained_infomax_score(self, cs_enc, cs_fake_enc, react_enc, react_fake_enc, mask):
+    def build_react_slot_valid_mask(self, batch):
+        """严格按 react_enc 的展开顺序构造真实 xReact 槽位有效性掩码。"""
+        react_batch = batch["react_batch"]
+        split_mask = batch["uttr_split_react_mask"]
+        bsz, uttr_num, _ = react_batch.shape
+        split_num = split_mask.size(1)
+        assert uttr_num == split_num + 1, "xReact utterance/mask shape mismatch"
+        present = torch.cat((
+            torch.ones((bsz, 1), dtype=torch.bool, device=react_batch.device),
+            split_mask.eq(1),
+        ), dim=1)
+        valid = (react_batch.ne(config.PAD_idx).any(dim=-1) & present).float()
+        parts = [valid[:, :1].expand(bsz, int(batch["max_uttr_cs_num"]))]
+        for key in ("split_intent_num", "split_need_num", "split_want_num", "split_effect_num"):
+            count = int(batch[key])
+            parts.append(valid[:, 1:].unsqueeze(2).expand(
+                bsz, split_num, count).reshape(bsz, split_num * count))
+        result = torch.cat(parts, dim=1)
+        assert result.shape == batch["cs_mask"].shape, "xReact/common-sense slot shape mismatch"
+        return result
+
+    def fine_grained_infomax_score(self, cs_enc, cs_fake_enc, react_enc, react_fake_enc, mask, react_valid_mask=None):
+        if self.use_fine_mim_valid_neg:
+            assert react_valid_mask is not None and react_valid_mask.shape == mask.shape
+            anchor_mask = mask.ne(0).float()
+            react_donor_valid = torch.cat((react_valid_mask[-1:], react_valid_mask[:-1]), dim=0)
+            cs_donor_valid = torch.cat((anchor_mask[-1:], anchor_mask[:-1]), dim=0)
+            mask_cs = (anchor_mask * react_donor_valid).flatten()
+            mask_react = (anchor_mask * cs_donor_valid).flatten()
         bsz, num, _ = cs_enc.size()
         cs_enc = cs_enc.reshape(bsz*num, -1)
         cs_fake_enc = cs_fake_enc.reshape(bsz*num, -1)
@@ -2080,13 +2112,19 @@ class CASE(nn.Module):
         cs_fake_logits = torch.sigmoid(torch.sum(cs_fake_score, -1))
         cs_distance = torch.sigmoid(logits - cs_fake_logits)
         cs_loss = self.criterion_bce_fine(cs_distance, torch.ones_like(cs_distance, dtype=torch.float32))
-        cs_loss = torch.sum(cs_loss * mask.flatten()) / torch.sum(mask.flatten())
+        if self.use_fine_mim_valid_neg:
+            cs_loss = torch.sum(cs_loss * mask_cs) / mask_cs.sum().clamp_min(1.0)
+        else:
+            cs_loss = torch.sum(cs_loss * mask.flatten()) / torch.sum(mask.flatten())
         
         react_fake_score = torch.mul(cs_fake_enc, react_enc)
         react_fake_logits = torch.sigmoid(torch.sum(react_fake_score, -1))
         react_distance = torch.sigmoid(logits - react_fake_logits)
         react_loss = self.criterion_bce_fine(react_distance, torch.ones_like(react_distance, dtype=torch.float32))
-        react_loss = torch.sum(react_loss * mask.flatten()) / torch.sum(mask.flatten())
+        if self.use_fine_mim_valid_neg:
+            react_loss = torch.sum(react_loss * mask_react) / mask_react.sum().clamp_min(1.0)
+        else:
+            react_loss = torch.sum(react_loss * mask.flatten()) / torch.sum(mask.flatten())
         
         fine_mim_loss = cs_loss + react_loss
         return fine_mim_loss
@@ -2385,7 +2423,13 @@ class CASE(nn.Module):
             assert react_enc.size(1) == cs_num
             react_fake_enc = torch.cat((react_enc[-1].unsqueeze(0), react_enc[:-1]), dim=0)
             commonsense_fake_outputs = torch.cat((commonsense_outputs[-1].unsqueeze(0), commonsense_outputs[:-1]), dim=0)
-            fine_mim_loss = self.fine_grained_infomax_score(commonsense_outputs, commonsense_fake_outputs, react_enc, react_fake_enc, commonsense_mask)
+            if self.use_fine_mim_valid_neg:
+                fine_mim_loss = self.fine_grained_infomax_score(
+                    commonsense_outputs, commonsense_fake_outputs, react_enc, react_fake_enc,
+                    commonsense_mask, react_valid_mask=self.build_react_slot_valid_mask(batch))
+            else:
+                fine_mim_loss = self.fine_grained_infomax_score(
+                    commonsense_outputs, commonsense_fake_outputs, react_enc, react_fake_enc, commonsense_mask)
         
             # === [Phase 7 / A5 修复] MIM 负采样退化与冻结期判定 ===
             # 1) 分类头冻结后 (is_currently_frozen) 已关闭 MIM 优化，评测时同步置零保持语义一致；

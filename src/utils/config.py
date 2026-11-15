@@ -262,6 +262,8 @@ def get_args():
                         help="[V10 T7] 原型校准多粒度情绪头：话语/子句 xReact 凸组合 + 线性/原型余弦 logits 凸组合")
     parser.add_argument("--use_masked_react_pool", action="store_true", default=False,
                         help="Pool only non-PAD xReact tokens; preserve legacy pooling unless enabled")
+    parser.add_argument("--use_fine_mim_valid_neg", action="store_true", default=False,
+                        help="[V10 T15] 过滤细粒度 MIM 无效负样本供体并按各方向有效配对独立归一化，保留原打分与权重")
     parser.add_argument("--use_emotion_routing", action="store_true", default=False,
                         help="[V10 T8] 分类保留多粒度情绪特征，生成直接上下文使用话语级特征")
     parser.add_argument("--save_snapshots_from", type=int, default=0,
