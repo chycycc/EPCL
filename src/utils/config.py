@@ -155,6 +155,14 @@ def get_args():
                         help="PCAM 交叉注意力的平滑温度系数 (默认 1.5，防止注意力权重过度锐化)")
     parser.add_argument("--use_pcg_pcam", action="store_true", default=False,
                         help="[V10 T5] 启用后验与情境引导 PCG-PCAM（同尺度混合记忆与可导原型路由对数先验）")
+    parser.add_argument("--use_pcam_emo_prior", action="store_true", default=False,
+                        help="[V10 T18] 启用双头分工 PCAM 情绪原型先验路由（Head 0 自由全局记忆 + Head 1 编码端无梯度情绪先验）")
+    parser.add_argument("--pcam_prior_tau", type=float, default=2.0,
+                        help="[V10 T18] PCAM 情绪原型先验软化温度系数 (默认 2.0)")
+    parser.add_argument("--pcam_prior_ramp_start", type=int, default=1500,
+                        help="[V10 T18] PCAM 情绪原型先验线性冷启动爬坡起始步数 (默认 1500)")
+    parser.add_argument("--pcam_prior_ramp_end", type=int, default=3000,
+                        help="[V10 T18] PCAM 情绪原型先验线性冷启动爬坡满额步数 (默认 3000)")
     
     # V7 架构超参数: 高维解缠残差投影头 (ERP) 与动态超网络原型 (CCHP)
     parser.add_argument("--use_erp", action="store_true", default=False,

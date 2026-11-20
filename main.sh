@@ -377,6 +377,22 @@ PY
                 ;;
         esac
         ;;
+    v10_trial18_pcam_emo_prior)
+        if [ "$ENV_MODE" != "24G" ]; then
+            echo "[V10 T18] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            exit 1
+        fi
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T18] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T18] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        # [V10 T18] 在正式 T15 底座上仅追加双头分工 PCAM 情绪先验路由（Head 0 自由记忆 + Head 1 无梯度情绪先验）
+        EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1 --use_fine_mim_valid_neg --use_pcam_emo_prior --pcam_prior_tau 2.0 --pcam_prior_ramp_start 1500 --pcam_prior_ramp_end 3000"
+        ;;
 
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分

@@ -390,6 +390,9 @@ class Translator(object):
             else:
                 emo_gate = static_gate
             emotion_enc = emo_gate * concept_enc + (1 - emo_gate) * gen_emotion
+            if getattr(self.model, "use_pcam_emo_prior", False) and self.model.dataset == "ED":
+                cls_emotion_feat = self.model.resolve_cls_emotion_feat(fine_emotion, emotion_enc)
+                route_log_prior = self.model.compute_pcam_emo_prior(cls_emotion_feat, proj_norm, proto_norm)
             
             # [V8.1 路线 A] 解码端情感词表偏置投影更新 (基于 KEMP)
             if getattr(self.model, 'use_emo_bias', False):
@@ -427,6 +430,9 @@ class Translator(object):
             src_enc = src_enc.repeat(1, n_bm, 1).view(n_inst * n_bm, len_s, d_h)
             if getattr(self.model, "use_pcg_pcam", False):
                 pcam_ctx_slots = torch.stack([concept_enc, cs_enc], dim=1).repeat(1, n_bm, 1).view(n_inst * n_bm, 2, d_h)
+                pcam_route_log_prior = route_log_prior.repeat(1, n_bm).view(n_inst * n_bm, -1)
+            elif getattr(self.model, "use_pcam_emo_prior", False) and self.model.dataset == "ED":
+                pcam_ctx_slots = None
                 pcam_route_log_prior = route_log_prior.repeat(1, n_bm).view(n_inst * n_bm, -1)
             else:
                 pcam_ctx_slots = None

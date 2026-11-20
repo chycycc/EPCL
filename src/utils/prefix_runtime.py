@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader, Subset
 PREFIX_NORM_MODE = "shared_gamma_std_no_beta_v1"
 DEC_EMO_HEAD_MODE = "separate_linear_v1"
 PCG_PCAM_MODE = "posterior_context_guided_v1"
+PCAM_EMO_PRIOR_MODE = "head1_emo_prior_v1"
 FROZEN_INIT_SHA256 = {
     "proto": "f061c61c9499c202e82586018cf6755364683c434ca013eafe6ec8b20d414169",
     "random": "c079bcb310653061f3c704140eda6d367dffdaf3d309178066b571a355c0de94",
@@ -52,13 +53,13 @@ def checkpoint_pcg_pcam(checkpoint):
     state = checkpoint.get("model", checkpoint)
     pcg_keys = {k for k in state if k in ("pcam.route_beta", "pcam.ctx_slot_bias")}
     mode = checkpoint.get("pcam_mode")
-    if mode not in (None, "none", "legacy_pcam", PCG_PCAM_MODE):
+    if mode not in (None, "none", "legacy_pcam", PCG_PCAM_MODE, PCAM_EMO_PRIOR_MODE):
         raise RuntimeError("未知的检查点 pcam_mode: " + str(mode))
     if pcg_keys:
         expected_keys = {"pcam.route_beta", "pcam.ctx_slot_bias"}
         if pcg_keys != expected_keys:
             raise RuntimeError("PCG-PCAM 参数键不完整: " + str(sorted(pcg_keys)))
-        if mode in ("none", "legacy_pcam"):
+        if mode in ("none", "legacy_pcam", PCAM_EMO_PRIOR_MODE):
             raise RuntimeError(f"检查点 pcam_mode={mode!r} 与 PCG-PCAM 权重键冲突")
         rb = state["pcam.route_beta"]
         cb = state["pcam.ctx_slot_bias"]
@@ -70,6 +71,33 @@ def checkpoint_pcg_pcam(checkpoint):
     if mode == PCG_PCAM_MODE:
         raise RuntimeError("检查点声明 pcam_mode='posterior_context_guided_v1' 但缺失 PCG-PCAM 权重")
     return False
+
+
+def checkpoint_pcam_emo_prior(checkpoint):
+    """识别并交叉校验检查点中的双头分工 PCAM 情绪先验拓扑与温度元数据（铁律 IV）。"""
+    state = checkpoint.get("model", checkpoint)
+    has_beta = "pcam.route_beta_1" in state
+    mode = checkpoint.get("pcam_mode")
+    flag = checkpoint.get("use_pcam_emo_prior")
+    tau = checkpoint.get("pcam_prior_tau")
+    if mode not in (None, "none", "legacy_pcam", PCG_PCAM_MODE, PCAM_EMO_PRIOR_MODE):
+        raise RuntimeError("未知的检查点 pcam_mode: " + str(mode))
+    if has_beta:
+        if mode in ("none", "legacy_pcam", PCG_PCAM_MODE) or flag is False:
+            raise RuntimeError(
+                f"检查点元数据 (pcam_mode={mode!r}, use_pcam_emo_prior={flag!r}) 与 pcam.route_beta_1 权重冲突"
+            )
+        rb1 = state["pcam.route_beta_1"]
+        if not (isinstance(rb1, torch.Tensor) and rb1.ndim == 1 and rb1.numel() == 1 and torch.isfinite(rb1).all()):
+            raise RuntimeError("pcam.route_beta_1 参数张量维度异常或包含非有限值")
+        if tau is not None:
+            tau = float(tau)
+            if not (tau > 0.0 and np.isfinite(tau)):
+                raise RuntimeError(f"检查点 pcam_prior_tau 非法: {tau!r}")
+        return True, tau
+    if mode == PCAM_EMO_PRIOR_MODE or flag is True:
+        raise RuntimeError("检查点声明启用 PCAM 情绪先验，但缺失 pcam.route_beta_1 权重")
+    return False, None
 
 
 @torch.no_grad()

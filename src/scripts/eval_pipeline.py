@@ -267,9 +267,17 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
                 raise RuntimeError("Checkpoint prefix metadata/weights disagree; refusing topology fallback")
         config.use_proto_prefix_gate = bool(gate_keys)
         config.use_proto_prefix_norm = checkpoint_prefix_norm(state_preview)
-        from src.utils.prefix_runtime import checkpoint_separate_dec_emo_head, checkpoint_pcg_pcam
+        from src.utils.prefix_runtime import (
+            checkpoint_separate_dec_emo_head,
+            checkpoint_pcg_pcam,
+            checkpoint_pcam_emo_prior,
+        )
         config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(state_preview)
         config.use_pcg_pcam = checkpoint_pcg_pcam(state_preview)
+        ckpt_pcam_emo_prior, ckpt_pcam_prior_tau = checkpoint_pcam_emo_prior(state_preview)
+        config.use_pcam_emo_prior = ckpt_pcam_emo_prior
+        if ckpt_pcam_prior_tau is not None:
+            config.pcam_prior_tau = ckpt_pcam_prior_tau
         config.use_pcmg_head = state_preview.get("use_pcmg_head", getattr(config, "use_pcmg_head", False))
         config.use_emotion_routing = state_preview.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
         config.use_masked_react_pool = state_preview.get("use_masked_react_pool", False)
@@ -278,12 +286,13 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
         config.disable_all_prototypes = bool(state_preview.get("disable_all_prototypes", False))
         if config.disable_all_prototypes:
             assert not config.use_pcam, "整体去原型消融检查点不应包含 PCAM 权重"
-        if config.use_pcg_pcam:
+        if config.use_pcg_pcam or config.use_pcam_emo_prior:
             config.use_pcam = True
         print(f"    [自适应拓扑] use_proto_prefix_norm={config.use_proto_prefix_norm}")
         print(f"    [自适应拓扑] use_proto_prefix_gate={config.use_proto_prefix_gate}")
         print(f"    [自适应拓扑] use_separate_dec_emo_head={config.use_separate_dec_emo_head}")
         print(f"    [自适应拓扑] use_pcg_pcam={config.use_pcg_pcam}")
+        print(f"    [自适应拓扑] use_pcam_emo_prior={config.use_pcam_emo_prior} (tau={getattr(config, 'pcam_prior_tau', 2.0)})")
         print(f"    [自适应拓扑] disable_epcl_loss={config.disable_epcl_loss}")
         print(f"    [自适应拓扑] disable_all_prototypes={config.disable_all_prototypes}")
         del state_preview
@@ -291,6 +300,7 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
         config.emotion_head_type = getattr(config, "emotion_head_type", "linear")
         config.use_pcam = getattr(config, "use_pcam", False)
         config.use_pcg_pcam = getattr(config, "use_pcg_pcam", False)
+        config.use_pcam_emo_prior = getattr(config, "use_pcam_emo_prior", False)
         config.use_erp = use_erp
         config.use_separate_dec_emo_head = getattr(config, "use_separate_dec_emo_head", False)
 
@@ -365,12 +375,19 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
     if hasattr(model, "print_dec_emo_head_status"):
         model.print_dec_emo_head_status(stage="checkpoint_restored")
 
-    # [V8.2 C] 从检查点文件名识别训练保存 Step 赋给 model.current_step，对齐偏置衰减
-    fname = os.path.basename(checkpoint_path)
-    parts = fname.split("_")
-    if len(parts) >= 2 and parts[1].isdigit():
-        model.current_step = int(parts[1])
-        print(f"[*] [V8.2 C] 成功恢复模型保存 Step={model.current_step}，对应偏置退火因子 w_bias={model.get_bias_scale():.4f}")
+    # [V8.2 C / V10 T18] 优先从检查点元数据 iter 恢复保存步数，再回退文件名，均无则保持 999999
+    if isinstance(state, dict) and state.get("iter") is not None:
+        model.current_step = int(state["iter"])
+    else:
+        fname = os.path.basename(checkpoint_path)
+        parts = fname.split("_")
+        if len(parts) >= 2 and parts[1].isdigit():
+            model.current_step = int(parts[1])
+        else:
+            model.current_step = 999999
+    print(f"[*] [V8.2 C] 成功恢复模型保存 Step={model.current_step}，对应偏置退火因子 w_bias={model.get_bias_scale():.4f}")
+    if getattr(model, "use_pcam_emo_prior", False):
+        print(f"[*] [V10 T18] 离线评测 PCAM 情绪先验激活状态: ramp={model.get_pcam_prior_ramp():.4f}, tau={model.pcam_prior_tau:.4f}")
 
     if getattr(config, 'use_sparse_emo_bias', False):
         print(f"[*] [V8.2] 正在依据模型权重刷新原型-词向量自适应稀疏偏置掩码...")
