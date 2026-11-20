@@ -107,6 +107,9 @@ else
     # LOG_FILE="logs/${EXP_NAME}_orig16.log"
 fi
 
+USE_PCAM_FLAG="--use_pcam"
+USE_PCGRAD_FLAG="--use_pcgrad"
+
 # Trial12 gate variants use this same entry point; no extra launcher.
 case "$EXP_NAME" in
     v9_trial12_gate_proto|v9_trial12_gate_rand|v9_trial12_gate_norm_proto|v9_trial12_gate_norm_rand)
@@ -339,6 +342,41 @@ PY
         fi
         EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1 --use_fine_mim_valid_neg"
         ;;
+    v10_trial15_wo_pcam|v10_trial15_wo_pcmg|v10_trial15_wo_epcl|v10_trial15_wo_pcgrad|v10_trial15_wo_all_proto)
+        if [ "$ENV_MODE" != "24G" ]; then
+            echo "[V10 T15 Ablation] This profile requires 24G (batch32/accum1); the schedule is not mapped to 4G." >&2
+            exit 1
+        fi
+        if [ -n "$EXTRA_FLAGS" ]; then
+            echo "[V10 T15 Ablation] This named profile fixes EXTRA_FLAGS; unset inherited overrides first." >&2
+            exit 1
+        fi
+        if [ -e "$OUTPUT_DIR" ] || [ -e "$LOG_FILE" ]; then
+            echo "[V10 T15 Ablation] Output already exists: $EXP_NAME; refusing to overwrite." >&2
+            exit 1
+        fi
+        # 基于 v10_trial15_fine_mim_valid_neg (43f87f1) 的 5 臂单变量/整体去原型消融配置
+        case "$EXP_NAME" in
+            v10_trial15_wo_pcam)
+                USE_PCAM_FLAG=""
+                EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --emo_branch_dropout 0.1 --use_fine_mim_valid_neg"
+                ;;
+            v10_trial15_wo_pcmg)
+                EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1 --use_fine_mim_valid_neg"
+                ;;
+            v10_trial15_wo_epcl)
+                EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1 --use_fine_mim_valid_neg --disable_epcl_loss"
+                ;;
+            v10_trial15_wo_pcgrad)
+                USE_PCGRAD_FLAG=""
+                EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --pcam_inner_ln --emo_branch_dropout 0.1 --use_fine_mim_valid_neg"
+                ;;
+            v10_trial15_wo_all_proto)
+                USE_PCAM_FLAG=""
+                EXTRA_FLAGS="--max_grad_norm 0.0 --arc_margin_ramp_steps 2500 --use_pcmg_head --save_snapshots_from 6499 --use_masked_react_pool --emo_branch_dropout 0.1 --use_fine_mim_valid_neg --disable_all_prototypes"
+                ;;
+        esac
+        ;;
 
     v10_trial3_clip6_seed2|v10_trial3_noclip_seed2)
         # 种子复现：仅改训练种子（数据划分 split_data_seed 保持默认 13），裁剪阈值按配置名区分
@@ -452,13 +490,13 @@ ${pythonpath} main.py \
   --arc_mode cos \
   --epcl_anchor fine_emotion \
   --cls_anchor default \
-  --use_pcam \
+  ${USE_PCAM_FLAG} \
   --pcam_heads 2 \
   --pcam_dropout 0.1 \
   --pcam_gate_bias -1.0 \
   --pcam_tau_attn 1.5 \
   --emo_bias_gate_init -2.0 \
-  --use_pcgrad \
+  ${USE_PCGRAD_FLAG} \
   --gate_warmup_steps ${GATE_WARMUP} \
   --mask_update_interval ${MASK_INTERVAL} \
   --use_bias_annealing \
@@ -596,7 +634,7 @@ done
 if compgen -G "${OUTPUT_DIR}/CASE_*_best" > /dev/null; then
     sha256sum "${OUTPUT_DIR}"/CASE_*_best > "${DOWNLOAD_DIR}/checkpoint_sha256.txt"
 fi
-sha256sum main.sh main.py src/models/common.py src/models/CASE/model.py src/utils/config.py src/utils/prefix_runtime.py src/utils/data/loader.py src/scripts/eval_pipeline.py src/scripts/eval_prototype_ncm.py > "${DOWNLOAD_DIR}/source_sha256.txt"
+sha256sum main.sh main.py src/models/common.py src/models/CASE/model.py src/utils/config.py src/utils/prefix_runtime.py src/utils/data/loader.py src/utils/decode/case.py src/scripts/eval_pipeline.py src/scripts/eval_prototype_ncm.py > "${DOWNLOAD_DIR}/source_sha256.txt"
 }
 # END_ARTIFACT_PACKAGING
 

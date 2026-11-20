@@ -274,12 +274,18 @@ def load_v8_model(checkpoint_path, batch_size=32, use_mcp=True, use_erp=True, us
         config.use_emotion_routing = state_preview.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
         config.use_masked_react_pool = state_preview.get("use_masked_react_pool", False)
         config.use_fine_mim_valid_neg = state_preview.get("use_fine_mim_valid_neg", False)
+        config.disable_epcl_loss = bool(state_preview.get("disable_epcl_loss", False))
+        config.disable_all_prototypes = bool(state_preview.get("disable_all_prototypes", False))
+        if config.disable_all_prototypes:
+            assert not config.use_pcam, "整体去原型消融检查点不应包含 PCAM 权重"
         if config.use_pcg_pcam:
             config.use_pcam = True
         print(f"    [自适应拓扑] use_proto_prefix_norm={config.use_proto_prefix_norm}")
         print(f"    [自适应拓扑] use_proto_prefix_gate={config.use_proto_prefix_gate}")
         print(f"    [自适应拓扑] use_separate_dec_emo_head={config.use_separate_dec_emo_head}")
         print(f"    [自适应拓扑] use_pcg_pcam={config.use_pcg_pcam}")
+        print(f"    [自适应拓扑] disable_epcl_loss={config.disable_epcl_loss}")
+        print(f"    [自适应拓扑] disable_all_prototypes={config.disable_all_prototypes}")
         del state_preview
     else:
         config.emotion_head_type = getattr(config, "emotion_head_type", "linear")

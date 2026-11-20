@@ -375,9 +375,9 @@ class Translator(object):
             gen_emotion = react_batch_enc[:, 0] if self.model.use_emotion_routing else fine_emotion
             emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
-            # Match teacher forcing / Greedy: ED also uses prototype routing.
+            # 与训练/Greedy 对齐：ED 默认启用原型路由；整体去原型消融时跳过原型路径
             route_log_prior = None
-            if self.model.dataset == "ED":
+            if self.model.dataset == "ED" and not getattr(self.model, "disable_all_prototypes", False):
                 projected_features = self.model.epcl_criterion.projection_head(fine_emotion)
                 proj_norm = (projected_features if getattr(self.model.epcl_criterion, "use_erp", False)
                              else torch.nn.functional.normalize(projected_features, p=2, dim=1))

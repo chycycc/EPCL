@@ -264,6 +264,10 @@ def get_args():
                         help="Pool only non-PAD xReact tokens; preserve legacy pooling unless enabled")
     parser.add_argument("--use_fine_mim_valid_neg", action="store_true", default=False,
                         help="[V10 T15] 过滤细粒度 MIM 无效负样本供体并按各方向有效配对独立归一化，保留原打分与权重")
+    parser.add_argument("--disable_epcl_loss", action="store_true", default=False,
+                        help="[V10 T15 消融] 仅关闭 EPCL 对比损失（含 Arc-EPCL 与类间均匀性），保留 MCP 质心更新与下游消费")
+    parser.add_argument("--disable_all_prototypes", action="store_true", default=False,
+                        help="[V10 T15 消融] 整体关闭全部原型路径（EPCL+MCP+MoP-DR+PCMG 原型读出+PCAM），保留非原型多粒度聚合与共有监督")
     parser.add_argument("--use_emotion_routing", action="store_true", default=False,
                         help="[V10 T8] 分类保留多粒度情绪特征，生成直接上下文使用话语级特征")
     parser.add_argument("--save_snapshots_from", type=int, default=0,

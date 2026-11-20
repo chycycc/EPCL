@@ -1361,6 +1361,10 @@ class CASE(nn.Module):
             config.use_emotion_routing = direct_checkpoint.get("use_emotion_routing", getattr(config, "use_emotion_routing", False))
             config.use_masked_react_pool = direct_checkpoint.get("use_masked_react_pool", False)
             config.use_fine_mim_valid_neg = direct_checkpoint.get("use_fine_mim_valid_neg", False)
+            config.disable_epcl_loss = bool(direct_checkpoint.get("disable_epcl_loss", getattr(config, "disable_epcl_loss", False)))
+            config.disable_all_prototypes = bool(direct_checkpoint.get("disable_all_prototypes", getattr(config, "disable_all_prototypes", False)))
+            if config.disable_all_prototypes:
+                config.use_pcam = False
             if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
                 config.use_emo_group_lr = True
             if config.use_pcg_pcam:
@@ -1485,6 +1489,22 @@ class CASE(nn.Module):
         self.use_emotion_routing = bool(getattr(config, "use_emotion_routing", False))
         self.use_masked_react_pool = bool(getattr(config, "use_masked_react_pool", False))
         self.use_fine_mim_valid_neg = bool(getattr(config, "use_fine_mim_valid_neg", False))
+        self.disable_epcl_loss = bool(getattr(config, "disable_epcl_loss", False))
+        self.disable_all_prototypes = bool(getattr(config, "disable_all_prototypes", False))
+        assert not (self.disable_epcl_loss and self.disable_all_prototypes), (
+            "disable_epcl_loss 与 disable_all_prototypes 互斥，不可同时启用"
+        )
+        if self.disable_all_prototypes:
+            assert not self.use_pcam and not self.use_pcg_pcam, (
+                "整体去原型消融 (disable_all_prototypes=True) 严禁启用 PCAM"
+            )
+            assert not self.use_emo_bias, (
+                "整体去原型消融不支持情感词表偏置"
+            )
+            # 冻结惰性原型参数，避免梯度更新或误入 PCGrad 共有参数集合
+            for param_name, param in self.named_parameters():
+                if param_name.startswith(("epcl_criterion.", "router_linear.")):
+                    param.requires_grad_(False)
         assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
             assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
@@ -1632,9 +1652,13 @@ class CASE(nn.Module):
             "use_emotion_routing": self.use_emotion_routing,
             "use_masked_react_pool": self.use_masked_react_pool,
             "use_fine_mim_valid_neg": self.use_fine_mim_valid_neg,
+            "use_pcam": bool(self.use_pcam),
+            "use_pcgrad": bool(self.use_pcgrad),
+            "disable_epcl_loss": self.disable_epcl_loss,
+            "disable_all_prototypes": self.disable_all_prototypes,
             "pcmg_split_lambda": PCMG_SPLIT_LAMBDA if self.use_pcmg_head else 0.0,
-            "pcmg_proto_weight": PCMG_PROTO_WEIGHT if self.use_pcmg_head else 0.0,
-            "pcmg_proto_tau": PCMG_PROTO_TAU if self.use_pcmg_head else 0.0,
+            "pcmg_proto_weight": PCMG_PROTO_WEIGHT if (self.use_pcmg_head and not self.disable_all_prototypes) else 0.0,
+            "pcmg_proto_tau": PCMG_PROTO_TAU if (self.use_pcmg_head and not self.disable_all_prototypes) else 0.0,
         }))
 
     def pool_react_tokens(self, outputs, tokens):
@@ -1906,7 +1930,7 @@ class CASE(nn.Module):
         ctx_repr: [bsz, d_model] 可选上下文表征 (用于 CCHP 动态原型生成)
         返回: 经 PCAM 增强后的隐状态 (若未启用 PCAM 则返回原张量)
         """
-        if getattr(self, "use_pcam", False) and hasattr(self, "pcam") and hasattr(self, "epcl_criterion"):
+        if not getattr(self, "disable_all_prototypes", False) and getattr(self, "use_pcam", False) and hasattr(self, "pcam") and hasattr(self, "epcl_criterion"):
             if getattr(self.epcl_criterion, "use_cchp", False) and ctx_repr is not None:
                 protos, _ = self.epcl_criterion.cchp(ctx_repr=ctx_repr)
             else:
@@ -1965,6 +1989,8 @@ class CASE(nn.Module):
             "use_emotion_routing": self.use_emotion_routing,
             "use_masked_react_pool": self.use_masked_react_pool,
             "use_fine_mim_valid_neg": self.use_fine_mim_valid_neg,
+            "disable_epcl_loss": self.disable_epcl_loss,
+            "disable_all_prototypes": self.disable_all_prototypes,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
@@ -2133,7 +2159,7 @@ class CASE(nn.Module):
     def update_adaptive_vocab_mask(self):
         """[V8.2 创新机制 1] 原型-词嵌入拓扑亲和度掩码自适应更新
         无需外部静态词典，基于超球面几何余弦亲和度自动诱导稀疏掩码，使 85% 功能词 Zero-Mask"""
-        if not getattr(self, 'use_sparse_emo_bias', False):
+        if getattr(self, 'disable_all_prototypes', False) or not getattr(self, 'use_sparse_emo_bias', False):
             return
         
         # 1. 提取原型矩阵 P (C, D)
@@ -2451,10 +2477,10 @@ class CASE(nn.Module):
             emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
             
-            # [MoP-DR] Prototype dynamic routing (compatible with K*C prototypes)
+            # [MoP-DR] 原型动态路由门控；整体去原型消融时跳过并退回静态门控
             pcam_protos_snapshot = None
             route_log_prior = None
-            if self.dataset == "ED":
+            if self.dataset == "ED" and not self.disable_all_prototypes:
                 projected_features = self.epcl_criterion.projection_head(fine_emotion)
                 if getattr(self.epcl_criterion, "use_erp", False):
                     proj_norm = projected_features
@@ -2508,7 +2534,7 @@ class CASE(nn.Module):
                 cls_emotion_feat = target_emotion_feat
 
             # 显式记录 target 表征投影 (供流形几何度量与可视化直接读取)
-            if hasattr(self, "epcl_criterion") and hasattr(self.epcl_criterion, "projection_head"):
+            if not self.disable_all_prototypes and hasattr(self, "epcl_criterion") and hasattr(self.epcl_criterion, "projection_head"):
                 with torch.no_grad():
                     proj_temp = self.epcl_criterion.projection_head(target_emotion_feat)
                     if getattr(self.epcl_criterion, "use_erp", False):
@@ -2524,9 +2550,20 @@ class CASE(nn.Module):
             current_tau = tau_min + (tau_max - tau_min) * (1 + math.cos(math.pi * min(iter, max_epcl_step) / max_epcl_step)) / 2
 
             # [v3 P3 / V7 / V8] 单锚点 EPCL 与 CCHP 位移正则项计算 (输入 target_emotion_feat)
-            if self.dataset == "ED" and train:
+            if self.dataset == "ED" and train and not self.disable_all_prototypes:
                 ctx_repr_for_cchp = enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None
-                epcl_loss, cchp_reg_loss = self.epcl_criterion(target_emotion_feat, batch["program_label"], tau=current_tau, ctx_repr=ctx_repr_for_cchp, step=iter)
+                if self.disable_epcl_loss:
+                    # [V10 T15 消融定义 A] 关闭 EPCL 对比损失梯度，仅保留 MCP 动量质心滚动更新
+                    if getattr(self.epcl_criterion, "use_mcp", False):
+                        with torch.no_grad():
+                            proj_mcp = self.epcl_criterion.projection_head(target_emotion_feat)
+                            if not getattr(self.epcl_criterion, "use_erp", False):
+                                proj_mcp = F.normalize(proj_mcp, p=2, dim=1)
+                            self.epcl_criterion._update_mcp_prototypes(proj_mcp, batch["program_label"])
+                    epcl_loss = torch.tensor(0.0, device=config.device)
+                    cchp_reg_loss = torch.tensor(0.0, device=config.device)
+                else:
+                    epcl_loss, cchp_reg_loss = self.epcl_criterion(target_emotion_feat, batch["program_label"], tau=current_tau, ctx_repr=ctx_repr_for_cchp, step=iter)
             else:
                 epcl_loss = torch.tensor(0.0, device=config.device)
                 cchp_reg_loss = torch.tensor(0.0, device=config.device)
@@ -2544,7 +2581,7 @@ class CASE(nn.Module):
             if self.dataset == "ED":
                 # [V8 Trial 4] 分类头挂载至 cls_emotion_feat（支持与生成端双锚点解耦）
                 emotion_logits = self.emotion_linear(self.emo_dropout(cls_emotion_feat))
-                if self.use_pcmg_head:
+                if self.use_pcmg_head and not self.disable_all_prototypes:
                     # [V10 T7] 线性 logits 与原型余弦 logits 凸组合（原型为 detach 的 MCP 缓冲）
                     emotion_logits = (1.0 - PCMG_PROTO_WEIGHT) * emotion_logits + \
                         PCMG_PROTO_WEIGHT * torch.matmul(proj_norm, proto_norm.T) / PCMG_PROTO_TAU
@@ -2732,8 +2769,9 @@ class CASE(nn.Module):
                 
                 loss_gen = (bow_loss + kl_loss + mim_loss + ctx_loss +
                             config.div_weight * div_loss + ul_weight * ul_loss)
-                loss_emo = (emotion_loss + lambda_epcl * epcl_loss +
-                            alpha_mim * dec_emo_loss + cchp_reg_w * cchp_reg_loss)
+                loss_emo = emotion_loss + alpha_mim * dec_emo_loss + cchp_reg_w * cchp_reg_loss
+                if not self.disable_epcl_loss and not self.disable_all_prototypes:
+                    loss_emo = loss_emo + lambda_epcl * epcl_loss
                 loss = loss_gen + loss_emo
             else:
                 loss = bow_loss + kl_loss + mim_loss + ctx_loss + 1.5 * div_loss + str_loss
@@ -3054,7 +3092,8 @@ class CASE(nn.Module):
         emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
-        if self.dataset == "ED":
+        route_log_prior = None
+        if self.dataset == "ED" and not self.disable_all_prototypes:
             projected_features = self.epcl_criterion.projection_head(fine_emotion)
             if getattr(self.epcl_criterion, "use_erp", False):
                 proj_norm = projected_features
@@ -3286,9 +3325,9 @@ class CASE(nn.Module):
         emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
-        # 4. 原型路由 (MoP-DR)
+        # 4. 原型路由 (MoP-DR)；整体去原型消融时跳过并退回静态门控
         route_log_prior = None
-        if self.dataset == "ED":
+        if self.dataset == "ED" and not self.disable_all_prototypes:
             projected_features = self.epcl_criterion.projection_head(fine_emotion)
             if getattr(self.epcl_criterion, "use_erp", False):
                 proj_norm = projected_features
