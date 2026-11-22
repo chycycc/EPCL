@@ -306,7 +306,7 @@ class Translator(object):
             commonsense_outputs = uttr_cs_graph_outputs[:,-cs_batch_outputs.size(1):,:]
             commonsense_mask = cs_mask
             
-            if self.model.dataset == "ESconv":
+            if self.model.dataset == "ESConv":
                 # Strategy: Encode Strategy Sequence
                 strategy_seqs = src_seq["strategy_seqs_batch"]
                 mask_strategy = strategy_seqs.data.eq(config.PAD_idx).unsqueeze(1)
@@ -354,11 +354,12 @@ class Translator(object):
             react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
             react_batch_enc = self.model.react_linear(react_batch_enc)
             bsz, _, emb = react_batch_enc.size()
+            num_splits = react_batch_enc.size(1) - 1
             uttr_emotion = react_batch_enc[:,0].unsqueeze(1).repeat(1, src_seq["max_uttr_cs_num"], 1)
-            split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_intent_num"], 1).view(bsz, -1, emb)
-            split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_need_num"], 1).view(bsz, -1, emb)
-            split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_want_num"], 1).view(bsz, -1, emb)
-            split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_effect_num"], 1).view(bsz, -1, emb)
+            split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_intent_num"], 1).reshape(bsz, num_splits * src_seq["split_intent_num"], emb)
+            split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_need_num"], 1).reshape(bsz, num_splits * src_seq["split_need_num"], emb)
+            split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_want_num"], 1).reshape(bsz, num_splits * src_seq["split_want_num"], emb)
+            split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, src_seq["split_effect_num"], 1).reshape(bsz, num_splits * src_seq["split_effect_num"], emb)
             react_enc = torch.cat((uttr_emotion, 
                                 split_intent_emotion,
                                 split_need_emotion,
@@ -375,9 +376,10 @@ class Translator(object):
             gen_emotion = react_batch_enc[:, 0] if self.model.use_emotion_routing else fine_emotion
             emotion_emb = self.model.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.model.emotion_gate(emotion_emb))
-            # 与训练/Greedy 对齐：ED 默认启用原型路由；整体去原型消融时跳过原型路径
+            # 与训练/Greedy 对齐：ED 或启用 --esconv_enable_emo_epcl 的 ESConv 启用原型路由；整体去原型消融时跳过
             route_log_prior = None
-            if self.model.dataset == "ED" and not getattr(self.model, "disable_all_prototypes", False):
+            emo_epcl_active = getattr(self.model, "emo_epcl_active", self.model.dataset == "ED")
+            if emo_epcl_active and not getattr(self.model, "disable_all_prototypes", False):
                 projected_features = self.model.epcl_criterion.projection_head(fine_emotion)
                 proj_norm = (projected_features if getattr(self.model.epcl_criterion, "use_erp", False)
                              else torch.nn.functional.normalize(projected_features, p=2, dim=1))
@@ -402,10 +404,11 @@ class Translator(object):
             
             # Merge Context, Cognition-Affection-Strategy Signals
             if self.model.dataset == "ESConv":
+                aff_enc = emotion_enc if getattr(self.model, "esconv_enable_emo_epcl", False) else concept_enc
                 ctx_enc_outputs = self.model.ctx_merge_lin(torch.cat((
                     enc_outputs, 
                     cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
-                    concept_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
+                    aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                     strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
                 ), dim=2))
             else:

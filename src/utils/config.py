@@ -276,6 +276,10 @@ def get_args():
                         help="[V10 T15 消融] 仅关闭 EPCL 对比损失（含 Arc-EPCL 与类间均匀性），保留 MCP 质心更新与下游消费")
     parser.add_argument("--disable_all_prototypes", action="store_true", default=False,
                         help="[V10 T15 消融] 整体关闭全部原型路径（EPCL+MCP+MoP-DR+PCMG 原型读出+PCAM），保留非原型多粒度聚合与共有监督")
+    parser.add_argument("--esconv_enable_emo_epcl", action="store_true", default=False,
+                        help="[ESConv 泛化] 在 ESConv 上启用 11 类求助者情绪原型对比/PCMG/PCAM/PCGrad 通路（默认关闭，保持原版 CASE-ESConv）")
+    parser.add_argument("--esconv_emo_loss_weight", type=float, default=1.0,
+                        help="[ESConv 泛化] ESConv 辅助情绪分类与解码情绪损失权重（默认 1.0，与 ED 对齐）")
     parser.add_argument("--use_emotion_routing", action="store_true", default=False,
                         help="[V10 T8] 分类保留多粒度情绪特征，生成直接上下文使用话语级特征")
     parser.add_argument("--save_snapshots_from", type=int, default=0,
@@ -284,8 +288,8 @@ def get_args():
                         help="[V8.1/V8.2 D] 是否启用验证集复合评分遴选检查点")
     parser.add_argument("--composite_acc_weight", type=float, default=20.0,
                         help="[V8.1] 复合评分中 EMO_acc 权衡权重 (默认 20.0)")
-    parser.add_argument("--composite_mode", type=str, default="acc", choices=["acc", "emo_loss"],
-                        help="[V8.2 D] 复合早停/评分模式 (acc: 传统 PPL-acc, emo_loss: 帕累托 PPL+alpha*EMO_loss)")
+    parser.add_argument("--composite_mode", type=str, default="acc", choices=["acc", "emo_loss", "str_loss"],
+                        help="[V8.2 D / ESConv] 复合早停/评分模式 (acc: PPL-acc, emo_loss: PPL+alpha*EMO_loss, str_loss: PPL+alpha*STR_loss)")
     parser.add_argument("--composite_emo_loss_weight", type=float, default=8.0,
                         help="[V8.2 D] 帕累托 emo_loss 复合评分中情感损失的权衡系数 alpha "
                              "(composite_score = PPL + alpha * EMO_loss, 默认 8.0 保持历史行为)")

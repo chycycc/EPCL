@@ -1047,11 +1047,13 @@ class Dataset(data.Dataset):
         def merge_cs(sequences):
             lengths = [len(sub_seq) for seqs in sequences for sub_seq in seqs]
             nums = [len(seqs) for seqs in sequences]
+            max_nums = max(nums) if nums else 0
+            max_lens = max(lengths) if lengths else 1
             padded_seqs = torch.ones(
-                len(sequences), max(nums), max(lengths)
+                len(sequences), max_nums, max_lens
             ).long()
             mask_seqs = torch.zeros(
-                len(sequences), max(nums)
+                len(sequences), max_nums
             ).long()
             for i, seqs in enumerate(sequences):
                 for j, sub_seq in enumerate(seqs):
@@ -1065,11 +1067,13 @@ class Dataset(data.Dataset):
         def merge_uttr_split(sequences):
             split_lengths = [len(seqs) for seqs in sequences]
             seq_lengths = [len(sub_seq) for seqs in sequences for sub_seq in seqs]
+            max_splits = max(split_lengths) if split_lengths else 0
+            max_seq_lens = max(seq_lengths) if seq_lengths else 1
             padded_seqs = torch.ones(
-                len(sequences), max(split_lengths), max(seq_lengths)
+                len(sequences), max_splits, max_seq_lens
             ).long()
             mask_seqs = torch.zeros(
-                len(sequences), max(split_lengths)
+                len(sequences), max_splits
             ).long()
             for i, seqs in enumerate(sequences):
                 for j, sub_seq in enumerate(seqs):
@@ -1084,11 +1088,14 @@ class Dataset(data.Dataset):
             split_lengths = [len(seqs) for seqs in sequences]
             seq_nums = [len(sub_seq) for seqs in sequences for sub_seq in seqs]
             seq_lengths = [len(seq) for seqs in sequences for sub_seq in seqs for seq in sub_seq]
+            max_splits = max(split_lengths) if split_lengths else 0
+            max_seq_nums = max(seq_nums) if seq_nums else 0
+            max_seq_lens = max(seq_lengths) if seq_lengths else 1
             padded_seqs = torch.ones(
-                len(sequences), max(split_lengths), max(seq_nums), max(seq_lengths)
+                len(sequences), max_splits, max_seq_nums, max_seq_lens
             ).long()
             mask_seqs = torch.zeros(
-                len(sequences), max(split_lengths), max(seq_nums)
+                len(sequences), max_splits, max_seq_nums
             ).long()
             for i, seqs in enumerate(sequences):
                 for j, sub_seq in enumerate(seqs):

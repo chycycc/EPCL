@@ -1169,9 +1169,11 @@ class Discriminator(nn.Module):
 class MLP(nn.Module):
     def __init__(self):
         super(MLP, self).__init__()
-        input_num = 3 if config.woStrategy else 4
+        # ESConv 固定拼接 4 路信号 [ctx, cs, emotion/concept, strategy]；ED 维持原 woStrategy 行为不变
+        use_4_streams = (config.dataset == "ESConv") or (not config.woStrategy)
+        input_num = 4 if use_4_streams else 3
         input_dim = input_num * config.hidden_dim
-        hid_num = 1 if config.woStrategy else 2
+        hid_num = 2 if use_4_streams else 1
         hid_dim = hid_num * config.hidden_dim
         out_dim = config.hidden_dim
 
@@ -1403,6 +1405,10 @@ class CASE(nn.Module):
             config.use_fine_mim_valid_neg = direct_checkpoint.get("use_fine_mim_valid_neg", False)
             config.disable_epcl_loss = bool(direct_checkpoint.get("disable_epcl_loss", getattr(config, "disable_epcl_loss", False)))
             config.disable_all_prototypes = bool(direct_checkpoint.get("disable_all_prototypes", getattr(config, "disable_all_prototypes", False)))
+            config.esconv_enable_emo_epcl = bool(direct_checkpoint.get("esconv_enable_emo_epcl", getattr(config, "esconv_enable_emo_epcl", False)))
+            config.esconv_emo_loss_weight = float(direct_checkpoint.get("esconv_emo_loss_weight", getattr(config, "esconv_emo_loss_weight", 1.0)))
+            if "pcam_inner_ln" in direct_checkpoint:
+                config.pcam_inner_ln = bool(direct_checkpoint["pcam_inner_ln"])
             if config.disable_all_prototypes:
                 config.use_pcam = False
             if isinstance(direct_checkpoint, dict) and direct_checkpoint.get("emo_group_lr_mode") == EMO_GROUP_LR_MODE:
@@ -1540,8 +1546,30 @@ class CASE(nn.Module):
             assert not self.use_main_emo_ce_anneal, "T6 参数组学习率固结与 T4 主分类损失标量退火互斥"
             assert not getattr(config, "use_cosine_anneal", False), "T6 参数组学习率固结与联合损失退火互斥"
 
-        # [V10 T7] 原型校准多粒度情绪头
+        # [V10 T7] 原型校准多粒度情绪头 & [ESConv 泛化] 11 类求助者情绪原型通路门控
         self.lexical_readout = None
+        self.esconv_enable_emo_epcl = bool(getattr(config, "esconv_enable_emo_epcl", False))
+        self.esconv_emo_loss_weight = float(getattr(config, "esconv_emo_loss_weight", 1.0))
+        self.emo_epcl_active = (self.dataset == "ED") or (self.dataset == "ESConv" and self.esconv_enable_emo_epcl)
+        assert self.esconv_emo_loss_weight >= 0.0, f"esconv_emo_loss_weight 不能为负: {self.esconv_emo_loss_weight}"
+        if self.dataset == "ED":
+            assert not self.esconv_enable_emo_epcl, "ED 数据集严禁开启 --esconv_enable_emo_epcl"
+        if self.dataset == "ESConv" and not self.esconv_enable_emo_epcl:
+            assert not self.use_pcam and not self.use_pcg_pcam and not self.use_pcam_emo_prior, (
+                "原版 ESConv 基线 (esconv_enable_emo_epcl=False) 严禁启用 PCAM"
+            )
+            assert not bool(getattr(config, "use_pcmg_head", False)), (
+                "原版 ESConv 基线严禁启用 --use_pcmg_head"
+            )
+            assert not self.use_pcgrad, "原版 ESConv 基线严禁启用 --use_pcgrad"
+            assert not bool(getattr(config, "disable_all_prototypes", False)), (
+                "原版 ESConv 基线无需指定 --disable_all_prototypes"
+            )
+            # 冻结原版 ESConv 基线中未使用的情绪/原型支路，避免虚增可训练参数量
+            for param_name, param in self.named_parameters():
+                if param_name.startswith(("emotion_linear.", "epcl_criterion.", "router_linear.")):
+                    param.requires_grad_(False)
+
         self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
         self.use_emotion_routing = bool(getattr(config, "use_emotion_routing", False))
         self.use_masked_react_pool = bool(getattr(config, "use_masked_react_pool", False))
@@ -1564,7 +1592,7 @@ class CASE(nn.Module):
                     param.requires_grad_(False)
         assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
-            assert self.dataset == "ED", "use_pcmg_head 仅支持 ED"
+            assert self.emo_epcl_active, "use_pcmg_head 仅支持 ED 或启用 --esconv_enable_emo_epcl 的 ESConv"
             assert getattr(config, "emotion_head_type", "linear") == "linear", "use_pcmg_head 仅支持线性分类头"
             assert not getattr(config, "use_erp", False), "use_pcmg_head 要求 L2 归一化投影（不兼容 ERP）"
             assert getattr(config, "epcl_anchor", "fine_emotion") == "fine_emotion" and \
@@ -1684,6 +1712,13 @@ class CASE(nn.Module):
         actual_bb_dropout_p = float(self.decoder.input_dropout.p)
         actual_emo_dropout_p = float(self.react_encoder.input_dropout.p)
         print("[Architecture Fingerprint] " + json.dumps({
+            "dataset": self.dataset,
+            "esconv_enable_emo_epcl": self.esconv_enable_emo_epcl,
+            "esconv_emo_loss_weight": self.esconv_emo_loss_weight,
+            "emo_epcl_active": self.emo_epcl_active,
+            "emotion_num": int(self.emotion_num),
+            "strategy_num": int(getattr(self, "strategy_num", 0)),
+            "div_weight": float(getattr(config, "div_weight", 2.0)),
             "backbone_dropout": float(getattr(config, "backbone_dropout", 0.0)),
             "emo_branch_dropout": float(getattr(config, "emo_branch_dropout", 0.0)),
             "dec_layers": int(getattr(config, "dec_layers", None) if getattr(config, "dec_layers", None) is not None else config.hop),
@@ -2096,6 +2131,9 @@ class CASE(nn.Module):
             "use_fine_mim_valid_neg": self.use_fine_mim_valid_neg,
             "disable_epcl_loss": self.disable_epcl_loss,
             "disable_all_prototypes": self.disable_all_prototypes,
+            "esconv_enable_emo_epcl": self.esconv_enable_emo_epcl,
+            "esconv_emo_loss_weight": self.esconv_emo_loss_weight,
+            "pcam_inner_ln": bool(self.pcam.pcam_inner_ln) if hasattr(self, "pcam") and hasattr(self.pcam, "pcam_inner_ln") else False,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
                                       else "legacy_joint_softmax" if self.use_proto_prefix else "none"),
             "prefix_norm_mode": PREFIX_NORM_MODE if getattr(self, "use_proto_prefix_norm", False) else "none",
@@ -2547,11 +2585,12 @@ class CASE(nn.Module):
             react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
             react_batch_enc = self.react_linear(react_batch_enc)
             bsz, _, emb = react_batch_enc.size()
+            num_splits = react_batch_enc.size(1) - 1
             uttr_emotion = react_batch_enc[:,0].unsqueeze(1).repeat(1, batch["max_uttr_cs_num"], 1)
-            split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).view(bsz, -1, emb)
-            split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).view(bsz, -1, emb)
-            split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).view(bsz, -1, emb)
-            split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).view(bsz, -1, emb)
+            split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).reshape(bsz, num_splits * batch["split_intent_num"], emb)
+            split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).reshape(bsz, num_splits * batch["split_need_num"], emb)
+            split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).reshape(bsz, num_splits * batch["split_want_num"], emb)
+            split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).reshape(bsz, num_splits * batch["split_effect_num"], emb)
             react_enc = torch.cat((uttr_emotion, 
                                    split_intent_emotion,
                                    split_need_emotion,
@@ -2588,10 +2627,10 @@ class CASE(nn.Module):
             emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
             static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
             
-            # [MoP-DR] 原型动态路由门控；整体去原型消融时跳过并退回静态门控
+            # [MoP-DR] 原型动态路由门控；整体去原型消融或原版 ESConv 基线时跳过并退回静态门控
             pcam_protos_snapshot = None
             route_log_prior = None
-            if self.dataset == "ED" and not self.disable_all_prototypes:
+            if self.emo_epcl_active and not self.disable_all_prototypes:
                 projected_features = self.epcl_criterion.projection_head(fine_emotion)
                 if getattr(self.epcl_criterion, "use_erp", False):
                     proj_norm = projected_features
@@ -2657,7 +2696,7 @@ class CASE(nn.Module):
             current_tau = tau_min + (tau_max - tau_min) * (1 + math.cos(math.pi * min(iter, max_epcl_step) / max_epcl_step)) / 2
 
             # [v3 P3 / V7 / V8] 单锚点 EPCL 与 CCHP 位移正则项计算 (输入 target_emotion_feat)
-            if self.dataset == "ED" and train and not self.disable_all_prototypes:
+            if self.emo_epcl_active and train and not self.disable_all_prototypes:
                 ctx_repr_for_cchp = enc_outputs[:, 0, :] if getattr(self.epcl_criterion, 'use_cchp', False) else None
                 if self.disable_epcl_loss:
                     # [V10 T15 消融定义 A] 关闭 EPCL 对比损失梯度，仅保留 MCP 动量质心滚动更新
@@ -2685,7 +2724,7 @@ class CASE(nn.Module):
                 lambda_epcl = config.lambda_epcl
 
             # emotion prediction（加入 Dropout 正则化）
-            if self.dataset == "ED":
+            if self.emo_epcl_active:
                 # [V8 Trial 4] 分类头挂载至 cls_emotion_feat（支持与生成端双锚点解耦）
                 emotion_logits = self.emotion_linear(self.emo_dropout(cls_emotion_feat))
                 if self.use_pcmg_head and not self.disable_all_prototypes:
@@ -2695,6 +2734,7 @@ class CASE(nn.Module):
                 if self.lexical_readout is not None:
                     assert not train, "Frozen lexical readout is inference-only"
                     emotion_logits = self.lexical_readout(emotion_logits, batch)
+                self.current_emo_logits = emotion_logits.detach()
                 emotion_loss_raw = self.criterion_ce(emotion_logits, batch["program_label"])
                 
                 # [V8.1 路线 B] 多任务辅助损失时序平滑余弦退火 (Soft Loss Annealing)
@@ -2742,13 +2782,17 @@ class CASE(nn.Module):
                 pred_emotion = np.argmax(emotion_logits.detach().cpu().numpy(), axis=1)
                 emotion_acc = accuracy_score(batch["program_label"].detach().cpu().numpy(), pred_emotion)
                 self.current_pred_emotion = pred_emotion
+            else:
+                self.current_emo_logits = None
+                self.current_pred_emotion = None
         
             # Merge Context, Cognition-Affection-Strategy Signals
             if self.dataset == "ESConv":
+                aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
                 ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                     enc_outputs, 
                     cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
-                    concept_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
+                    aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                     strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
                 ), dim=2))
             
@@ -2756,9 +2800,11 @@ class CASE(nn.Module):
                 strategy_logits = self.strategy_linear(ctx_enc_outputs[:,0,:])
                 strategy_label = batch["strategy_label"]
                 str_loss = self.criterion_ce(strategy_logits, strategy_label)
+                self.current_str_logits = strategy_logits.detach()
             
                 pred_strategy = np.argmax(strategy_logits.detach().cpu().numpy(), axis=1)
                 strategy_acc = accuracy_score(batch["strategy_label"].detach().cpu().numpy(), pred_strategy)
+                self.current_pred_strategy = pred_strategy
             else:
                 ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                     enc_outputs, 
@@ -2826,7 +2872,7 @@ class CASE(nn.Module):
             div_loss /= target_tokens
         
             # [V4 Trial 8 / V10 Trial 1] Decoder MIM Loss（支持共享 emotion_linear 或独立 dec_emotion_linear）
-            if self.dataset == "ED":
+            if self.emo_epcl_active:
                 mask_bool = mask_trg.squeeze(1) # [bsz, seq_len]
                 valid_lens = (~mask_bool).sum(dim=-1, keepdim=True).float().clamp(min=1.0)
                 
@@ -2880,11 +2926,24 @@ class CASE(nn.Module):
                 if not self.disable_epcl_loss and not self.disable_all_prototypes:
                     loss_emo = loss_emo + lambda_epcl * epcl_loss
                 loss = loss_gen + loss_emo
+            elif self.esconv_enable_emo_epcl:
+                # [ESConv 泛化] 生成损失 vs 策略+情绪原型判别损失双任务拆解，天然兼容 PCGrad 与去原型消融
+                alpha_mim = config.alpha_mim
+                cchp_reg_w = getattr(config, 'cchp_reg_weight', 0.01)
+                loss_gen = bow_loss + kl_loss + mim_loss + ctx_loss + config.div_weight * div_loss
+                loss_emo = (
+                    str_loss
+                    + self.esconv_emo_loss_weight * (emotion_loss + alpha_mim * dec_emo_loss)
+                    + cchp_reg_w * cchp_reg_loss
+                )
+                if not self.disable_epcl_loss and not self.disable_all_prototypes:
+                    loss_emo = loss_emo + lambda_epcl * epcl_loss
+                loss = loss_gen + loss_emo
             else:
-                loss = bow_loss + kl_loss + mim_loss + ctx_loss + 1.5 * div_loss + str_loss
+                loss = bow_loss + kl_loss + mim_loss + ctx_loss + config.div_weight * div_loss + str_loss
             
         if train:
-            if getattr(self, 'use_pcgrad', False) and self.dataset == "ED":
+            if getattr(self, 'use_pcgrad', False) and self.emo_epcl_active:
                 # [V8.2 创新机制 2: PCGrad 多任务对抗梯度正交投影]
                 # [D9 修复] 若启用梯度累加 (accum_steps > 1)，双任务损失必须同时除以 accum_steps 归一化
                 loss_gen_scaled = loss_gen / accum_steps
@@ -3061,10 +3120,10 @@ class CASE(nn.Module):
             math.exp(min(ctx_loss.item(), 100)),
             str_loss.item() if self.dataset=="ESConv" else 0,
             (strategy_acc.item() if hasattr(strategy_acc, "item") else float(strategy_acc)) if self.dataset=="ESConv" else 0,
-            emotion_loss.item() if self.dataset=="ED" else 0,
-            (emotion_acc.item() if hasattr(emotion_acc, "item") else float(emotion_acc)) if self.dataset=="ED" else 0,
-            epcl_loss.item() if self.dataset=="ED" else 0,
-            dec_emo_loss.item() if self.dataset=="ED" else 0  # [V4 Trial 8] Decoder MIM 损失可观测性
+            emotion_loss.item() if self.emo_epcl_active else 0,
+            (emotion_acc.item() if hasattr(emotion_acc, "item") else float(emotion_acc)) if self.emo_epcl_active else 0,
+            epcl_loss.item() if self.emo_epcl_active else 0,
+            dec_emo_loss.item() if self.emo_epcl_active else 0  # [V4 Trial 8] Decoder MIM 损失可观测性
         )
     
     def decoder_greedy(self, batch, max_dec_step=30):
@@ -3182,11 +3241,12 @@ class CASE(nn.Module):
         react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
         react_batch_enc = self.react_linear(react_batch_enc)
         bsz, _, emb = react_batch_enc.size()
+        num_splits = react_batch_enc.size(1) - 1
         uttr_emotion = react_batch_enc[:,0].unsqueeze(1).repeat(1, batch["max_uttr_cs_num"], 1)
-        split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).view(bsz, -1, emb)
-        split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).view(bsz, -1, emb)
-        split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).view(bsz, -1, emb)
-        split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).view(bsz, -1, emb)
+        split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).reshape(bsz, num_splits * batch["split_intent_num"], emb)
+        split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).reshape(bsz, num_splits * batch["split_need_num"], emb)
+        split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).reshape(bsz, num_splits * batch["split_want_num"], emb)
+        split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).reshape(bsz, num_splits * batch["split_effect_num"], emb)
         react_enc = torch.cat((uttr_emotion, 
                                split_intent_emotion,
                                split_need_emotion,
@@ -3205,7 +3265,7 @@ class CASE(nn.Module):
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
         route_log_prior = None
-        if self.dataset == "ED" and not self.disable_all_prototypes:
+        if self.emo_epcl_active and not self.disable_all_prototypes:
             projected_features = self.epcl_criterion.projection_head(fine_emotion)
             if getattr(self.epcl_criterion, "use_erp", False):
                 proj_norm = projected_features
@@ -3240,10 +3300,11 @@ class CASE(nn.Module):
         
         # Merge Context, Cognition-Affection-Strategy Signals
         if self.dataset == "ESConv":
+            aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 
                 cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
-                concept_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
+                aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
             ), dim=2))
         else:
@@ -3424,11 +3485,12 @@ class CASE(nn.Module):
         react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
         react_batch_enc = self.react_linear(react_batch_enc)
         bsz, _, emb = react_batch_enc.size()
+        num_splits = react_batch_enc.size(1) - 1
         uttr_emotion = react_batch_enc[:,0].unsqueeze(1).repeat(1, batch["max_uttr_cs_num"], 1)
-        split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).view(bsz, -1, emb)
-        split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).view(bsz, -1, emb)
-        split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).view(bsz, -1, emb)
-        split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).view(bsz, -1, emb)
+        split_intent_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_intent_num"], 1).reshape(bsz, num_splits * batch["split_intent_num"], emb)
+        split_need_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_need_num"], 1).reshape(bsz, num_splits * batch["split_need_num"], emb)
+        split_want_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_want_num"], 1).reshape(bsz, num_splits * batch["split_want_num"], emb)
+        split_effect_emotion = react_batch_enc[:,1:].unsqueeze(2).repeat(1, 1, batch["split_effect_num"], 1).reshape(bsz, num_splits * batch["split_effect_num"], emb)
         react_enc = torch.cat((uttr_emotion, 
                                split_intent_emotion,
                                split_need_emotion,
@@ -3440,9 +3502,9 @@ class CASE(nn.Module):
         emotion_emb = self.emotion_norm(torch.cat((concept_enc, gen_emotion), dim=-1))
         static_gate = torch.sigmoid(self.emotion_gate(emotion_emb))
         
-        # 4. 原型路由 (MoP-DR)；整体去原型消融时跳过并退回静态门控
+        # 4. 原型路由 (MoP-DR)；整体去原型消融或原版 ESConv 基线时跳过并退回静态门控
         route_log_prior = None
-        if self.dataset == "ED" and not self.disable_all_prototypes:
+        if self.emo_epcl_active and not self.disable_all_prototypes:
             projected_features = self.epcl_criterion.projection_head(fine_emotion)
             if getattr(self.epcl_criterion, "use_erp", False):
                 proj_norm = projected_features
@@ -3475,10 +3537,11 @@ class CASE(nn.Module):
         
         # 5. 上下文融合 (Context Merge)
         if self.dataset == "ESConv":
+            aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 
                 cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
-                concept_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
+                aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
             ), dim=2))
         else:

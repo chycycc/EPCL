@@ -126,6 +126,11 @@ def train(model, train_set, dev_set):
             if config.dataset == "ESConv":
                 writer.add_scalars("str_loss", {"loss_train": str_loss}, n_iter)
                 writer.add_scalars("str_acc", {"str_acc_train": str_acc}, n_iter)
+                if getattr(model, "esconv_enable_emo_epcl", False):
+                    writer.add_scalars("emo_loss", {"loss_train": emo_loss}, n_iter)
+                    writer.add_scalars("emo_acc", {"emo_acc_train": emo_acc}, n_iter)
+                    writer.add_scalars("epcl_loss", {"loss_train": epcl_loss}, n_iter)
+                    writer.add_scalars("dec_emo_loss", {"loss_train": dec_emo_loss}, n_iter)
             else:
                 writer.add_scalars("emo_loss", {"loss_train": emo_loss}, n_iter)
                 writer.add_scalars("emo_acc", {"emo_acc_train": emo_acc}, n_iter)
@@ -157,6 +162,9 @@ def train(model, train_set, dev_set):
                 if config.dataset == "ESConv":
                     writer.add_scalars("str_loss", {"str_loss_valid": str_loss_val}, n_iter)
                     writer.add_scalars("str_acc", {"str_acc_valid": str_acc_val}, n_iter)
+                    if getattr(model, "esconv_enable_emo_epcl", False):
+                        writer.add_scalars("emo_loss", {"emo_loss_valid": emo_loss_val}, n_iter)
+                        writer.add_scalars("emo_acc", {"emo_acc_valid": emo_acc_val}, n_iter)
                 else:
                     writer.add_scalars("emo_loss", {"emo_loss_valid": emo_loss_val}, n_iter)
                     writer.add_scalars("emo_acc", {"emo_acc_valid": emo_acc_val}, n_iter)
@@ -210,13 +218,17 @@ def train(model, train_set, dev_set):
                                os.path.join(snap_dir, f"SNAP_{n_iter}"))
                     print(f"[Snapshot] Step {n_iter}: 已写入快照 SNAP_{n_iter} (Valid PPL={ppl_val:.4f}, EMO_loss={emo_loss_val:.4f})")
 
-                # [V8.1 路线 B / V8.2 D] 验证集保存判定（支持复合评分：acc 模式或帕累托 emo_loss 模式）
+                # [V8.1 路线 B / V8.2 D / ESConv] 验证集保存判定（支持 acc / emo_loss / str_loss 复合评分）
                 if getattr(config, 'use_composite_score', False):
                     composite_mode = getattr(config, 'composite_mode', 'acc')
                     if composite_mode == 'emo_loss':
                         alpha = getattr(config, 'composite_emo_loss_weight', 8.0)
                         cur_score = ppl_val + alpha * emo_loss_val
                         score_info = f"Score={cur_score:.4f} (PPL={ppl_val:.4f}, EMO_loss={emo_loss_val:.4f})"
+                    elif composite_mode == 'str_loss':
+                        alpha = getattr(config, 'composite_emo_loss_weight', 8.0)
+                        cur_score = ppl_val + alpha * str_loss_val
+                        score_info = f"Score={cur_score:.4f} (PPL={ppl_val:.4f}, STR_loss={str_loss_val:.4f})"
                     else:
                         composite_acc_weight = getattr(config, 'composite_acc_weight', 20.0)
                         cur_score = ppl_val - composite_acc_weight * emo_acc_val
