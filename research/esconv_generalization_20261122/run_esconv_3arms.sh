@@ -51,12 +51,17 @@ prepare_data() {
         curl -L --fail -C - -o data/conceptnet-assertions-5.7.0.csv.gz \
             https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
     fi
+    local COMET_MODEL="mismayil/comet-bart-ai2"
+    if [ -s "data/Comet/pytorch_model.bin" ] && [ -s "data/Comet/config.json" ]; then
+        COMET_MODEL="data/Comet"
+        echo "[Prepare] 检测到本地离线 COMET 权重: ${COMET_MODEL}"
+    fi
     echo "[Prepare] 启动 Session 级防泄漏划分 + 批量 COMET + ConceptNet 构图..."
     ${PYTHON_BIN} research/esconv_generalization_20261122/build_esconv_dataset.py \
         --data_dir data \
         --dataset ESConv \
         --seed 13 \
-        --comet_model mismayil/comet-bart-ai2 \
+        --comet_model "${COMET_MODEL}" \
         --comet_batch_size 128 \
         --assertions_gz data/conceptnet-assertions-5.7.0.csv.gz \
         --device "cuda:${GPU_ID}" 2>&1 | tee logs/esconv_prepare.log
