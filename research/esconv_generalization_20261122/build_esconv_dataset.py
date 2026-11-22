@@ -620,6 +620,8 @@ def main():
     parser.add_argument("--max_num_dialog", type=int, default=9)
     parser.add_argument("--concept_num", type=int, default=3)
     parser.add_argument("--split_only", action="store_true", help="仅执行 Session 级切分与泄漏审计，不跑 COMET/ConceptNet")
+    parser.add_argument("--cpu_prep_only", action="store_true",
+                        help="无卡模式前置准备：完成分词词表、NLTK 补齐、ConceptNet_VAD_dict 构建与 COMET 权重预缓存（不执行 GPU 推理）")
     parser.add_argument("--overwrite_splits", action="store_true", help="强制覆盖已有 train/dev/test_data.json")
     parser.add_argument("--comet_model", type=str, default="mismayil/comet-bart-ai2",
                         help="COMET-ATOMIC-2020 BART 本地路径或 HuggingFace 模型 ID")
@@ -676,6 +678,16 @@ def main():
         te_rec, ev_te = pretokenize_split(test_turns, vocab, stop_words, emotion_lexicon)
         all_events = ev_tr | ev_dv | ev_te
         print(f"[Vocab] ESConv 词表大小 = {vocab.n_words}, 唯一 COMET 事件数 = {len(all_events)}")
+
+        if args.cpu_prep_only:
+            # 无卡模式前置：构建 ESConv 专属 ConceptNet_VAD_dict.json 并预下载 COMET 权重
+            build_conceptnet_for_esconv(args.data_dir, args.dataset, vocab, args.assertions_gz, stop_words)
+            from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+            print(f"[CPU Prep] 正在预下载并校验 COMET 模型权重: {args.comet_model}")
+            AutoTokenizer.from_pretrained(args.comet_model)
+            AutoModelForSeq2SeqLM.from_pretrained(args.comet_model)
+            print("[Done] --cpu_prep_only 无卡前置准备全部完成（切换 GPU 卡后仅需执行 COMET 推理与训练）。")
+            return
 
         cache_jsonl = os.path.join(esconv_dir, "comet_cache.jsonl")
         comet_cache = run_batched_comet(

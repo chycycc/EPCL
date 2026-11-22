@@ -19,6 +19,9 @@ GPU_ID=${CUDA_VISIBLE_DEVICES:-"0"}
 
 # 中国大陆 HuggingFace 镜像，加速 COMET-ATOMIC-2020 (mismayil/comet-bart-ai2) 下载
 export HF_ENDPOINT=${HF_ENDPOINT:-"https://hf-mirror.com"}
+if [ -d "${HOME}/autodl-tmp" ]; then
+    export HF_HOME=${HF_HOME:-"${HOME}/autodl-tmp/hf_cache"}
+fi
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 mkdir -p logs results/esconv data/ESConv
@@ -43,7 +46,7 @@ prepare_data() {
         curl -L --fail --max-time 120 -o data/ESConv/ESConv.json \
             https://raw.githubusercontent.com/thu-coai/Emotional-Support-Conversation/main/ESConv.json
     fi
-    if [ ! -s "data/conceptnet-assertions-5.7.0.csv.gz" ]; then
+    if [ ! -s "data/ESConv/ConceptNet_VAD_dict.json" ] && [ ! -s "data/conceptnet-assertions-5.7.0.csv.gz" ]; then
         echo "[Prepare] 正在下载 ConceptNet 5.7 断言压缩包 (~474MB)..."
         curl -L --fail -C - -o data/conceptnet-assertions-5.7.0.csv.gz \
             https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
