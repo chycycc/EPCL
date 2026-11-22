@@ -2488,12 +2488,33 @@ class CASE(nn.Module):
             uttr_cs_outputs = torch.cat((uttr_batch_outputs, cs_batch_outputs), dim=1)
         
             assert uttr_cs_outputs.size(1) == cs_adj_mask.size(1)
-            relation_emb = self.relation_embedding(cs_adj_mask)
-            uttr_cs_graph_outputs = self.cs_graph_encoder(uttr_cs_outputs,
-                                                      uttr_cs_outputs,
-                                                      uttr_cs_outputs,
-                                                      cs_adj_mask,
-                                                      relation_emb)
+            if self.dataset == "ESConv" and train and getattr(self, "use_pcgrad", False):
+                # ESConv 多子句常识图 (bsz, 252, 252, 300) 的 relation_emb 在 PCGrad 下显存极高；
+                # 按 batch 切块并配合 use_reentrant=True 重计算，数学 100% 等价且大幅压缩峰值显存
+                def _run_cs_graph_chunk(x_c, adj_c):
+                    rel_c = self.relation_embedding(adj_c)
+                    return self.cs_graph_encoder(x_c, x_c, x_c, adj_c, rel_c)
+
+                chunk_sz = 8
+                uttr_cs_graph_outputs = torch.cat(
+                    [
+                        grad_checkpoint(
+                            _run_cs_graph_chunk,
+                            uttr_cs_outputs[s : s + chunk_sz],
+                            cs_adj_mask[s : s + chunk_sz],
+                            use_reentrant=True,
+                        )
+                        for s in range(0, bsz, chunk_sz)
+                    ],
+                    dim=0,
+                )
+            else:
+                relation_emb = self.relation_embedding(cs_adj_mask)
+                uttr_cs_graph_outputs = self.cs_graph_encoder(uttr_cs_outputs,
+                                                          uttr_cs_outputs,
+                                                          uttr_cs_outputs,
+                                                          cs_adj_mask,
+                                                          relation_emb)
         
             commonsense_outputs = uttr_cs_graph_outputs[:,-cs_batch_outputs.size(1):,:]
             commonsense_mask = cs_mask
