@@ -7,6 +7,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import torch
 import torch.nn as nn
+from torch.utils.checkpoint import checkpoint as grad_checkpoint
 from collections import Counter
 import torch.nn.functional as F
 
@@ -2448,10 +2449,20 @@ class CASE(nn.Module):
             # concept_mask = self.embedding(mask_concept)  # KG_idx embedding
             concept_emb = self.embedding(concept_input) + self.embedding(mask_concept)  # KG_idx embedding
             src_concept_input_emb = torch.cat((src_emb, concept_emb), dim=1)
-            src_concept_outputs = self.concept_graph_encoder(src_concept_input_emb, 
-                                                             src_concept_input_emb,
-                                                             src_concept_input_emb,
-                                                             concept_adj_mask)
+            if self.dataset == "ESConv" and train and getattr(self, "use_pcgrad", False):
+                # ESConv 长多轮对话在 PCGrad (retain_graph=True) 下启用等价重计算，避免超长样本显存溢出
+                # 必须用 use_reentrant=True：在双次 backward (retain_graph=True + 第二任务 backward) 下可独立触发两次重计算
+                src_concept_outputs = grad_checkpoint(
+                    lambda x, adj: self.concept_graph_encoder(x, x, x, adj),
+                    src_concept_input_emb,
+                    concept_adj_mask,
+                    use_reentrant=True,
+                )
+            else:
+                src_concept_outputs = self.concept_graph_encoder(src_concept_input_emb, 
+                                                                 src_concept_input_emb,
+                                                                 src_concept_input_emb,
+                                                                 concept_adj_mask)
             src_concept_mask = torch.cat((enc_batch, concept_input), dim=1).data.eq(config.PAD_idx)
             src_concept_vad = torch.cat((enc_vad_batch, concept_vad_batch), dim=1)
             src_concept_vad = torch.softmax(src_concept_vad, dim=-1).unsqueeze(2).repeat(1, 1, config.emb_dim)
@@ -2578,11 +2589,34 @@ class CASE(nn.Module):
             # react_batch_enc, _ = self.react_selfattn(react_batch_outputs, react_batch_mask.squeeze(1))
             react_batch_enc = self.pool_react_tokens(react_batch_outputs, react_batch)
             react_batch_enc = react_batch_enc.view(bsz, react_uttr_num, -1)
-            react_batch_enc = self.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
-                                                                enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 
-                                                                dim=-1).view(bsz*react_uttr_num, enc_outputs.size(1), -1), 
-                                                                src_mask.unsqueeze(1).repeat(1, react_uttr_num, 1, 1).view(bsz*react_uttr_num, -1,enc_outputs.size(1)))
-            react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
+            if self.dataset == "ESConv" and train and getattr(self, "use_pcgrad", False):
+                # 按子句槽位逐槽执行数学等价的梯度检查点，将 (bsz*split_num, L, L) 峰值显存压降至 1/split_num
+                def _run_react_ctx_slot(r_slot, enc_out, mask_s):
+                    slot_in = torch.cat(
+                        (r_slot.unsqueeze(1).expand(-1, enc_out.size(1), -1), enc_out),
+                        dim=-1,
+                    )
+                    return self.react_ctx_encoder(slot_in, mask_s)[:, 0, :]
+
+                react_batch_enc = torch.stack(
+                    [
+                        grad_checkpoint(
+                            _run_react_ctx_slot,
+                            react_batch_enc[:, k, :],
+                            enc_outputs,
+                            src_mask,
+                            use_reentrant=True,
+                        )
+                        for k in range(react_uttr_num)
+                    ],
+                    dim=1,
+                )
+            else:
+                react_batch_enc = self.react_ctx_encoder(torch.cat((react_batch_enc.unsqueeze(2).repeat(1, 1, enc_outputs.size(1), 1),
+                                                                    enc_outputs.unsqueeze(1).repeat(1, react_uttr_num, 1, 1)), 
+                                                                    dim=-1).view(bsz*react_uttr_num, enc_outputs.size(1), -1), 
+                                                                    src_mask.unsqueeze(1).repeat(1, react_uttr_num, 1, 1).view(bsz*react_uttr_num, -1,enc_outputs.size(1)))
+                react_batch_enc = react_batch_enc[:,0,:].view(bsz, react_uttr_num, -1)
             react_batch_enc = self.react_linear(react_batch_enc)
             bsz, _, emb = react_batch_enc.size()
             num_splits = react_batch_enc.size(1) - 1
