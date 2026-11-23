@@ -404,13 +404,18 @@ class Translator(object):
             
             # Merge Context, Cognition-Affection-Strategy Signals
             if self.model.dataset == "ESConv":
-                aff_enc = emotion_enc if getattr(self.model, "esconv_enable_emo_epcl", False) else concept_enc
+                aff_enc = emotion_enc if (
+                    getattr(self.model, "esconv_enable_emo_epcl", False)
+                    or getattr(self.model, "esconv_enable_strategy_epcl", False)
+                ) else concept_enc
                 ctx_enc_outputs = self.model.ctx_merge_lin(torch.cat((
                     enc_outputs, 
                     cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                     aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                     strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
                 ), dim=2))
+                if getattr(self.model, "strategy_epcl_active", False):
+                    ctx_enc_outputs, _, _ = self.model.apply_strategy_mop_dr(ctx_enc_outputs)
             else:
                 ctx_enc_outputs = self.model.ctx_merge_lin(torch.cat((
                     enc_outputs, 

@@ -278,6 +278,8 @@ def get_args():
                         help="[V10 T15 消融] 整体关闭全部原型路径（EPCL+MCP+MoP-DR+PCMG 原型读出+PCAM），保留非原型多粒度聚合与共有监督")
     parser.add_argument("--esconv_enable_emo_epcl", action="store_true", default=False,
                         help="[ESConv 泛化] 在 ESConv 上启用 11 类求助者情绪原型对比/PCMG/PCAM/PCGrad 通路（默认关闭，保持原版 CASE-ESConv）")
+    parser.add_argument("--esconv_enable_strategy_epcl", action="store_true", default=False,
+                        help="[ESConv 泛化] 在 ESConv 上启用原生 8 类支持策略原型对比/MoP-DR/PCMG/PCAM/PCGrad 通路（与情绪原型互斥，零额外标注）")
     parser.add_argument("--esconv_emo_loss_weight", type=float, default=1.0,
                         help="[ESConv 泛化] ESConv 辅助情绪分类与解码情绪损失权重（默认 1.0，与 ED 对齐）")
     parser.add_argument("--use_emotion_routing", action="store_true", default=False,

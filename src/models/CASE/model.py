@@ -52,6 +52,9 @@ EMO_GROUP_LR_MODE = "decoupled_emo_branch_v1"
 PCMG_SPLIT_LAMBDA = 0.15
 PCMG_PROTO_WEIGHT = 0.25
 PCMG_PROTO_TAU = 0.20
+# [ESConv 策略原型对齐] ESC_STRATEGY_MAP 中 0..6 为特殊符号，7..14 为 8 类真实支持策略
+ESCONV_STR_OFFSET = 7
+ESCONV_ACTIVE_STR_NUM = 8
 EMO_GROUP_LR_PREFIXES = (
     "react_encoder.",
     "react_ctx_encoder.",
@@ -1293,10 +1296,25 @@ class CASE(nn.Module):
         else:
             self.emotion_linear = nn.Linear(config.emb_dim, self.emotion_num)
         
+        # === 检查点早期拓扑恢复（不触碰全局 RNG，确保 epcl_criterion / router_linear 原型类数对齐） ===
+        direct_checkpoint = None
+        if model_file_path is not None:
+            direct_checkpoint = torch.load(model_file_path, map_location="cpu")
+            if isinstance(direct_checkpoint, dict):
+                config.esconv_enable_strategy_epcl = bool(
+                    direct_checkpoint.get("esconv_enable_strategy_epcl", getattr(config, "esconv_enable_strategy_epcl", False))
+                )
+                config.esconv_enable_emo_epcl = bool(
+                    direct_checkpoint.get("esconv_enable_emo_epcl", getattr(config, "esconv_enable_emo_epcl", False))
+                )
+
         # === EPCL Module Init ===
         # [V6 Trial 2 / V7] Multi-Prototype: K sub-prototypes per class
+        self.esconv_enable_strategy_epcl = bool(getattr(config, "esconv_enable_strategy_epcl", False))
+        self.strategy_epcl_active = (self.dataset == "ESConv" and self.esconv_enable_strategy_epcl)
+        self.proto_num_classes = ESCONV_ACTIVE_STR_NUM if self.strategy_epcl_active else self.emotion_num
         self.num_prototypes_per_class = getattr(config, 'num_prototypes_per_class', 1)
-        total_protos = self.emotion_num * self.num_prototypes_per_class
+        total_protos = self.proto_num_classes * self.num_prototypes_per_class
         self.use_erp = getattr(config, 'use_erp', False)
         self.use_cchp = getattr(config, 'use_cchp', False)
         self.use_mcp = getattr(config, 'use_mcp', False)
@@ -1307,7 +1325,7 @@ class CASE(nn.Module):
         self.arc_margin_ramp_steps = getattr(config, 'arc_margin_ramp_steps', 0)
         self.epcl_anchor = getattr(config, 'epcl_anchor', 'fine_emotion')
         self.epcl_criterion = PrototypeContrastiveLoss(
-            self.emotion_num, config.emb_dim,
+            self.proto_num_classes, config.emb_dim,
             num_prototypes_per_class=self.num_prototypes_per_class,
             alpha_uni=getattr(config, 'alpha_uni', 1.0),
             use_erp=self.use_erp,
@@ -1390,9 +1408,7 @@ class CASE(nn.Module):
         
         # Decoder
         # [V9 T12] 原型注意力前缀初始化（开关关闭时 proto_init=None，零副作用）
-        direct_checkpoint = None
-        if model_file_path is not None:
-            direct_checkpoint = torch.load(model_file_path, map_location="cpu")
+        if direct_checkpoint is not None:
             config.use_proto_prefix_norm = checkpoint_prefix_norm(direct_checkpoint)
             config.use_separate_dec_emo_head = checkpoint_separate_dec_emo_head(direct_checkpoint)
             config.use_pcg_pcam = checkpoint_pcg_pcam(direct_checkpoint)
@@ -1407,6 +1423,7 @@ class CASE(nn.Module):
             config.disable_epcl_loss = bool(direct_checkpoint.get("disable_epcl_loss", getattr(config, "disable_epcl_loss", False)))
             config.disable_all_prototypes = bool(direct_checkpoint.get("disable_all_prototypes", getattr(config, "disable_all_prototypes", False)))
             config.esconv_enable_emo_epcl = bool(direct_checkpoint.get("esconv_enable_emo_epcl", getattr(config, "esconv_enable_emo_epcl", False)))
+            config.esconv_enable_strategy_epcl = bool(direct_checkpoint.get("esconv_enable_strategy_epcl", getattr(config, "esconv_enable_strategy_epcl", False)))
             config.esconv_emo_loss_weight = float(direct_checkpoint.get("esconv_emo_loss_weight", getattr(config, "esconv_emo_loss_weight", 1.0)))
             if "pcam_inner_ln" in direct_checkpoint:
                 config.pcam_inner_ln = bool(direct_checkpoint["pcam_inner_ln"])
@@ -1547,17 +1564,21 @@ class CASE(nn.Module):
             assert not self.use_main_emo_ce_anneal, "T6 参数组学习率固结与 T4 主分类损失标量退火互斥"
             assert not getattr(config, "use_cosine_anneal", False), "T6 参数组学习率固结与联合损失退火互斥"
 
-        # [V10 T7] 原型校准多粒度情绪头 & [ESConv 泛化] 11 类求助者情绪原型通路门控
+        # [V10 T7] 原型校准多粒度情绪头 & [ESConv 泛化] 情绪原型 / 策略原型通路门控
         self.lexical_readout = None
         self.esconv_enable_emo_epcl = bool(getattr(config, "esconv_enable_emo_epcl", False))
         self.esconv_emo_loss_weight = float(getattr(config, "esconv_emo_loss_weight", 1.0))
         self.emo_epcl_active = (self.dataset == "ED") or (self.dataset == "ESConv" and self.esconv_enable_emo_epcl)
         assert self.esconv_emo_loss_weight >= 0.0, f"esconv_emo_loss_weight 不能为负: {self.esconv_emo_loss_weight}"
+        assert not (self.esconv_enable_emo_epcl and self.esconv_enable_strategy_epcl), (
+            "esconv_enable_emo_epcl 与 esconv_enable_strategy_epcl 互斥，不可同时启用"
+        )
         if self.dataset == "ED":
             assert not self.esconv_enable_emo_epcl, "ED 数据集严禁开启 --esconv_enable_emo_epcl"
-        if self.dataset == "ESConv" and not self.esconv_enable_emo_epcl:
+            assert not self.esconv_enable_strategy_epcl, "ED 数据集严禁开启 --esconv_enable_strategy_epcl"
+        if self.dataset == "ESConv" and not self.esconv_enable_emo_epcl and not self.esconv_enable_strategy_epcl:
             assert not self.use_pcam and not self.use_pcg_pcam and not self.use_pcam_emo_prior, (
-                "原版 ESConv 基线 (esconv_enable_emo_epcl=False) 严禁启用 PCAM"
+                "原版 ESConv 基线严禁启用 PCAM"
             )
             assert not bool(getattr(config, "use_pcmg_head", False)), (
                 "原版 ESConv 基线严禁启用 --use_pcmg_head"
@@ -1569,6 +1590,11 @@ class CASE(nn.Module):
             # 冻结原版 ESConv 基线中未使用的情绪/原型支路，避免虚增可训练参数量
             for param_name, param in self.named_parameters():
                 if param_name.startswith(("emotion_linear.", "epcl_criterion.", "router_linear.")):
+                    param.requires_grad_(False)
+        elif self.strategy_epcl_active:
+            # 策略原型模式仅使用原生 8 类支持策略监督，冻结未使用的 11 类情绪分类头
+            for param_name, param in self.named_parameters():
+                if param_name.startswith("emotion_linear."):
                     param.requires_grad_(False)
 
         self.use_pcmg_head = bool(getattr(config, "use_pcmg_head", False))
@@ -1593,7 +1619,9 @@ class CASE(nn.Module):
                     param.requires_grad_(False)
         assert not self.use_emotion_routing or self.use_pcmg_head, "T8 emotion routing requires PCMG"
         if self.use_pcmg_head:
-            assert self.emo_epcl_active, "use_pcmg_head 仅支持 ED 或启用 --esconv_enable_emo_epcl 的 ESConv"
+            assert self.emo_epcl_active or self.strategy_epcl_active, (
+                "use_pcmg_head 仅支持 ED 或启用情绪/策略原型通路的 ESConv"
+            )
             assert getattr(config, "emotion_head_type", "linear") == "linear", "use_pcmg_head 仅支持线性分类头"
             assert not getattr(config, "use_erp", False), "use_pcmg_head 要求 L2 归一化投影（不兼容 ERP）"
             assert getattr(config, "epcl_anchor", "fine_emotion") == "fine_emotion" and \
@@ -1715,8 +1743,11 @@ class CASE(nn.Module):
         print("[Architecture Fingerprint] " + json.dumps({
             "dataset": self.dataset,
             "esconv_enable_emo_epcl": self.esconv_enable_emo_epcl,
+            "esconv_enable_strategy_epcl": self.esconv_enable_strategy_epcl,
             "esconv_emo_loss_weight": self.esconv_emo_loss_weight,
             "emo_epcl_active": self.emo_epcl_active,
+            "strategy_epcl_active": self.strategy_epcl_active,
+            "proto_num_classes": int(self.proto_num_classes),
             "emotion_num": int(self.emotion_num),
             "strategy_num": int(getattr(self, "strategy_num", 0)),
             "div_weight": float(getattr(config, "div_weight", 2.0)),
@@ -1739,7 +1770,7 @@ class CASE(nn.Module):
             "pcam_prior_ramp_start": self.pcam_prior_ramp_start if self.use_pcam_emo_prior else 0,
             "pcam_prior_ramp_end": self.pcam_prior_ramp_end if self.use_pcam_emo_prior else 0,
             "pcam_mode": PCG_PCAM_MODE if self.use_pcg_pcam else (PCAM_EMO_PRIOR_MODE if self.use_pcam_emo_prior else ("legacy_pcam" if self.use_pcam else "none")),
-            "pcam_memory_slots": (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) + 2) if self.use_pcg_pcam else (self.emotion_num * getattr(config, "num_prototypes_per_class", 1) if self.use_pcam else 0),
+            "pcam_memory_slots": (self.proto_num_classes * getattr(config, "num_prototypes_per_class", 1) + 2) if self.use_pcg_pcam else (self.proto_num_classes * getattr(config, "num_prototypes_per_class", 1) if self.use_pcam else 0),
             "pcam_mem_scale": round(math.sqrt(float(config.hidden_dim)), 4) if self.use_pcg_pcam else 1.0,
             "use_emo_group_lr": self.use_emo_group_lr,
             "emo_lr_anneal_start": self.emo_lr_anneal_start,
@@ -2056,6 +2087,23 @@ class CASE(nn.Module):
                     PCMG_PROTO_WEIGHT * torch.matmul(proj_norm.detach(), proto_norm.detach().T) / PCMG_PROTO_TAU
             return F.log_softmax(prior_logits / self.pcam_prior_tau, dim=-1).detach()
 
+    def apply_strategy_mop_dr(self, ctx_enc_outputs, protos_override=None, lambda_scale=None):
+        """[ESConv 策略原型对齐] 基于 8 类支持策略原型的 MoP-DR 上下文门控路由（四路前向/解码共用，杜绝失配）。"""
+        if not getattr(self, "strategy_epcl_active", False) or getattr(self, "disable_all_prototypes", False):
+            return ctx_enc_outputs, None, None
+        str_feat = ctx_enc_outputs[:, 0, :]
+        projected = self.epcl_criterion.projection_head(str_feat)
+        proj_norm = projected if getattr(self.epcl_criterion, "use_erp", False) else F.normalize(projected, p=2, dim=1)
+        protos = protos_override if protos_override is not None else self.epcl_criterion.current_prototypes.detach()
+        proto_norm = F.normalize(protos, p=2, dim=1)
+        proto_logits = torch.matmul(proj_norm, proto_norm.T) / 0.1  # [B, 8*K]
+        p_route = F.softmax(proto_logits, dim=-1)
+        route_gate = torch.sigmoid(self.router_linear(p_route))  # [B, 300]
+        proto_vec = torch.matmul(p_route, proto_norm)  # [B, 300]
+        lam = config.lambda_epcl if lambda_scale is None else lambda_scale
+        dec_ctx_enc_outputs = ctx_enc_outputs + lam * (route_gate * proto_vec).unsqueeze(1)
+        return dec_ctx_enc_outputs, proj_norm, proto_norm
+
     def apply_pcam(self, dec_output, ctx_repr=None, ctx_slots=None, route_log_prior=None, protos_override=None):
         """
         [V6/V7 Architecture: PCAM] 统一对解码器输出隐状态注入原型交叉记忆
@@ -2079,6 +2127,8 @@ class CASE(nn.Module):
                     route_log_prior=route_log_prior,
                     prior_ramp=self.get_pcam_prior_ramp(),
                 )
+            if protos_override is not None and getattr(self, "strategy_epcl_active", False):
+                protos = protos_override
             return self.pcam(dec_output, protos)
         return dec_output
 
@@ -2133,6 +2183,7 @@ class CASE(nn.Module):
             "disable_epcl_loss": self.disable_epcl_loss,
             "disable_all_prototypes": self.disable_all_prototypes,
             "esconv_enable_emo_epcl": self.esconv_enable_emo_epcl,
+            "esconv_enable_strategy_epcl": self.esconv_enable_strategy_epcl,
             "esconv_emo_loss_weight": self.esconv_emo_loss_weight,
             "pcam_inner_ln": bool(self.pcam.pcam_inner_ln) if hasattr(self, "pcam") and hasattr(self.pcam, "pcam_inner_ln") else False,
             "prefix_attention_mode": ("separate_softmax_residual" if self.use_proto_prefix_gate
@@ -2735,7 +2786,7 @@ class CASE(nn.Module):
                 route_log_prior = self.compute_pcam_emo_prior(cls_emotion_feat, proj_norm, proto_norm)
 
             # 显式记录 target 表征投影 (供流形几何度量与可视化直接读取)
-            if not self.disable_all_prototypes and hasattr(self, "epcl_criterion") and hasattr(self.epcl_criterion, "projection_head"):
+            if self.emo_epcl_active and not self.disable_all_prototypes and hasattr(self, "epcl_criterion") and hasattr(self.epcl_criterion, "projection_head"):
                 with torch.no_grad():
                     proj_temp = self.epcl_criterion.projection_head(target_emotion_feat)
                     if getattr(self.epcl_criterion, "use_erp", False):
@@ -2843,7 +2894,7 @@ class CASE(nn.Module):
         
             # Merge Context, Cognition-Affection-Strategy Signals
             if self.dataset == "ESConv":
-                aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
+                aff_enc = emotion_enc if (self.esconv_enable_emo_epcl or self.esconv_enable_strategy_epcl) else concept_enc
                 ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                     enc_outputs, 
                     cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
@@ -2852,8 +2903,50 @@ class CASE(nn.Module):
                 ), dim=2))
             
                 # predict next strategy
-                strategy_logits = self.strategy_linear(ctx_enc_outputs[:,0,:])
                 strategy_label = batch["strategy_label"]
+                dec_ctx_enc_outputs = ctx_enc_outputs
+                if self.strategy_epcl_active:
+                    strategy_target_0_7 = strategy_label - ESCONV_STR_OFFSET
+                    assert ((strategy_target_0_7 >= 0) & (strategy_target_0_7 < ESCONV_ACTIVE_STR_NUM)).all(), (
+                        f"ESConv strategy_label 越界（期望 7..14）: {strategy_label.detach().cpu().tolist()}"
+                    )
+                    str_feat = ctx_enc_outputs[:, 0, :]
+                    str_proj_norm = None
+                    str_proto_norm = None
+                    if not self.disable_all_prototypes:
+                        # 严格在本批 MCP 原型更新之前抓取只读快照，杜绝当前批目标策略泄漏至 MoP-DR / PCMG / PCAM
+                        pcam_protos_snapshot = self.epcl_criterion.current_prototypes.detach().clone()
+                        dec_ctx_enc_outputs, str_proj_norm, str_proto_norm = self.apply_strategy_mop_dr(
+                            ctx_enc_outputs,
+                            protos_override=pcam_protos_snapshot,
+                            lambda_scale=lambda_epcl,
+                        )
+                    strategy_logits = self.strategy_linear(str_feat)
+                    if self.use_pcmg_head and not self.disable_all_prototypes:
+                        proto_cos_logits = torch.matmul(str_proj_norm, str_proto_norm.T) / PCMG_PROTO_TAU
+                        active_str_logits = (
+                            (1.0 - PCMG_PROTO_WEIGHT)
+                            * strategy_logits[:, ESCONV_STR_OFFSET:ESCONV_STR_OFFSET + ESCONV_ACTIVE_STR_NUM]
+                            + PCMG_PROTO_WEIGHT * proto_cos_logits
+                        )
+                        strategy_logits = torch.cat([strategy_logits[:, :ESCONV_STR_OFFSET], active_str_logits], dim=-1)
+                    if train and not self.disable_all_prototypes:
+                        if self.disable_epcl_loss:
+                            if getattr(self.epcl_criterion, "use_mcp", False):
+                                with torch.no_grad():
+                                    proj_mcp = self.epcl_criterion.projection_head(str_feat)
+                                    if not getattr(self.epcl_criterion, "use_erp", False):
+                                        proj_mcp = F.normalize(proj_mcp, p=2, dim=1)
+                                    self.epcl_criterion._update_mcp_prototypes(proj_mcp, strategy_target_0_7)
+                            epcl_loss = torch.tensor(0.0, device=config.device)
+                            cchp_reg_loss = torch.tensor(0.0, device=config.device)
+                        else:
+                            epcl_loss, cchp_reg_loss = self.epcl_criterion(
+                                str_feat, strategy_target_0_7, tau=current_tau, ctx_repr=None, step=iter
+                            )
+                else:
+                    strategy_logits = self.strategy_linear(ctx_enc_outputs[:, 0, :])
+
                 str_loss = self.criterion_ce(strategy_logits, strategy_label)
                 self.current_str_logits = strategy_logits.detach()
             
@@ -2866,6 +2959,7 @@ class CASE(nn.Module):
                     cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                     emotion_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 ), dim=2))
+                dec_ctx_enc_outputs = ctx_enc_outputs
         
             # Decoder
             sos_token = (
@@ -2880,7 +2974,7 @@ class CASE(nn.Module):
             dec_emb = self.embedding(dec_batch_shift)
             pre_logit, attn_dist = self.decoder(
                 dec_emb, 
-                ctx_enc_outputs, 
+                dec_ctx_enc_outputs, 
                 (src_mask, mask_trg),
                 cs_enc_outputs=commonsense_outputs,
                 cs_enc_mask=commonsense_mask.eq(0).unsqueeze(1),
@@ -2960,6 +3054,13 @@ class CASE(nn.Module):
                             "cls_norm_sum": float(cls_emotion_feat.norm(p=2, dim=-1).sum().item()),
                             "pooled_dec_norm_sum": float(pooled_dec.norm(p=2, dim=-1).sum().item()),
                         }
+            elif self.strategy_epcl_active:
+                # [ESConv 策略原型对齐] 解码端策略 MIM 辅助损失：直接约束 PCAM 增强后的隐状态可线性还原当前轮支持策略
+                mask_bool = mask_trg.squeeze(1)
+                valid_lens = (~mask_bool).sum(dim=-1, keepdim=True).float().clamp(min=1.0)
+                pooled_dec = ((~mask_bool).unsqueeze(-1).float() * pre_logit).sum(dim=1) / valid_lens
+                dec_str_logits = self.strategy_linear(self.emo_dropout(pooled_dec))
+                dec_emo_loss = self.criterion_ce(dec_str_logits, batch["strategy_label"]) if train else torch.tensor(0.0, device=config.device)
             else:
                 dec_emo_loss = torch.tensor(0.0, device=config.device)
         
@@ -2994,11 +3095,20 @@ class CASE(nn.Module):
                 if not self.disable_epcl_loss and not self.disable_all_prototypes:
                     loss_emo = loss_emo + lambda_epcl * epcl_loss
                 loss = loss_gen + loss_emo
+            elif self.esconv_enable_strategy_epcl:
+                # [ESConv 策略原型对齐] 生成损失 vs 8 类轮次支持策略判别/原型损失双任务拆解（零额外情绪标注）
+                alpha_mim = config.alpha_mim
+                cchp_reg_w = getattr(config, 'cchp_reg_weight', 0.01)
+                loss_gen = bow_loss + kl_loss + mim_loss + ctx_loss + config.div_weight * div_loss
+                loss_emo = str_loss + alpha_mim * dec_emo_loss + cchp_reg_w * cchp_reg_loss
+                if not self.disable_epcl_loss and not self.disable_all_prototypes:
+                    loss_emo = loss_emo + lambda_epcl * epcl_loss
+                loss = loss_gen + loss_emo
             else:
                 loss = bow_loss + kl_loss + mim_loss + ctx_loss + config.div_weight * div_loss + str_loss
             
         if train:
-            if getattr(self, 'use_pcgrad', False) and self.emo_epcl_active:
+            if getattr(self, 'use_pcgrad', False) and (self.emo_epcl_active or self.strategy_epcl_active):
                 # [V8.2 创新机制 2: PCGrad 多任务对抗梯度正交投影]
                 # [D9 修复] 若启用梯度累加 (accum_steps > 1)，双任务损失必须同时除以 accum_steps 归一化
                 loss_gen_scaled = loss_gen / accum_steps
@@ -3177,8 +3287,8 @@ class CASE(nn.Module):
             (strategy_acc.item() if hasattr(strategy_acc, "item") else float(strategy_acc)) if self.dataset=="ESConv" else 0,
             emotion_loss.item() if self.emo_epcl_active else 0,
             (emotion_acc.item() if hasattr(emotion_acc, "item") else float(emotion_acc)) if self.emo_epcl_active else 0,
-            epcl_loss.item() if self.emo_epcl_active else 0,
-            dec_emo_loss.item() if self.emo_epcl_active else 0  # [V4 Trial 8] Decoder MIM 损失可观测性
+            epcl_loss.item() if (self.emo_epcl_active or self.strategy_epcl_active) else 0,
+            dec_emo_loss.item() if (self.emo_epcl_active or self.strategy_epcl_active) else 0  # [V4 Trial 8] Decoder MIM 损失可观测性
         )
     
     def decoder_greedy(self, batch, max_dec_step=30):
@@ -3355,13 +3465,15 @@ class CASE(nn.Module):
         
         # Merge Context, Cognition-Affection-Strategy Signals
         if self.dataset == "ESConv":
-            aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
+            aff_enc = emotion_enc if (self.esconv_enable_emo_epcl or self.esconv_enable_strategy_epcl) else concept_enc
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 
                 cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
             ), dim=2))
+            if self.strategy_epcl_active:
+                ctx_enc_outputs, _, _ = self.apply_strategy_mop_dr(ctx_enc_outputs)
         else:
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 
@@ -3592,13 +3704,15 @@ class CASE(nn.Module):
         
         # 5. 上下文融合 (Context Merge)
         if self.dataset == "ESConv":
-            aff_enc = emotion_enc if self.esconv_enable_emo_epcl else concept_enc
+            aff_enc = emotion_enc if (self.esconv_enable_emo_epcl or self.esconv_enable_strategy_epcl) else concept_enc
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 
                 cs_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 aff_enc.unsqueeze(1).repeat(1, enc_outputs.size(1), 1),
                 strategy_enc_outputs.unsqueeze(1).repeat(1, enc_outputs.size(1), 1)
             ), dim=2))
+            if self.strategy_epcl_active:
+                ctx_enc_outputs, _, _ = self.apply_strategy_mop_dr(ctx_enc_outputs)
         else:
             ctx_enc_outputs = self.ctx_merge_lin(torch.cat((
                 enc_outputs, 

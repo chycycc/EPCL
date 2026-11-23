@@ -135,7 +135,9 @@ def compute_prototype_geometry(model):
     """计算原型矩阵的 Gram 有效秩（eff_rank）与非对角平均余弦相似度。"""
     if not hasattr(model, "epcl_criterion") or not hasattr(model.epcl_criterion, "current_prototypes"):
         return None
-    if not getattr(model, "emo_epcl_active", False) or getattr(model, "disable_all_prototypes", False):
+    if not (getattr(model, "emo_epcl_active", False) or getattr(model, "strategy_epcl_active", False)):
+        return None
+    if getattr(model, "disable_all_prototypes", False):
         return None
     with torch.no_grad():
         protos = model.epcl_criterion.current_prototypes.detach().float().cpu()
@@ -188,6 +190,7 @@ def infer_topology_from_checkpoint(ckpt_path):
         "disable_epcl_loss": bool(ckpt.get("disable_epcl_loss", False)) if isinstance(ckpt, dict) else False,
         "disable_all_prototypes": bool(ckpt.get("disable_all_prototypes", False)) if isinstance(ckpt, dict) else False,
         "esconv_enable_emo_epcl": bool(ckpt.get("esconv_enable_emo_epcl", False)) if isinstance(ckpt, dict) else False,
+        "esconv_enable_strategy_epcl": bool(ckpt.get("esconv_enable_strategy_epcl", False)) if isinstance(ckpt, dict) else False,
         "esconv_emo_loss_weight": float(ckpt.get("esconv_emo_loss_weight", 1.0)) if isinstance(ckpt, dict) else 1.0,
     }
 
@@ -235,6 +238,7 @@ def evaluate_single_checkpoint(ckpt_path, role_name, out_dir, data_dir="data", g
     config.disable_epcl_loss = topo["disable_epcl_loss"]
     config.disable_all_prototypes = topo["disable_all_prototypes"]
     config.esconv_enable_emo_epcl = topo["esconv_enable_emo_epcl"]
+    config.esconv_enable_strategy_epcl = topo["esconv_enable_strategy_epcl"]
     config.esconv_emo_loss_weight = topo["esconv_emo_loss_weight"]
     config.use_pcgrad = False
     config.emo_branch_dropout = 0.0
@@ -419,18 +423,23 @@ def paired_t_pvalue(vals_a, vals_b):
 
 
 def compare_arms(arm_dirs, out_path):
-    """汇总 3 臂双 Best 结果并计算两两配对统计显著性检验。"""
+    """汇总多臂双 Best 结果并计算两两配对统计显著性检验。"""
     arms = {}
+    arm_dir_map = {}
     for spec in arm_dirs:
         name, d = spec.split("=", 1)
         d = Path(d)
+        arm_dir_map[name] = d
         comp_j = json.load(open(d / "composite_best_eval_std.json", "r", encoding="utf-8"))
         ppl_j = json.load(open(d / "ppl_best_eval_std.json", "r", encoding="utf-8"))
         arms[name] = {"composite_best": comp_j, "ppl_best": ppl_j}
 
-    def load_samples(json_meta):
+    def load_samples(arm_name, role, json_meta):
+        p = Path(json_meta["per_sample_jsonl"])
+        if not p.exists():
+            p = arm_dir_map[arm_name] / f"{role}_per_sample.jsonl"
         rows = []
-        with open(json_meta["per_sample_jsonl"], "r", encoding="utf-8") as f:
+        with open(p, "r", encoding="utf-8") as f:
             for line in f:
                 rows.append(json.loads(line))
         return rows
@@ -442,8 +451,8 @@ def compare_arms(arm_dirs, out_path):
         for i in range(len(arm_names)):
             for j in range(i + 1, len(arm_names)):
                 a, b = arm_names[i], arm_names[j]
-                ra = load_samples(arms[a][role])
-                rb = load_samples(arms[b][role])
+                ra = load_samples(a, role, arms[a][role])
+                rb = load_samples(b, role, arms[b][role])
                 assert len(ra) == len(rb)
                 pair_key = f"{a}_vs_{b}"
                 role_stats[pair_key] = {
@@ -452,6 +461,10 @@ def compare_arms(arm_dirs, out_path):
                     ),
                     "nll_mean_paired": paired_t_pvalue(
                         [r["nll_mean"] for r in ra], [r["nll_mean"] for r in rb]
+                    ),
+                    "token_nll_sum_paired": paired_t_pvalue(
+                        [r["nll_mean"] * r["target_tokens"] for r in ra],
+                        [r["nll_mean"] * r["target_tokens"] for r in rb],
                     ),
                     "str_ce_paired": paired_t_pvalue(
                         [r["str_ce"] for r in ra], [r["str_ce"] for r in rb]

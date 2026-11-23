@@ -131,6 +131,9 @@ def train(model, train_set, dev_set):
                     writer.add_scalars("emo_acc", {"emo_acc_train": emo_acc}, n_iter)
                     writer.add_scalars("epcl_loss", {"loss_train": epcl_loss}, n_iter)
                     writer.add_scalars("dec_emo_loss", {"loss_train": dec_emo_loss}, n_iter)
+                elif getattr(model, "esconv_enable_strategy_epcl", False):
+                    writer.add_scalars("epcl_loss", {"loss_train": epcl_loss}, n_iter)
+                    writer.add_scalars("dec_str_loss", {"loss_train": dec_emo_loss}, n_iter)
             else:
                 writer.add_scalars("emo_loss", {"loss_train": emo_loss}, n_iter)
                 writer.add_scalars("emo_acc", {"emo_acc_train": emo_acc}, n_iter)
