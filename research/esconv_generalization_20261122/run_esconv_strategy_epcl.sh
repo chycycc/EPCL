@@ -136,16 +136,20 @@ eval_and_package() {
     fi
 
     for ARM in "${TARGET_ARMS[@]}"; do
-        echo "======================================================================"
-        echo "[Eval] 全量 Test (N=1817, batch=1, Greedy + Beam-5): ${ARM}"
-        echo "======================================================================"
-        ${PYTHON_BIN} research/esconv_generalization_20261122/eval_esconv_std.py \
-            --save_dir "save/${ARM}" \
-            --out_dir "save/${ARM}/eval_std" \
-            --data_dir data \
-            --gpu "${GPU_ID}" \
-            --max_dec_step 50 \
-            --lambda_epcl 0.03 2>&1 | tee "logs/${ARM}_eval.log"
+        if [ -s "save/${ARM}/eval_std/composite_best_eval_std.json" ] && [ -s "save/${ARM}/eval_std/ppl_best_eval_std.json" ]; then
+            echo "[Eval] 检测到 ${ARM} 全量双 Best 评测结果已存在，跳过重复评测。"
+        else
+            echo "======================================================================"
+            echo "[Eval] 全量 Test (N=1817, batch=1, Greedy + Beam-5): ${ARM}"
+            echo "======================================================================"
+            ${PYTHON_BIN} research/esconv_generalization_20261122/eval_esconv_std.py \
+                --save_dir "save/${ARM}" \
+                --out_dir "save/${ARM}/eval_std" \
+                --data_dir data \
+                --gpu "${GPU_ID}" \
+                --max_dec_step 50 \
+                --lambda_epcl 0.03 2>&1 | tee "logs/${ARM}_eval.log"
+        fi
 
         mkdir -p "${DOWNLOAD_ROOT}/${ARM}/eval_std"
         cp -f "save/${ARM}/eval_std/"* "${DOWNLOAD_ROOT}/${ARM}/eval_std/"
